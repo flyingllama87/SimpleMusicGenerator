@@ -5,6 +5,12 @@
 #include <stdlib.h>
 #include <fstream>
 #include <cmath>
+#include <map>
+#include <iterator>
+#include <list>
+#include <functional>
+#include <set>
+
 
 #ifndef _WIN32 || _WIN64
 #include <filesystem>
@@ -15,6 +21,7 @@
 #define sampleFmt AUDIO_S16LSB
 #define samplesBufNum 4096 // Must be power of two.  Must be 4096 for LOADWAV. if samplesPerSec is 8000, use 4096.  if samplesPerSec is 48000 use 32768
 const float samplesPerMS = (float)samplesPerSec / 1000.0F;
+const float eightBitSamplesPerMS = samplesPerMS * 2.0;
 
 // Magnitude settings.  Relies on 16 bit ints at the moment.  Should switch to float vals?
 #define fullMag 65535
@@ -45,7 +52,7 @@ static struct songSettings
     {
         this->BPM = 120;
         this->beatsToBar = 4;
-        this->keyFreq = 261.625F;
+        this->keyFreq = 0.0F;
         setLengths();
     }
 
@@ -103,27 +110,26 @@ struct majorKey
 
     float keyFreq = 0.0f;
 
-    float firstInterval = 0.0f;
-    float secondInterval = 0.0f;
-    float thirdInterval = 0.0f;
-    float fourthInterval = 0.0f;
-    float fifthInterval = 0.0f;
-    float sixthInterval = 0.0f;
-    float seventhInterval = 0.0f;
-    float octave = 0.0f;
+    std::map<std::string, float> notes;
+    std::vector<float> freqs;
 
     majorKey(float freq)
     {
         this->keyFreq = freq;
+        
+        notes.insert(std::make_pair("1st", this->keyFreq));
+        notes.insert(std::make_pair("2nd", this->keyFreq * powf(twelthRootOf2, 2.0f)));
+        notes.insert(std::make_pair("3rd", this->keyFreq * powf(twelthRootOf2, 4.0f)));
+        notes.insert(std::make_pair("4th", this->keyFreq * powf(twelthRootOf2, 5.0f)));
+        notes.insert(std::make_pair("5th", this->keyFreq * powf(twelthRootOf2, 7.0f)));
+        notes.insert(std::make_pair("6th", this->keyFreq * powf(twelthRootOf2, 9.0f)));
+        notes.insert(std::make_pair("7th", this->keyFreq * powf(twelthRootOf2, 11.0f)));
+        notes.insert(std::make_pair("8th", this->keyFreq * powf(twelthRootOf2, 12.0f)));
 
-        firstInterval = this->keyFreq;
-        secondInterval = this->keyFreq * powf(twelthRootOf2, 2.0f);
-        thirdInterval = this->keyFreq * powf(twelthRootOf2, 4.0f);
-        fourthInterval = this->keyFreq * powf(twelthRootOf2, 5.0f);
-        fifthInterval = this->keyFreq * powf(twelthRootOf2, 7.0f);
-        sixthInterval = this->keyFreq * powf(twelthRootOf2, 9.0f);
-        seventhInterval = this->keyFreq * powf(twelthRootOf2, 11.0f);
-        octave = this->keyFreq * powf(twelthRootOf2, 12.0f);
+        for (std::map<std::string,float>::iterator it = notes.begin(); it != notes.end(); it++)
+        {
+            freqs.push_back(it->second);
+        }
     }
 };
 
@@ -133,27 +139,26 @@ struct minorKey
 
     float keyFreq = 0.0f;  // Will be overwritten during construction
 
-    float firstInterval = 0.0f;
-    float secondInterval = 0.0f;
-    float thirdInterval = 0.0f;
-    float fourthInterval = 0.0f;
-    float fifthInterval = 0.0f;
-    float sixthInterval = 0.0f;
-    float seventhInterval = 0.0f;
-    float octave = 0.0f;
+    std::map<std::string, float> notes;
+    std::vector<float> freqs;
 
     minorKey(float freq)
     {
         this->keyFreq = freq;
+        
+        notes.insert(std::make_pair("1st", this->keyFreq));
+        notes.insert(std::make_pair("2nd", this->keyFreq * powf(twelthRootOf2, 2.0f)));
+        notes.insert(std::make_pair("3rd", this->keyFreq * powf(twelthRootOf2, 3.0f)));
+        notes.insert(std::make_pair("4th", this->keyFreq * powf(twelthRootOf2, 5.0f)));
+        notes.insert(std::make_pair("5th", this->keyFreq * powf(twelthRootOf2, 7.0f)));
+        notes.insert(std::make_pair("6th", this->keyFreq * powf(twelthRootOf2, 8.0f)));
+        notes.insert(std::make_pair("7th", this->keyFreq * powf(twelthRootOf2, 10.0f)));
+        notes.insert(std::make_pair("8th", this->keyFreq * powf(twelthRootOf2, 12.0f)));
 
-        firstInterval = this->keyFreq;
-        secondInterval = this->keyFreq * powf(twelthRootOf2, 2.0f);
-        thirdInterval = this->keyFreq * powf(twelthRootOf2, 3.0f);
-        fourthInterval = this->keyFreq * powf(twelthRootOf2, 5.0f);
-        fifthInterval = this->keyFreq * powf(twelthRootOf2, 6.0f);
-        sixthInterval = this->keyFreq * powf(twelthRootOf2, 8.0f);
-        seventhInterval = this->keyFreq * powf(twelthRootOf2, 10.0f);
-        octave = this->keyFreq * powf(twelthRootOf2, 12.0f);
+        for (std::map<std::string,float>::iterator it = notes.begin(); it != notes.end(); it++)
+        {
+            freqs.push_back(it->second);
+        }
     }
 };
 
@@ -161,23 +166,31 @@ struct minorKey
 
 static struct Notes
 {
-    // Lead base freqs
-    float const B4Freq = 493.90f;
-    float const A4Freq = 440.0f;
-    float const G4Freq = 392.0f;
-    float const F4Freq = 349.23;
-    float const E4Freq = 329.6f;
-    float const D4Freq = 293.67f;
-    float const C4Freq = 261.623f;
-
-    // Bass base freqs
-    float const B2Freq = 123.47f;
-    float const A2Freq = 110.00f;
-    float const G2Freq = 98.00f;
-    float const F2Freq = 87.31f;
-    float const E2Freq = 82.41f;
-    float const D2Freq = 73.42f;
-    float const C2Freq = 65.41f;
+    const std::vector<std::pair<std::string, float>> KV =
+    {   std::make_pair("B4", 493.90f),
+        std::make_pair("A4", 440.00f),
+        std::make_pair("G4", 392.00f),
+        std::make_pair("F4", 349.23f),
+        std::make_pair("E4", 329.60f),
+        std::make_pair("D4", 293.67f),
+        std::make_pair("C4", 261.62f),
+        std::make_pair("B2", 123.47f),
+        std::make_pair("A2", 110.00f),
+        std::make_pair("G2", 98.00f),
+        std::make_pair("F2", 87.31f),
+        std::make_pair("E2", 82.41f),
+        std::make_pair("D2", 73.42f),
+        std::make_pair("C2", 65.41f)
+    };
+        
+    float getNoteFreq(std::string requestedNote)
+    {
+        //std::find_if (myvector.begin(), myvector.end(), IsOdd);
+        auto it = std::find_if(KV.begin(), KV.end(),
+                               [&requestedNote](const std::pair<std::string, float>& element){ return element.first == requestedNote;}
+        );
+        return it->second;
+    }
 } Notes;
 
 
@@ -194,14 +207,21 @@ void GenMusicStream();
 void AudioPlayer(AudioData audioData);
 
 void DebugGenerators();
+void DebugGeneratorsNew();
 int16_t* Square(float freq, float length, int magnitude);
 int16_t* Sawtooth(float freq, float length, Uint16 magnitude);
 int16_t* Noise(float length, bool lowPitch, int magnitude = halfMag);
 int16_t* SineWave(float freq, float length, Uint16 magnitude);
+void Square(float freq, float length, int magnitude, Uint8 *inBuf);
+void Sawtooth(float freq, float length, Uint16 magnitude, Uint8 *inBuf);
+void Noise(float length, bool lowPitch, Uint8 *inBuf, int magnitude = halfMag);
+void Sine(float freq, float length, Uint16 magnitude, Uint8 *inBuf);
 AudioData Silence(float length);
 
 void FadeIn(int16_t* buffer, int numOfSamples);
 void FadeOut(int16_t* buffer, int numOfSamples);
+void FadeIn(Uint8* buffer, int numOfSamples);
+void FadeOut(Uint8* buffer, int numOfSamples);
 
 void GenDrumBeat(Uint8* drumBuf);
 void TestDrums();
@@ -244,6 +264,7 @@ void Menu()
             "Press c to test wave/noise/effects generators\n"
             "Press d to test drums\n"
             "Press e to play a major scale\n"
+            "Press f to test wave/noise/effect generators with newer, more efficient method\n"
             "Press q to quit\n\nAnswer: ";
 
         char menuInput = std::cin.get();
@@ -258,6 +279,8 @@ void Menu()
             TestDrums();
         else if (menuInput == 'e')
             PlayScale();
+        else if (menuInput == 'f')
+            DebugGeneratorsNew();
         else if (menuInput == 'q')
         {
             SDL_Quit();
@@ -606,13 +629,14 @@ void DebugGenerators()
     c16to8(waveBuffer, waveLength, tempAD.buf);
     AudioPlayer(tempAD);
 
-    // Sine fadeout
+    // Sine + FadeOut
     waveBuffer = SineWave(440, 1000, halfMag);
     FadeOut(waveBuffer, waveLength);
     DumpBuffer(waveBuffer, waveLength, "SineWaveFadeOut.txt");
     c16to8(waveBuffer, waveLength, tempAD.buf);
     AudioPlayer(tempAD);
 
+    // Sine + FadeIn
     waveBuffer = SineWave(440, 1000, halfMag);
     FadeIn(waveBuffer, waveLength);
     DumpBuffer(waveBuffer, waveLength, "SineWaveFadeIn.txt");
@@ -621,11 +645,97 @@ void DebugGenerators()
 
     waveBuffer = SineWave(440, 1000, halfMag);
     FadeOut(waveBuffer, waveLength);
-    DumpBuffer(waveBuffer, waveLength, "SineWaveFadeOut.txt");
     c16to8(waveBuffer, waveLength, tempAD.buf);
     AudioPlayer(tempAD);
 }
 
+
+void DebugGeneratorsNew()
+{
+    Uint32 waveLength = 1000 * samplesPerMS * 2;
+    Uint8* waveBuffer = new Uint8[waveLength]();
+
+    AudioData tempAD;
+    
+    tempAD.length = waveLength;
+    tempAD.buf = new Uint8[tempAD.length];
+    tempAD.buf = waveBuffer;
+
+    // Noise
+    Noise(1000, false, &waveBuffer[0]);
+    DumpBuffer(waveBuffer, waveLength, "Noise.txt");
+    AudioPlayer(tempAD);
+
+    // Sawtooth
+    Sawtooth(440, 1000, halfMag, &waveBuffer[0]);
+    DumpBuffer(waveBuffer, waveLength, "Sawtooth.txt");
+    AudioPlayer(tempAD);
+
+    // Square
+    Square(440, 1000, halfMag, &waveBuffer[0]);
+    DumpBuffer(waveBuffer, waveLength, "Square.txt");
+    AudioPlayer(tempAD);
+
+    // Sine fade in
+    Sine(440, 1000, halfMag, &waveBuffer[0]);
+    FadeIn(&waveBuffer[0], waveLength);
+    DumpBuffer(waveBuffer, waveLength, "SineWaveFadeIn.txt");
+    AudioPlayer(tempAD);
+
+    // Sine
+    Sine(440.0F, 1000, halfMag, &waveBuffer[0]);
+    DumpBuffer(waveBuffer, waveLength, "SineWave.txt");
+    AudioPlayer(tempAD);
+
+    // Sine + FadeOut
+    Sine(440, 1000, halfMag, &waveBuffer[0]);
+    FadeOut(&waveBuffer[0], waveLength);
+    DumpBuffer(waveBuffer, waveLength, "SineWaveFadeOut.txt");
+    AudioPlayer(tempAD);
+
+    // Sine + FadeIn
+    Sine(440, 1000, halfMag, &waveBuffer[0]);
+    FadeIn(&waveBuffer[0], waveLength);
+    AudioPlayer(tempAD);
+
+    // Sine + FadeOut
+    Sine(440, 1000, halfMag, &waveBuffer[0]);
+    FadeOut(&waveBuffer[0], waveLength);
+    AudioPlayer(tempAD);
+}
+
+void Noise(float length, bool lowPitch, Uint8 *inBuf, int magnitude)
+{
+    Uint32 waveLength = samplesPerMS * length * 2;
+    Uint16 halfMagnitude = magnitude / 2;
+
+    if (lowPitch != true)
+    {
+        for (int c = 0; c < waveLength; c+=2)
+        {
+            int16_t noiseVal = (rand() % magnitude) - halfMagnitude;
+            inBuf[c] = noiseVal & 0xFF;
+            inBuf[c + 1] = noiseVal >> 8;
+        }
+    }
+    else
+    {
+        for (int c = 0; c < waveLength; c += 8)
+        {
+            // Should find out how to do proper brownian or pink noise
+            int16_t noiseVal = (rand() % magnitude) - halfMagnitude;
+
+            inBuf[c] = noiseVal & 0xFF;
+            inBuf[c + 1] = noiseVal >> 8;
+            inBuf[c + 2] = noiseVal & 0xFF;
+            inBuf[c + 3] = noiseVal >> 8;
+            inBuf[c + 4] = noiseVal & 0xFF;
+            inBuf[c + 5] = noiseVal >> 8;
+            inBuf[c + 6] = noiseVal & 0xFF;
+            inBuf[c + 7] = noiseVal >> 8;
+        }
+    }
+}
 
 int16_t* Noise(float length, bool lowPitch, int magnitude)
 {
@@ -654,6 +764,23 @@ int16_t* Noise(float length, bool lowPitch, int magnitude)
         }
     }
     return waveBuffer;
+}
+
+void Sawtooth(float freq, float length, Uint16 magnitude, Uint8 *inBuf)
+{
+    Uint32 sawtoothWaveLength = samplesPerMS * length * 2;
+
+    int cycleLength = (samplesPerSec * 2) / freq;
+    float stepVal = (float)magnitude / (float)cycleLength;
+    Uint16 halfMagnitude = magnitude / 2;
+
+    for (int c = 0; c < sawtoothWaveLength; c+=2)
+    {
+        int currentCyclePos = c % cycleLength;
+        int16_t sawVal = ((float)stepVal * (float)currentCyclePos) - halfMagnitude;
+        inBuf[c] = sawVal & 0xFF;
+        inBuf[c + 1] = sawVal >> 8;
+    }
 }
 
 
@@ -701,6 +828,37 @@ int16_t* Square(float freq, float length, int magnitude)
 }
 
 // Expects length in ms
+void Square(float freq, float length, int magnitude, Uint8 *inBuf)
+{
+    //std::cout << "Generating square\n";
+
+    Uint32 squareWaveLength = samplesPerMS * length * 2;
+
+    int changeSignEveryXCycles = (samplesPerSec * 2) / (freq * 2);
+    bool writeHigh = false;
+    Uint16 halfMagnitude = magnitude / 2;
+
+    for (int c = 0; c < squareWaveLength; c+=2)
+    {
+        if (c % changeSignEveryXCycles == 0)
+            writeHigh = !writeHigh;
+
+        if (writeHigh)
+        {
+            int16_t squareVal = halfMagnitude;
+            inBuf[c] = squareVal & 0xFF;
+            inBuf[c + 1] = squareVal >> 8;
+        }
+        else
+        {
+            int16_t squareVal = halfMagnitude * -1;
+            inBuf[c] = squareVal & 0xFF;
+            inBuf[c + 1] = squareVal >> 8;
+        }
+    }
+}
+
+// Expects length in ms
 int16_t* SineWave(float freq, float length, Uint16 magnitude)
 {
     /*std::cout << "In sine func.\n"
@@ -722,6 +880,30 @@ int16_t* SineWave(float freq, float length, Uint16 magnitude)
     }
 
     return sineWaveBuffer;
+}
+
+// Expects length in ms
+void Sine(float freq, float length, Uint16 magnitude, Uint8 *inBuf)
+{
+    /*std::cout << "In sine func.\n"
+        "Requested " << length << " ms of audio.\n"
+        "sWaveLength is " << samplesPerMS * length << "\n";*/
+
+    Uint16 halfMagnitude = magnitude / 2;
+    Uint32 sineWaveLength = samplesPerMS * length * 2;
+    //int16_t* sineWaveBuffer = new int16_t[sineWaveLength];
+
+    float samplesPerCycle = (float)(samplesPerSec * 2) / freq;
+    float radsPerStep = (2.0 * M_PI) / samplesPerCycle;
+
+    // std::cout << "\nsamplesPerCycle: " << samplesPerCycle << "\n";
+
+    for (int c = 0; c < sineWaveLength; c+=2)
+    {
+        int16_t sineVal = (sin((float)c * radsPerStep)) * halfMagnitude;
+        inBuf[c] = sineVal & 0xFF;
+        inBuf[c + 1] = sineVal >> 8;
+    }
 }
 
 // Expects length in ms
@@ -800,6 +982,36 @@ void FadeIn(int16_t* buffer, int numOfSamples)
     }
 }
 
+// Expects length in total number of 16 bit samples.
+void FadeOut(Uint8* buffer, int numOfSamples)
+{
+    int numOf8BitSamples = numOfSamples * 2;
+    for (int c = 0; c < numOf8BitSamples; c+=2)
+    {
+        // Use the next line to calculate how much we need to reduce the signal by
+        float cycleLengthRatio = (float)(numOfSamples - c) / (float)numOfSamples;
+        // Convert the input buffer to 16 bit, apply the fade to the current value and convert back to 8 bit buffer
+        int16_t bufCurVal16 = (int16_t)(((buffer[c+1] & 0xFF) << 8) | (buffer[c] & 0xFF));
+        bufCurVal16 = (int16_t)((float)bufCurVal16 * cycleLengthRatio);
+        buffer[c] = bufCurVal16 & 0xFF;
+        buffer[c + 1] = bufCurVal16 >> 8;
+    }
+}
+
+// Expects length in total number of 16 bit samples.
+void FadeIn(Uint8* buffer, int numOfSamples)
+{
+    int numOf8BitSamples = numOfSamples * 2;
+    for (int c = 0; c < numOf8BitSamples; c+=2)
+    {
+        float cycleLengthRatio = (float)c / (float)numOfSamples;
+        // Convert the input buffer to 16 bit, apply the fade to the current value and convert back to 8 bit buffer
+        int16_t bufCurVal16 = (int16_t)(((buffer[c+1] & 0xFF) << 8) | (buffer[c] & 0xFF));
+        bufCurVal16 = (int16_t)((float)bufCurVal16 * cycleLengthRatio);
+        buffer[c] = bufCurVal16 & 0xFF;
+        buffer[c + 1] = bufCurVal16 >> 8;
+    }
+}
 
 
 // Drums
@@ -949,7 +1161,7 @@ void PlayScale()
     int c;
     while ((c = getchar()) != '\n' && c != EOF) {}
 
-    std::string strInputFreq;
+    std::string strInputNoteName;
     float fInputFreq;
     AudioData scale;
 
@@ -962,63 +1174,48 @@ void PlayScale()
     Uint8* scaleBuf = new Uint8[bufLen];
 
     // Temporary buffer for notes in 16-bit format... Need to find a better way to do this!!
-    int tempBufLen16 = songSettings.noteLenMS * samplesPerMS;
+    int tempBufLen16 = songSettings.noteLenMS * samplesPerMS * 2;
     int16_t* tempBuf16 = new int16_t[tempBufLen16];
-
-    while (true)
+    
+    for (auto note = Notes.KV.begin(); note != Notes.KV.end(); note++)
     {
-        std::cout << "\n\nType in the frequency of the base scale note & press enter: ";
-        std::getline(std::cin, strInputFreq);
-        //std::cin >> strInputFreq >> std::ws;
-        if (is_float_number(strInputFreq))
-            break;
+        std::cout << note->first << "\n";
     }
-
-    fInputFreq = std::stof(strInputFreq);
+    
+    std::cout << "\n\nType in the base note name & press enter: ";
+    std::getline(std::cin, strInputNoteName);
+    
+    fInputFreq = Notes.getNoteFreq(strInputNoteName);
+    if (strInputNoteName == Notes.KV.end()->first)
+        std::cout << "\nReceived default note.  Was your input correct?\n";
 
     auto key = majorKey(fInputFreq);
+   
+    int noteLen = songSettings.noteLenMS * samplesPerMS * 2;
 
-    tempBuf16 = SineWave(key.firstInterval, songSettings.noteLenMS, halfMag);
-    memcpy(&scaleBuf16[0], tempBuf16, tempBufLen16 * sizeof(int16_t));
-    DumpBuffer(scaleBuf16, tempBufLen16, "note.txt");
-
-    tempBuf16 = SineWave(key.secondInterval, songSettings.noteLenMS, halfMag);
-    memcpy(&scaleBuf16[tempBufLen16], tempBuf16, tempBufLen16 * sizeof(int16_t));
-
-    tempBuf16 = SineWave(key.thirdInterval, songSettings.noteLenMS, halfMag);
-    memcpy(&scaleBuf16[tempBufLen16 * 2], tempBuf16, tempBufLen16 * sizeof(int16_t));
-
-    tempBuf16 = SineWave(key.fourthInterval, songSettings.noteLenMS, halfMag);
-    memcpy(&scaleBuf16[tempBufLen16 * 3], tempBuf16, tempBufLen16 * sizeof(int16_t));
-
-    tempBuf16 = SineWave(key.fifthInterval, songSettings.noteLenMS, halfMag);
-    memcpy(&scaleBuf16[tempBufLen16 * 4], tempBuf16, tempBufLen16 * sizeof(int16_t));
-
-    tempBuf16 = SineWave(key.sixthInterval, songSettings.noteLenMS, halfMag);
-    memcpy(&scaleBuf16[tempBufLen16 * 5], tempBuf16, tempBufLen16 * sizeof(int16_t));
-
-    tempBuf16 = SineWave(key.seventhInterval, songSettings.noteLenMS, halfMag);
-    memcpy(&scaleBuf16[tempBufLen16 * 6], tempBuf16, tempBufLen16 * sizeof(int16_t));
-
-    tempBuf16 = SineWave(key.octave, songSettings.noteLenMS, halfMag);
-    memcpy(&scaleBuf16[tempBufLen16 * 7], tempBuf16, tempBufLen16 * sizeof(int16_t));
-
-    DumpBuffer(scaleBuf16, bufLen16, "scaleWave16.txt");
-    c16to8(scaleBuf16, bufLen16, scaleBuf);
-
+    Sine(key.notes["1st"], songSettings.noteLenMS, halfMag, &scaleBuf[0]);
+    Sine(key.notes["2nd"], songSettings.noteLenMS, halfMag, &scaleBuf[noteLen]);
+    Sine(key.notes["3rd"], songSettings.noteLenMS, halfMag, &scaleBuf[noteLen * 2]);
+    Sine(key.notes["4th"], songSettings.noteLenMS, halfMag, &scaleBuf[noteLen * 3]);
+    Sine(key.notes["5th"], songSettings.noteLenMS, halfMag, &scaleBuf[noteLen * 4]);
+    Sine(key.notes["6th"], songSettings.noteLenMS, halfMag, &scaleBuf[noteLen * 5]);
+    Sine(key.notes["7th"], songSettings.noteLenMS, halfMag, &scaleBuf[noteLen * 6]);
+    Sine(key.notes["8th"], songSettings.noteLenMS, halfMag, &scaleBuf[noteLen * 7]);
+     
+    DumpBuffer(scaleBuf, bufLen, "newSine.txt");
+    
     scale.buf = scaleBuf;
     scale.length = bufLen;
 
     AudioPlayer(scale);
+    
+    std::map<std::string, float>::iterator note = key.notes.begin();
+    while (note != key.notes.end())
+    {
+        std::cout << "\nFreq of note " << note->first << " is " << note->second;
+        note++;
+    }
 
-    std::cout << "\nFreq of note 1: " << key.firstInterval;
-    std::cout << "\nFreq of note 2: " << key.secondInterval;
-    std::cout << "\nFreq of note 3: " << key.thirdInterval;
-    std::cout << "\nFreq of note 4: " << key.fourthInterval;
-    std::cout << "\nFreq of note 5: " << key.fifthInterval;
-    std::cout << "\nFreq of note 6: " << key.sixthInterval;
-    std::cout << "\nFreq of note 7: " << key.seventhInterval;
-    std::cout << "\nFreq of note 8: " << key.octave;
 }
 
 bool is_float_number(const std::string& s)
