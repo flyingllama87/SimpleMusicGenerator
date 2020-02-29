@@ -79,7 +79,7 @@ void DebugGeneratorsNew()
     AudioData tempAD;
     
     tempAD.length = waveLength;
-    tempAD.buf = new Uint8[tempAD.length];
+    //tempAD.buf = new Uint8[tempAD.length];
     tempAD.buf = waveBuffer;
 
     // Noise

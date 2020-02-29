@@ -49,7 +49,7 @@ void SetupAudio(bool callback)
 // len is number of bytes not number of samples requested.
 void GenAudioStream(void* userdata, Uint8* stream, int len)
 {
-        /*
+        
     int noOfSamplesRequested = len / 2;
 
     std::cout << "No. of bytes requested: " << len << "\nLength of audio requested (ms): " << noOfSamplesRequested / samplesPerMS << "\n";
@@ -58,8 +58,9 @@ void GenAudioStream(void* userdata, Uint8* stream, int len)
     std::cout << "\nIn gen func.\n"
     "No of samples requested: " << noOfSamplesRequested << ".\n"
     "Samples per ms: " << samplesPerMS << ".\n"
-    "ms of audio requested: " << (float)noOfSamplesRequested / samplesPerMS << "\n\n";
-     */
+    "ms of audio requested: " << (float)noOfSamplesRequested / samplesPerMS << "\n";
+    std::cout << "internalAudioBuffer.pos: " << internalAudioBuffer.pos << "\n\n";
+
 
     int bytesTillIntBufEnd = internalAudioBuffer.length - internalAudioBuffer.pos;
 
@@ -104,9 +105,69 @@ void GenMusicStream()
     Uint8* drumBuf = new Uint8[internalAudioBuffer.length] ();
     GenDrumBeat(drumBuf);
 
+    Uint8* bassBuf = new Uint8[internalAudioBuffer.length] ();
+    GenBassTrack(bassBuf);
+
+    internalAudioBuffer.pos = 0;
+
+
     SDL_MixAudioFormat(internalAudioBuffer.buf, drumBuf, sampleFmt, internalAudioBuffer.length, SDL_MIX_MAXVOLUME);
+    SDL_MixAudioFormat(internalAudioBuffer.buf, bassBuf, sampleFmt, internalAudioBuffer.length, SDL_MIX_MAXVOLUME);
+
     delete[] drumBuf;
+    delete[] bassBuf;
+
 }
+
+
+void GenBassTrack(Uint8* bassBuf)
+{
+    auto key = majorKey(Notes.getNoteFreq("C2"));
+
+    int beatCount = 1;
+    int barCount = 1;
+
+    int pickRandBassPattern = rand() % 1;
+    std::cout << "\nPlaying bass pattern: " << pickRandBassPattern << "\n";
+
+    switch (pickRandBassPattern) {
+    case 0:
+    {
+        for (int c = 0; c < internalAudioBuffer.length; c += (songSettings.noteLenMS * samplesPerMS))
+        {
+            int chooseNote = rand() % 8;
+            float noteFreq = key.freqs[chooseNote];
+            Sawtooth(noteFreq, songSettings.halfNoteLenMS, qtrMag, &bassBuf[c]);
+            /*
+            if (beatCount == 1 || beatCount == 2)
+                memcpy(&drumBuf[c], kick.buf, kick.length);
+            else if (beatCount == 3 || beatCount == 4 || beatCount == 7)
+                memcpy(&drumBuf[c], hihat.buf, hihat.length);
+            else if (beatCount == 5 || beatCount == 6)
+                memcpy(&drumBuf[c], snare.buf, snare.length);
+            else
+            {
+                memcpy(&drumBuf[c], hihat.buf, hihat.length);
+                beatCount = 0;
+                barCount++;
+            }*/
+            if (beatCount == 4)
+            {
+                beatCount = 0;
+                barCount++;
+            }
+            beatCount++;
+        }
+        break;
+    }
+    default:
+        break;
+    }
+
+  
+    //DumpBuffer(drumBuf, internalAudioBuffer.length, "BassBuffer,txt");
+}
+
 
 
 void PlayScale()

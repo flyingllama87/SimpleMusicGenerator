@@ -22,13 +22,10 @@
 #include <filesystem>
 #endif
 
-// Enable this to get a message everytime a destructor is called
-#define TRACK_DEALLOC 1
-
-#define samplesPerSec 48000
+#define samplesPerSec 8000
 #define numChannels 1
 #define sampleFmt AUDIO_S16LSB
-#define samplesBufNum 32768 // Must be power of two.  Must be 4096 for LOADWAV. if samplesPerSec is 8000, use 4096.  if samplesPerSec is 48000 use 32768
+#define samplesBufNum 4096 // Must be power of two.  Must be 4096 for LOADWAV. if samplesPerSec is 8000, use 4096.  if samplesPerSec is 48000 use 32768
 
 const float samplesPerMS = (float)samplesPerSec / 1000.0F;
 const float eightBitSamplesPerMS = samplesPerMS * 2.0;
@@ -82,6 +79,8 @@ void TestDrums();
 AudioData GiveKick();
 AudioData GiveHihat();
 AudioData GiveSnare();
+
+void GenBassTrack(Uint8* bassBuf);
 
 void PlayScale();
 

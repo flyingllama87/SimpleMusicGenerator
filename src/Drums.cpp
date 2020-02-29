@@ -170,7 +170,6 @@ void GenDrumBeat(Uint8 *drumBuf)
         break;
     }
 
-    internalAudioBuffer.pos = 0;
     //DumpBuffer(drumBuf, internalAudioBuffer.length, "testBuffer,txt");
 }
 
