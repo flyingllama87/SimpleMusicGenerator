@@ -23,13 +23,15 @@
 #include <filesystem>
 #endif
 
+#define DEBUG 1
+
 #define samplesPerSec 8000
 #define numChannels 1
 #define sampleFmt AUDIO_S16LSB
 #define samplesBufNum 4096 // Must be power of two.  Must be 4096 for LOADWAV. if samplesPerSec is 8000, use 4096.  if samplesPerSec is 48000 use 32768
 
 const float samplesPerMS = (float)samplesPerSec / 1000.0F;
-const float eightBitSamplesPerMS = samplesPerMS * 2.0;
+const float bytesPerMS = samplesPerMS * 2.0;
 
 // Magnitude settings.  Relies on 16 bit ints at the moment.  Should switch to float vals?
 #define fullMag 65535
@@ -85,9 +87,6 @@ void GenBassTrack(Uint8* bassBuf);
 
 void PlayScale();
 
-bool is_float_number(const std::string& s);
-
-
 // Structs
 
 struct audioSettings
@@ -103,10 +102,14 @@ struct songSettings
     int beatsToBar;
     int barsPerMin;
     int barLenMS; // bar length in ms.
-    int noteLenMS; // Get noteLength in ms. 60000 = 1 min in milliseconds.
-    int halfNoteLenMS;
-    int quarterNoteLenMS;
-    int eighthNoteLenMS;
+    float noteLenMS; // Get noteLength in ms. 60000 = 1 min in milliseconds.
+    float halfNoteLenMS;
+    float qtrNoteLenMS;
+    float eighthNoteLenMS;
+	float noteLenBytes;
+	float halfNoteLenBytes;
+	float qtrNoteLenBytes;
+	float eighthNoteLenBytes;
     float keyFreq; // Middle C
 
     AudioData kickSound;
@@ -115,7 +118,7 @@ struct songSettings
 
     songSettings()
     {
-        this->BPM = 120;
+        this->BPM = 240;
         this->beatsToBar = 4;
         this->keyFreq = 0.0F;
         init();
@@ -136,8 +139,12 @@ struct songSettings
         this->barLenMS = 60000 / barsPerMin; // bar length in ms.
         this->noteLenMS = 60000 / BPM; // Get noteLength in ms. 60000 = 1 min in milliseconds.
         this->halfNoteLenMS = noteLenMS / 2;
-        this->quarterNoteLenMS = noteLenMS / 4;
+        this->qtrNoteLenMS = noteLenMS / 4;
         this->eighthNoteLenMS = noteLenMS / 8;
+		this->noteLenBytes = noteLenMS * bytesPerMS;
+		this->halfNoteLenBytes = halfNoteLenMS * bytesPerMS;
+		this->qtrNoteLenBytes = qtrNoteLenMS * bytesPerMS;
+		this->eighthNoteLenBytes = eighthNoteLenMS * bytesPerMS;
 
         // set drum sounds
         this->kickSound = GiveKick();
@@ -167,64 +174,6 @@ struct AudioData16
 {
     Uint32 length = 0;
     int16_t* buf;
-};
-
-struct majorKey
-{
-    const float twelthRootOf2 = powf(2.0f, 1.0f / 12.0f);
-
-    float keyFreq = 0.0f;
-
-    std::map<std::string, float> notes;
-    std::vector<float> freqs;
-
-    majorKey(float freq)
-    {
-        this->keyFreq = freq;
-        
-        notes.insert(std::make_pair("1st", this->keyFreq));
-        notes.insert(std::make_pair("2nd", this->keyFreq * powf(twelthRootOf2, 2.0f)));
-        notes.insert(std::make_pair("3rd", this->keyFreq * powf(twelthRootOf2, 4.0f)));
-        notes.insert(std::make_pair("4th", this->keyFreq * powf(twelthRootOf2, 5.0f)));
-        notes.insert(std::make_pair("5th", this->keyFreq * powf(twelthRootOf2, 7.0f)));
-        notes.insert(std::make_pair("6th", this->keyFreq * powf(twelthRootOf2, 9.0f)));
-        notes.insert(std::make_pair("7th", this->keyFreq * powf(twelthRootOf2, 11.0f)));
-        notes.insert(std::make_pair("8th", this->keyFreq * powf(twelthRootOf2, 12.0f)));
-
-        for (std::map<std::string,float>::iterator it = notes.begin(); it != notes.end(); it++)
-        {
-            freqs.push_back(it->second);
-        }
-    }
-};
-
-struct minorKey
-{
-    const float twelthRootOf2 = powf(2.0f, 1.0f / 12.0f);
-
-    float keyFreq = 0.0f;  // Will be overwritten during construction
-
-    std::map<std::string, float> notes;
-    std::vector<float> freqs;
-
-    minorKey(float freq)
-    {
-        this->keyFreq = freq;
-        
-        notes.insert(std::make_pair("1st", this->keyFreq));
-        notes.insert(std::make_pair("2nd", this->keyFreq * powf(twelthRootOf2, 2.0f)));
-        notes.insert(std::make_pair("3rd", this->keyFreq * powf(twelthRootOf2, 3.0f)));
-        notes.insert(std::make_pair("4th", this->keyFreq * powf(twelthRootOf2, 5.0f)));
-        notes.insert(std::make_pair("5th", this->keyFreq * powf(twelthRootOf2, 7.0f)));
-        notes.insert(std::make_pair("6th", this->keyFreq * powf(twelthRootOf2, 8.0f)));
-        notes.insert(std::make_pair("7th", this->keyFreq * powf(twelthRootOf2, 10.0f)));
-        notes.insert(std::make_pair("8th", this->keyFreq * powf(twelthRootOf2, 12.0f)));
-
-        for (std::map<std::string,float>::iterator it = notes.begin(); it != notes.end(); it++)
-        {
-            freqs.push_back(it->second);
-        }
-    }
 };
 
 // enums

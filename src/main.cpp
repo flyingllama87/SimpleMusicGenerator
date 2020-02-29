@@ -15,6 +15,10 @@ int main(int argc, char* argv[])
 
     std::cout << "BPM: " << songSettings.BPM << "\n";
     std::cout << "noteLength(ms): " << songSettings.noteLenMS << "\n";
+#ifdef DEBUG
+	std::cout << "songSettings.barLenMS: " << songSettings.barLenMS << "\n";
+	std::cout << "beatsToBar: " << songSettings.beatsToBar << "\n";
+#endif
 
     Menu();
 
