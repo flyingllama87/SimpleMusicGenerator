@@ -22,6 +22,8 @@
 #include <filesystem>
 #endif
 
+// Enable this to get a message everytime a destructor is called
+#define TRACK_DEALLOC 1
 
 #define samplesPerSec 8000
 #define numChannels 1
@@ -35,6 +37,56 @@ const float eightBitSamplesPerMS = samplesPerMS * 2.0;
 #define fullMag 65535
 #define halfMag 32767
 #define qtrMag 16383
+
+// This struct needs to be at the top for reasons
+
+struct AudioData
+{
+    Uint32 length = 0;
+    Uint8* buf;
+};
+
+// Functions
+
+// Func prototypes
+
+void Menu();
+void SetupAudio(bool callback = false);
+void DumpBuffer(int16_t* wavBuffer, int length, std::string fileName);
+void DumpBuffer(Uint8* wavBuffer, int length, std::string fileName);
+void c16to8(int16_t* inBuf, int len, Uint8* outBuf);
+void GenAudioStream(void* userdata, Uint8* stream, int len);
+void GenMusicStream();
+
+void AudioPlayer(AudioData audioData);
+
+void DebugGenerators();
+void DebugGeneratorsNew();
+int16_t* Square(float freq, float length, int magnitude);
+int16_t* Sawtooth(float freq, float length, Uint16 magnitude);
+int16_t* Noise(float length, bool lowPitch, int magnitude = halfMag);
+int16_t* SineWave(float freq, float length, Uint16 magnitude);
+void Square(float freq, float length, int magnitude, Uint8* inBuf);
+void Sawtooth(float freq, float length, Uint16 magnitude, Uint8* inBuf);
+void Noise(float length, bool lowPitch, Uint8* inBuf, int magnitude = halfMag);
+void Sine(float freq, float length, Uint16 magnitude, Uint8* inBuf);
+AudioData Silence(float length);
+
+void FadeIn(int16_t* buffer, int numOfSamples);
+void FadeOut(int16_t* buffer, int numOfSamples);
+void FadeIn(Uint8* buffer, int numOfSamples);
+void FadeOut(Uint8* buffer, int numOfSamples);
+
+void GenDrumBeat(Uint8* drumBuf);
+void TestDrums();
+AudioData GiveKick();
+AudioData GiveHihat();
+AudioData GiveSnare();
+
+void PlayScale();
+
+bool is_float_number(const std::string& s);
+
 
 // Structs
 
@@ -57,12 +109,16 @@ struct songSettings
     int eighthNoteLenMS;
     float keyFreq; // Middle C
 
+    AudioData kickSound;
+    AudioData snareSound;
+    AudioData hihatSound;
+
     songSettings()
     {
         this->BPM = 120;
         this->beatsToBar = 4;
         this->keyFreq = 0.0F;
-        setLengths();
+        init();
     }
 
     songSettings(Uint8 bpm, Uint8 beatsToBar, float keyFreq)
@@ -70,17 +126,23 @@ struct songSettings
         this->BPM = bpm;
         this->beatsToBar = beatsToBar;
         this->keyFreq = keyFreq;
-        setLengths();
+        init();
     }
 
-    void setLengths()
+    void init()
     {
+        //set lengths
         this->barsPerMin = BPM / beatsToBar;
         this->barLenMS = 60000 / barsPerMin; // bar length in ms.
         this->noteLenMS = 60000 / BPM; // Get noteLength in ms. 60000 = 1 min in milliseconds.
         this->halfNoteLenMS = noteLenMS / 2;
         this->quarterNoteLenMS = noteLenMS / 4;
         this->eighthNoteLenMS = noteLenMS / 8;
+
+        // set drum sounds
+        this->kickSound = GiveKick();
+        this->snareSound = GiveSnare();
+        this->hihatSound = GiveHihat();
     }
 
 };
@@ -100,13 +162,6 @@ struct internalAudioBuffer
     }
 };
 extern internalAudioBuffer internalAudioBuffer;
-
-
-struct AudioData
-{
-    Uint32 length = 0;
-    Uint8* buf;
-};
 
 struct AudioData16
 {
@@ -203,42 +258,3 @@ static struct Notes
     }
 } Notes;
 
-
-// Func prototypes
-
-void Menu();
-void SetupAudio(bool callback = false);
-void DumpBuffer(int16_t* wavBuffer, float length, std::string fileName);
-void DumpBuffer(Uint8* wavBuffer, float length, std::string fileName);
-void c16to8(int16_t* inBuf, int len, Uint8* outBuf);
-void GenAudioStream(void* userdata, Uint8* stream, int len);
-void GenMusicStream();
-
-void AudioPlayer(AudioData audioData);
-
-void DebugGenerators();
-void DebugGeneratorsNew();
-int16_t* Square(float freq, float length, int magnitude);
-int16_t* Sawtooth(float freq, float length, Uint16 magnitude);
-int16_t* Noise(float length, bool lowPitch, int magnitude = halfMag);
-int16_t* SineWave(float freq, float length, Uint16 magnitude);
-void Square(float freq, float length, int magnitude, Uint8 *inBuf);
-void Sawtooth(float freq, float length, Uint16 magnitude, Uint8 *inBuf);
-void Noise(float length, bool lowPitch, Uint8 *inBuf, int magnitude = halfMag);
-void Sine(float freq, float length, Uint16 magnitude, Uint8 *inBuf);
-AudioData Silence(float length);
-
-void FadeIn(int16_t* buffer, int numOfSamples);
-void FadeOut(int16_t* buffer, int numOfSamples);
-void FadeIn(Uint8* buffer, int numOfSamples);
-void FadeOut(Uint8* buffer, int numOfSamples);
-
-void GenDrumBeat(Uint8* drumBuf);
-void TestDrums();
-AudioData GiveKick();
-AudioData GiveHihat();
-AudioData GiveSnare();
-
-void PlayScale();
-
-bool is_float_number(const std::string& s);

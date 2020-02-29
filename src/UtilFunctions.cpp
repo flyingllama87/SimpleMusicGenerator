@@ -21,14 +21,12 @@ void c16to8(int16_t* inBuf, int len, Uint8* outBuf)
     }
 }
 
-
-void DumpBuffer(Uint8* wavBuffer, float length, std::string fileName)
+void DumpBuffer(Uint8* wavBuffer, int length, std::string fileName)
 {
-    std::ofstream waveBufferFile;
-    waveBufferFile.open(fileName);
+    std::ofstream waveBufferFile(fileName.c_str(), std::ios::out | std::ios::binary);
     for (int c = 0; c < length; c++)
     {
-        waveBufferFile << wavBuffer[c];
+        waveBufferFile.write(reinterpret_cast<const char*>(&wavBuffer[c]), sizeof wavBuffer[c]);
     }
     waveBufferFile.close();
 
@@ -37,10 +35,10 @@ void DumpBuffer(Uint8* wavBuffer, float length, std::string fileName)
 #endif
 }
 
-void DumpBuffer(int16_t* wavBuffer, float length, std::string fileName)
+void DumpBuffer(int16_t* wavBuffer, int length, std::string fileName)
 {
     std::ofstream waveBufferFile(fileName.c_str(), std::ios::out | std::ios::binary);
-    for (int c = 0; c < (length); c++)
+    for (int c = 0; c < length; c++)
     {
         waveBufferFile.write(reinterpret_cast<const char*>(&wavBuffer[c]), sizeof wavBuffer[c]);
     }

@@ -11,9 +11,9 @@
 
 void GenDrumBeat(Uint8 *drumBuf)
 {
-    AudioData kick = GiveKick();
-    AudioData hihat = GiveHihat();
-    AudioData snare = GiveSnare();
+    AudioData kick = songSettings.kickSound;
+    AudioData hihat = songSettings.hihatSound;
+    AudioData snare = songSettings.snareSound;
 
     //std::fill_n(drumBuf, internalAudioBuffer.length, 0);
 
@@ -204,6 +204,8 @@ void TestDrums()
     AudioPlayer(snare);
 
     DumpBuffer(snare.buf, snare.length, "snare.txt");
+
+
 }
 
 AudioData GiveKick()

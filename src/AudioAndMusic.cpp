@@ -198,3 +198,4 @@ void PlayWAV(std::string fileName)
     SDL_PauseAudioDevice(audioSettings.device, 0);
 
 }
+

@@ -19,7 +19,6 @@ void DebugGenerators()
     tempAD.length = 1000 * samplesPerMS * 2; // Dbl for 8 bit
     tempAD.buf = new Uint8[tempAD.length];
 
-
     // Noise
     waveBuffer = Noise(1000, false);
     DumpBuffer(waveBuffer, waveLength, "Noise.txt");
@@ -312,9 +311,10 @@ void Sine(float freq, float length, Uint16 magnitude, Uint8 *inBuf)
         "sWaveLength is " << samplesPerMS * length << "\n";*/
 
     Uint16 halfMagnitude = magnitude / 2;
+    // How many total bytes we need to generate values for:
     Uint32 sineWaveLength = samplesPerMS * length * 2;
-    //int16_t* sineWaveBuffer = new int16_t[sineWaveLength];
 
+    // Samples per sine cycle:
     float samplesPerCycle = (float)(samplesPerSec * 2) / freq;
     float radsPerStep = (2.0 * M_PI) / samplesPerCycle;
 
