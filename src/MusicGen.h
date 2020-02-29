@@ -17,6 +17,7 @@
 #include <iterator>
 #include <list>
 #include <functional>
+#include <algorithm>
 
 #ifndef _WIN32 || _WIN64
 #include <filesystem>
@@ -114,7 +115,7 @@ struct songSettings
 
     songSettings()
     {
-        this->BPM = 120;
+        this->BPM = 60;
         this->beatsToBar = 4;
         this->keyFreq = 0.0F;
         init();
@@ -155,7 +156,7 @@ struct internalAudioBuffer
 
     internalAudioBuffer()
     {
-        length = songSettings.barLenMS * 4 * samplesPerMS;
+        length = songSettings.barLenMS * 4 * samplesPerMS * 2; // 4 bars, x2 for bytes
         pos = -1;
         buf = new Uint8[length]();
     }

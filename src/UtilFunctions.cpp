@@ -49,9 +49,3 @@ void DumpBuffer(int16_t* wavBuffer, int length, std::string fileName)
 #endif
 }
 
-bool is_float_number(const std::string& s)
-{
-    std::string::const_iterator it = s.begin();
-    while (it != s.end() && (std::isdigit(*it) || *it == '.' )) ++it;
-    return !s.empty() && it == s.end();
-}

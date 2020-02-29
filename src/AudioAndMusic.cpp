@@ -49,18 +49,19 @@ void SetupAudio(bool callback)
 // len is number of bytes not number of samples requested.
 void GenAudioStream(void* userdata, Uint8* stream, int len)
 {
-        
+    /*
     int noOfSamplesRequested = len / 2;
 
     std::cout << "No. of bytes requested: " << len << "\nLength of audio requested (ms): " << noOfSamplesRequested / samplesPerMS << "\n";
     std::cout << "No. of samples requested: " << len / sizeof(int16_t) << "\n";
     
+	
     std::cout << "\nIn gen func.\n"
     "No of samples requested: " << noOfSamplesRequested << ".\n"
     "Samples per ms: " << samplesPerMS << ".\n"
     "ms of audio requested: " << (float)noOfSamplesRequested / samplesPerMS << "\n";
     std::cout << "internalAudioBuffer.pos: " << internalAudioBuffer.pos << "\n\n";
-
+	*/
 
     int bytesTillIntBufEnd = internalAudioBuffer.length - internalAudioBuffer.pos;
 
@@ -133,7 +134,7 @@ void GenBassTrack(Uint8* bassBuf)
     switch (pickRandBassPattern) {
     case 0:
     {
-        for (int c = 0; c < internalAudioBuffer.length; c += (songSettings.noteLenMS * samplesPerMS))
+        for (int c = 0; c < internalAudioBuffer.length; c += (songSettings.halfNoteLenMS * samplesPerMS * 2)) // 8 beats
         {
             int chooseNote = rand() % 8;
             float noteFreq = key.freqs[chooseNote];
@@ -151,7 +152,13 @@ void GenBassTrack(Uint8* bassBuf)
                 beatCount = 0;
                 barCount++;
             }*/
-            if (beatCount == 4)
+
+			std::cout << "songSettings.noteLenMS * samplesPerMS: " << songSettings.noteLenMS * samplesPerMS << "\n";
+			std::cout << "internalAudioBuffer.length: " << internalAudioBuffer.length << "\n";
+			std::cout << "songSettings.noteLenMS: " << songSettings.noteLenMS << "\n";
+			std::cout << "c: " << c << "\n";
+
+            if (beatCount == 8)
             {
                 beatCount = 0;
                 barCount++;
