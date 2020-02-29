@@ -194,30 +194,11 @@ void GenBassTrack(Uint8* bassBuf)
     switch (pickRandBassPattern) {
     case 0: // random through out, 8 halfnotes
     {
-        for (int c = 0; c < internalAudioBuffer.length; c += (songSettings.halfNoteLenBytes)) // 8 beats
+        for (int c = 0; c < internalAudioBuffer.length; c += (songSettings.halfNoteLenBytes)) // 8 notes to bar
         {
             int chooseNote = rand() % 8;
             float noteFreq = key.freqs[chooseNote];
             Sawtooth(noteFreq, songSettings.halfNoteLenMS, qtrMag, &bassBuf[c]);
-            /*
-            if (beatCount == 1 || beatCount == 2)
-                memcpy(&drumBuf[c], kick.buf, kick.length);
-            else if (beatCount == 3 || beatCount == 4 || beatCount == 7)
-                memcpy(&drumBuf[c], hihat.buf, hihat.length);
-            else if (beatCount == 5 || beatCount == 6)
-                memcpy(&drumBuf[c], snare.buf, snare.length);
-            else
-            {
-                memcpy(&drumBuf[c], hihat.buf, hihat.length);
-                beatCount = 0;
-                barCount++;
-            }
-
-			std::cout << "songSettings.noteLenMS * samplesPerMS: " << songSettings.noteLenMS * samplesPerMS << "\n";
-			std::cout << "internalAudioBuffer.length: " << internalAudioBuffer.length << "\n";
-			std::cout << "songSettings.noteLenMS: " << songSettings.noteLenMS << "\n";
-			std::cout << "c: " << c << "\n";
-			*/
 
             if (beatCount == 8)
             {
