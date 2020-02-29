@@ -25,10 +25,10 @@
 // Enable this to get a message everytime a destructor is called
 #define TRACK_DEALLOC 1
 
-#define samplesPerSec 8000
+#define samplesPerSec 48000
 #define numChannels 1
 #define sampleFmt AUDIO_S16LSB
-#define samplesBufNum 4096 // Must be power of two.  Must be 4096 for LOADWAV. if samplesPerSec is 8000, use 4096.  if samplesPerSec is 48000 use 32768
+#define samplesBufNum 32768 // Must be power of two.  Must be 4096 for LOADWAV. if samplesPerSec is 8000, use 4096.  if samplesPerSec is 48000 use 32768
 
 const float samplesPerMS = (float)samplesPerSec / 1000.0F;
 const float eightBitSamplesPerMS = samplesPerMS * 2.0;
@@ -66,10 +66,10 @@ int16_t* Square(float freq, float length, int magnitude);
 int16_t* Sawtooth(float freq, float length, Uint16 magnitude);
 int16_t* Noise(float length, bool lowPitch, int magnitude = halfMag);
 int16_t* SineWave(float freq, float length, Uint16 magnitude);
-void Square(float freq, float length, int magnitude, Uint8* inBuf);
-void Sawtooth(float freq, float length, Uint16 magnitude, Uint8* inBuf);
+void Square(float freq, int length, int magnitude, Uint8* inBuf);
+void Sawtooth(float freq, int length, Uint16 magnitude, Uint8* inBuf);
 void Noise(float length, bool lowPitch, Uint8* inBuf, int magnitude = halfMag);
-void Sine(float freq, float length, Uint16 magnitude, Uint8* inBuf);
+void Sine(float freq, int length, Uint16 magnitude, Uint8* inBuf);
 AudioData Silence(float length);
 
 void FadeIn(int16_t* buffer, int numOfSamples);

@@ -26,7 +26,7 @@ void Menu()
 {
     while (true) {
         
-        printf("SDL Error: %s\n", SDL_GetError());
+        printf("SDL Error from last command (if any): %s\n", SDL_GetError());
 
         std::cout << "\n\n"
             "Press a to setup audio without callback\n"

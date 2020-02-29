@@ -15,15 +15,11 @@ void GenDrumBeat(Uint8 *drumBuf)
     AudioData hihat = songSettings.hihatSound;
     AudioData snare = songSettings.snareSound;
 
-    //std::fill_n(drumBuf, internalAudioBuffer.length, 0);
-
     int beatCount = 1;
     int barCount = 1;
 
     int pickRandDrumPattern = rand() % 7;
     std::cout << "\nPlaying drum pattern: " << pickRandDrumPattern << "\n";
-
-    // pickRandDrumPattern = 6;
 
     switch (pickRandDrumPattern) {
     case 0: // kick x2, hat x2, snare x2, hat x2
@@ -249,26 +245,21 @@ AudioData GiveHihat()
 {
     AudioData returnAD;
 
-    // 150ms kick
-    Uint32 waveLength = samplesPerMS * 100;
+    // 100ms hihat
+    Uint16 hatLength = 100;
 
-    // Initialise to 0
-    int16_t* waveBuffer = new int16_t[waveLength];
-    //std::fill_n(waveBuffer, waveLength, halfMag);
+
+    Uint32 waveLength = samplesPerMS * hatLength * 2;
+    Uint8* waveBuffer = new Uint8[waveLength];
 
     // Noise
-    waveBuffer = Noise(waveLength, false, qtrMag);
+    Noise(hatLength, false, waveBuffer, qtrMag);
 
     //Fade
     FadeOut(waveBuffer, waveLength);
 
-    // Convert to 8-bit buffers
-    int waveLength8 = waveLength * 2;
-    Uint8* waveBuffer8 = new Uint8[waveLength8];
-    c16to8(waveBuffer, waveLength, waveBuffer8);
-
-    returnAD.buf = waveBuffer8;
-    returnAD.length = waveLength8;
+    returnAD.buf = waveBuffer;
+    returnAD.length = waveLength;
 
     return returnAD;
 }
@@ -277,33 +268,26 @@ AudioData GiveSnare()
 {
     AudioData returnAD;
 
-    Uint32 const waveLength = samplesPerMS * 250;
+    // 250ms snare
+    Uint32 snareLength = 250;
+    Uint32 const waveLength = samplesPerMS * snareLength * 2;
 
     // Initialise
-    int16_t* waveBuffer = new int16_t[waveLength];
-    int16_t* sawBuffer = new int16_t[waveLength];
+    Uint8* waveBuffer = new Uint8[waveLength];
+    Uint8* squareBuffer = new Uint8[waveLength];
 
     // Noise
-    sawBuffer = Square(120, waveLength / 2, qtrMag / 4);
-    waveBuffer = Noise(waveLength, true, qtrMag);
+    Square(120, snareLength / 2, qtrMag / 4, squareBuffer);
+    Noise(snareLength, true, waveBuffer, qtrMag);
 
     FadeOut(waveBuffer, waveLength);
-    FadeOut(sawBuffer, waveLength);
-
-    // Convert to 8-bit buffers
-    int waveLength8 = waveLength * 2;
-
-    Uint8* sawBuffer8 = new Uint8[waveLength8];
-    c16to8(sawBuffer, waveLength, sawBuffer8);
-
-    Uint8* waveBuffer8 = new Uint8[waveLength8];
-    c16to8(waveBuffer, waveLength, waveBuffer8);
+    FadeOut(squareBuffer, waveLength);
 
     // Mix tracks
-    SDL_MixAudioFormat(waveBuffer8, sawBuffer8, sampleFmt, waveLength, SDL_MIX_MAXVOLUME);
+    SDL_MixAudioFormat(waveBuffer, squareBuffer, sampleFmt, waveLength, SDL_MIX_MAXVOLUME);
 
-    returnAD.buf = waveBuffer8;
-    returnAD.length = waveLength8;
+    returnAD.buf = waveBuffer;
+    returnAD.length = waveLength;
 
     return returnAD;
 }

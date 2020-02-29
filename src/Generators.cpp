@@ -123,9 +123,11 @@ void DebugGeneratorsNew()
     Sine(440, 1000, halfMag, &waveBuffer[0]);
     FadeOut(&waveBuffer[0], waveLength);
     AudioPlayer(tempAD);
+
+    delete[] waveBuffer;
 }
 
-void Noise(float length, bool lowPitch, Uint8 *inBuf, int magnitude)
+void Noise(float length, bool lowPitch, Uint8 *inBuf, int magnitude) // expects length in MS
 {
     Uint32 waveLength = samplesPerMS * length * 2;
     Uint16 halfMagnitude = magnitude / 2;
@@ -158,7 +160,7 @@ void Noise(float length, bool lowPitch, Uint8 *inBuf, int magnitude)
     }
 }
 
-int16_t* Noise(float length, bool lowPitch, int magnitude)
+int16_t* Noise(float length, bool lowPitch, int magnitude) // expects length in MS
 {
     Uint32 waveLength = samplesPerMS * length;;
     int16_t* waveBuffer = new int16_t[waveLength]();
@@ -187,7 +189,7 @@ int16_t* Noise(float length, bool lowPitch, int magnitude)
     return waveBuffer;
 }
 
-void Sawtooth(float freq, float length, Uint16 magnitude, Uint8 *inBuf)
+void Sawtooth(float freq, int length, Uint16 magnitude, Uint8 *inBuf)
 {
     Uint32 sawtoothWaveLength = samplesPerMS * length * 2;
 
@@ -249,19 +251,22 @@ int16_t* Square(float freq, float length, int magnitude)
 }
 
 // Expects length in ms
-void Square(float freq, float length, int magnitude, Uint8 *inBuf)
+// TODO: Fix up float length... should be in
+void Square(float freq, int length, int magnitude, Uint8 *inBuf)
 {
     //std::cout << "Generating square\n";
 
+    // Length in bytes
     Uint32 squareWaveLength = samplesPerMS * length * 2;
 
-    int changeSignEveryXCycles = (samplesPerSec * 2) / (freq * 2);
+    // Change X twice as much as the frequency for complete square cycle
+    int changeSignEveryXCycles = samplesPerSec / (freq * 2);
     bool writeHigh = false;
     Uint16 halfMagnitude = magnitude / 2;
 
     for (int c = 0; c < squareWaveLength; c+=2)
     {
-        if (c % changeSignEveryXCycles == 0)
+        if ((c/2) % changeSignEveryXCycles == 0)
             writeHigh = !writeHigh;
 
         if (writeHigh)
@@ -304,7 +309,7 @@ int16_t* SineWave(float freq, float length, Uint16 magnitude)
 }
 
 // Expects length in ms
-void Sine(float freq, float length, Uint16 magnitude, Uint8 *inBuf)
+void Sine(float freq, int length, Uint16 magnitude, Uint8 *inBuf)
 {
     /*std::cout << "In sine func.\n"
         "Requested " << length << " ms of audio.\n"

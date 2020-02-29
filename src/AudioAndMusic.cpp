@@ -61,8 +61,6 @@ void GenAudioStream(void* userdata, Uint8* stream, int len)
     "ms of audio requested: " << (float)noOfSamplesRequested / samplesPerMS << "\n\n";
      */
 
-     //int16_t *sineBuffer = SineWave(440.0F, (float)noOfSamplesRequested / samplesPerMS, halfMag);
-
     int bytesTillIntBufEnd = internalAudioBuffer.length - internalAudioBuffer.pos;
 
     if (internalAudioBuffer.pos == -1) // Fill audio buffer on first run.
@@ -102,10 +100,12 @@ void GenMusicStream()
     std::fill_n(internalAudioBuffer.buf, internalAudioBuffer.length, 0);
 
     // Drums
+
     Uint8* drumBuf = new Uint8[internalAudioBuffer.length] ();
     GenDrumBeat(drumBuf);
 
     SDL_MixAudioFormat(internalAudioBuffer.buf, drumBuf, sampleFmt, internalAudioBuffer.length, SDL_MIX_MAXVOLUME);
+    delete[] drumBuf;
 }
 
 
@@ -166,6 +166,8 @@ void PlayScale()
         std::cout << "\nFreq of note " << note->first << " is " << note->second;
         note++;
     }
+
+    delete[] scaleBuf;
 }
 
 
@@ -173,12 +175,13 @@ void PlayScale()
 
 void AudioPlayer(AudioData audioData)
 {
-    std::cout << "Playing...\n";
+    //std::cout << "Playing...\n";
 
     int success = SDL_QueueAudio(audioSettings.device, audioData.buf, audioData.length);
 
     if (success != 0)
         std::cout << "\nError outputting to device!!\n";
+
 }
 
 void PlayWAV(std::string fileName)

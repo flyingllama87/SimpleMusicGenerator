@@ -19,4 +19,7 @@ Unimplemented:
 - CLI interface options such as BPM etc.
 - GUI interface
 - Optimisation
-- Split functions into separate files.
+
+Bugs:
+
+Still some memory leaks
