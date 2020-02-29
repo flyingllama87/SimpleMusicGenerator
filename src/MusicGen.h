@@ -25,10 +25,10 @@
 
 #define DEBUG 1
 
-#define samplesPerSec 8000
+#define samplesPerSec 48000
 #define numChannels 1
 #define sampleFmt AUDIO_S16LSB
-#define samplesBufNum 4096 // Must be power of two.  Must be 4096 for LOADWAV. if samplesPerSec is 8000, use 4096.  if samplesPerSec is 48000 use 32768
+#define samplesBufNum 32768 // Must be power of two.  Must be 4096 for LOADWAV. if samplesPerSec is 8000, use 4096.  if samplesPerSec is 48000 use 32768
 
 const float samplesPerMS = (float)samplesPerSec / 1000.0F;
 const float bytesPerMS = samplesPerMS * 2.0;
@@ -91,6 +91,7 @@ void PlayScale();
 
 struct audioSettings
 {
+	bool initialised = false;
     SDL_AudioSpec audSpecWant, audSpecHave;
     SDL_AudioDeviceID device;
 };

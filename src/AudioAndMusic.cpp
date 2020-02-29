@@ -188,7 +188,7 @@ void GenBassTrack(Uint8* bassBuf)
     int beatCount = 1;
     int barCount = 1;
 
-    int pickRandBassPattern = rand() % 6;
+    int pickRandBassPattern = rand() % 7;
     std::cout << "\nPlaying bass pattern: " << pickRandBassPattern << "\n";
 
     switch (pickRandBassPattern) {
@@ -298,12 +298,29 @@ void GenBassTrack(Uint8* bassBuf)
 	break;
 	case 5: // random through out, 4 notes per bar
 	{
+		for (int c = 0; c < internalAudioBuffer.length; c += (songSettings.noteLenBytes)) // 4 beats
+		{
+			int chooseNote = rand() % 8;
+			float noteFreq = key.freqs[chooseNote];
+			Sawtooth(noteFreq, songSettings.noteLenMS, qtrMag, &bassBuf[c]);
+
+			if (beatCount == 4)
+			{
+				beatCount = 0;
+				barCount++;
+			}
+			beatCount++;
+		}
+		break;
+	}
+	case 6: // random through out, 4 notes per bar, fadeout
+	{
 		for (int c = 0; c < internalAudioBuffer.length; c += (songSettings.noteLenBytes)) // 8 beats
 		{
 			int chooseNote = rand() % 8;
 			float noteFreq = key.freqs[chooseNote];
-			Sawtooth(noteFreq, songSettings.halfNoteLenMS, qtrMag, &bassBuf[c]);
-
+			Sawtooth(noteFreq, songSettings.noteLenMS, qtrMag, &bassBuf[c]);
+			FadeIn(&bassBuf[c], songSettings.noteLenBytes);
 
 			if (beatCount == 4)
 			{
@@ -319,7 +336,7 @@ void GenBassTrack(Uint8* bassBuf)
     }
 
   
-    //DumpBuffer(drumBuf, internalAudioBuffer.length, "BassBuffer,txt");
+    //DumpBuffer(bassBuf, internalAudioBuffer.length, "BassBuffer,txt");
 }
 
 

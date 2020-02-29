@@ -367,13 +367,13 @@ void FadeIn(int16_t* buffer, int numOfSamples)
     }
 }
 
-// Expects length in total number of 8 bit samples.
-void FadeOut(Uint8* buffer, int numOfSamples)
+// Expects length in total number of bytes.
+void FadeOut(Uint8* buffer, int numOfBytes)
 {
-    for (int c = 0; c < numOfSamples; c+=2)
+    for (int c = 0; c < numOfBytes; c+=2)
     {
         // Use the next line to calculate how much we need to reduce the signal by
-        float cycleLengthRatio = (float)(numOfSamples - c) / (float)numOfSamples;
+        float cycleLengthRatio = (float)(numOfBytes - c) / (float)numOfBytes;
         // Convert the input buffer to 16 bit, apply the fade to the current value and convert back to 8 bit buffer
         int16_t bufCurVal16 = (int16_t)(((buffer[c+1] & 0xFF) << 8) | (buffer[c] & 0xFF));
         bufCurVal16 = (int16_t)((float)bufCurVal16 * cycleLengthRatio);
@@ -382,12 +382,12 @@ void FadeOut(Uint8* buffer, int numOfSamples)
     }
 }
 
-// Expects length in total number of 8 bit samples.
-void FadeIn(Uint8* buffer, int numOfSamples)
+// Expects length in total number of bytes.
+void FadeIn(Uint8* buffer, int numOfBytes)
 {
-    for (int c = 0; c < numOfSamples; c+=2)
+    for (int c = 0; c < numOfBytes; c+=2)
     {
-        float cycleLengthRatio = (float)c / (float)numOfSamples;
+        float cycleLengthRatio = (float)c / (float)numOfBytes;
         // Convert the input buffer to 16 bit, apply the fade to the current value and convert back to 8 bit buffer
         int16_t bufCurVal16 = (int16_t)(((buffer[c+1] & 0xFF) << 8) | (buffer[c] & 0xFF));
         bufCurVal16 = (int16_t)((float)bufCurVal16 * cycleLengthRatio);
