@@ -115,7 +115,7 @@ struct songSettings
 
     songSettings()
     {
-        this->BPM = 60;
+        this->BPM = 120;
         this->beatsToBar = 4;
         this->keyFreq = 0.0F;
         init();

@@ -128,7 +128,7 @@ void GenBassTrack(Uint8* bassBuf)
     int beatCount = 1;
     int barCount = 1;
 
-    int pickRandBassPattern = rand() % 1;
+    int pickRandBassPattern = rand() % 2;
     std::cout << "\nPlaying bass pattern: " << pickRandBassPattern << "\n";
 
     switch (pickRandBassPattern) {
@@ -151,12 +151,13 @@ void GenBassTrack(Uint8* bassBuf)
                 memcpy(&drumBuf[c], hihat.buf, hihat.length);
                 beatCount = 0;
                 barCount++;
-            }*/
+            }
 
 			std::cout << "songSettings.noteLenMS * samplesPerMS: " << songSettings.noteLenMS * samplesPerMS << "\n";
 			std::cout << "internalAudioBuffer.length: " << internalAudioBuffer.length << "\n";
 			std::cout << "songSettings.noteLenMS: " << songSettings.noteLenMS << "\n";
 			std::cout << "c: " << c << "\n";
+			*/
 
             if (beatCount == 8)
             {
@@ -167,6 +168,42 @@ void GenBassTrack(Uint8* bassBuf)
         }
         break;
     }
+	case 1:
+	{
+		for (int c = 0; c < internalAudioBuffer.length; c += (songSettings.barLenMS * samplesPerMS * 2)) // 1 note per bar
+		{
+			int chooseNote = rand() % 8;
+			float noteFreq = key.freqs[chooseNote];
+			Sawtooth(noteFreq, songSettings.barLenMS, qtrMag, &bassBuf[c]);
+			/*
+			if (beatCount == 1 || beatCount == 2)
+			memcpy(&drumBuf[c], kick.buf, kick.length);
+			else if (beatCount == 3 || beatCount == 4 || beatCount == 7)
+			memcpy(&drumBuf[c], hihat.buf, hihat.length);
+			else if (beatCount == 5 || beatCount == 6)
+			memcpy(&drumBuf[c], snare.buf, snare.length);
+			else
+			{
+			memcpy(&drumBuf[c], hihat.buf, hihat.length);
+			beatCount = 0;
+			barCount++;
+			}
+
+			std::cout << "songSettings.noteLenMS * samplesPerMS: " << songSettings.noteLenMS * samplesPerMS << "\n";
+			std::cout << "internalAudioBuffer.length: " << internalAudioBuffer.length << "\n";
+			std::cout << "songSettings.noteLenMS: " << songSettings.noteLenMS << "\n";
+			std::cout << "c: " << c << "\n";
+			*/
+
+			if (beatCount == 1)
+			{
+				beatCount = 0;
+				barCount++;
+			}
+			beatCount++;
+		}
+		break;
+	}
     default:
         break;
     }
