@@ -12,11 +12,11 @@
 
 void DebugGenerators()
 {
-    Uint32 waveLength = 1000 * samplesPerMS;
+    Uint32 waveLength = 1000 * audioSettings.samplesPerMS;
     int16_t* waveBuffer = new int16_t[waveLength]();
 
     AudioData tempAD;
-    tempAD.length = 1000 * samplesPerMS * 2; // Dbl for 8 bit
+    tempAD.length = 1000 * audioSettings.samplesPerMS * 2; // Dbl for 8 bit
     tempAD.buf = new Uint8[tempAD.length];
 
     // Noise
@@ -73,7 +73,7 @@ void DebugGenerators()
 
 void DebugGeneratorsNew()
 {
-    Uint32 waveLength = 1000 * samplesPerMS * 2;
+    Uint32 waveLength = 1000 * audioSettings.samplesPerMS * 2;
     Uint8* waveBuffer = new Uint8[waveLength]();
 
     AudioData tempAD;
@@ -129,7 +129,7 @@ void DebugGeneratorsNew()
 
 void Noise(float length, bool lowPitch, Uint8 *inBuf, int magnitude) // expects length in MS
 {
-    Uint32 waveLength = samplesPerMS * length * 2;
+    Uint32 waveLength = audioSettings.samplesPerMS * length * 2;
     Uint16 halfMagnitude = magnitude / 2;
 
     if (lowPitch != true)
@@ -162,7 +162,7 @@ void Noise(float length, bool lowPitch, Uint8 *inBuf, int magnitude) // expects 
 
 int16_t* Noise(float length, bool lowPitch, int magnitude) // expects length in MS
 {
-    Uint32 waveLength = samplesPerMS * length;;
+    Uint32 waveLength = audioSettings.samplesPerMS * length;;
     int16_t* waveBuffer = new int16_t[waveLength]();
 
     Uint16 halfMagnitude = magnitude / 2;
@@ -191,9 +191,9 @@ int16_t* Noise(float length, bool lowPitch, int magnitude) // expects length in 
 
 void Sawtooth(float freq, int length, Uint16 magnitude, Uint8 *inBuf)
 {
-    Uint32 sawtoothWaveLength = samplesPerMS * length * 2;
+    Uint32 sawtoothWaveLength = audioSettings.samplesPerMS * length * 2;
 
-    int cycleLength = (samplesPerSec * 2) / freq;
+    int cycleLength = (audioSettings.audSpecHave.freq * 2) / freq;
     float stepVal = (float)magnitude / (float)cycleLength;
     Uint16 halfMagnitude = magnitude / 2;
 
@@ -209,10 +209,10 @@ void Sawtooth(float freq, int length, Uint16 magnitude, Uint8 *inBuf)
 
 int16_t* Sawtooth(float freq, float length, Uint16 magnitude)
 {
-    Uint32 sawtoothWaveLength = samplesPerMS * length;
+    Uint32 sawtoothWaveLength = audioSettings.samplesPerMS * length;
     int16_t* sawtoothWaveBuffer = new int16_t[sawtoothWaveLength];
 
-    int cycleLength = samplesPerSec / freq;
+    int cycleLength = audioSettings.audSpecHave.freq / freq;
     float stepVal = (float)magnitude / (float)cycleLength;
     Uint16 halfMagnitude = magnitude / 2;
 
@@ -230,10 +230,10 @@ int16_t* Square(float freq, float length, int magnitude)
 {
     //std::cout << "Generating square\n";
 
-    Uint32 squareWaveLength = samplesPerMS * length;
+    Uint32 squareWaveLength = audioSettings.samplesPerMS * length;
     int16_t* squareWaveBuffer = new int16_t[squareWaveLength];
 
-    int changeSignEveryXCycles = samplesPerSec / (freq * 2);
+    int changeSignEveryXCycles = audioSettings.audSpecHave.freq / (freq * 2);
     bool writeHigh = false;
     Uint16 halfMagnitude = magnitude / 2;
 
@@ -257,10 +257,10 @@ void Square(float freq, int length, int magnitude, Uint8 *inBuf)
     //std::cout << "Generating square\n";
 
     // Length in bytes
-    Uint32 squareWaveLength = samplesPerMS * length * 2;
+    Uint32 squareWaveLength = audioSettings.samplesPerMS * length * 2;
 
     // Change X twice as much as the frequency for complete square cycle
-    int changeSignEveryXCycles = samplesPerSec / (freq * 2);
+    int changeSignEveryXCycles = audioSettings.audSpecHave.freq / (freq * 2);
     bool writeHigh = false;
     Uint16 halfMagnitude = magnitude / 2;
 
@@ -289,13 +289,13 @@ int16_t* SineWave(float freq, float length, Uint16 magnitude)
 {
     /*std::cout << "In sine func.\n"
         "Requested " << length << " ms of audio.\n"
-        "sWaveLength is " << samplesPerMS * length << "\n";*/
+        "sWaveLength is " << audioSettings.samplesPerMS * length << "\n";*/
 
     Uint16 halfMagnitude = magnitude / 2;
-    Uint32 sineWaveLength = samplesPerMS * length;
+    Uint32 sineWaveLength = audioSettings.samplesPerMS * length;
     int16_t* sineWaveBuffer = new int16_t[sineWaveLength];
 
-    float samplesPerCycle = (float)samplesPerSec / freq;
+    float samplesPerCycle = (float)audioSettings.audSpecHave.freq / freq;
     float radsPerStep = (2.0 * M_PI) / samplesPerCycle;
 
     // std::cout << "\nsamplesPerCycle: " << samplesPerCycle << "\n";
@@ -313,14 +313,14 @@ void Sine(float freq, int length, Uint16 magnitude, Uint8 *inBuf)
 {
     /*std::cout << "In sine func.\n"
         "Requested " << length << " ms of audio.\n"
-        "sWaveLength is " << samplesPerMS * length << "\n";*/
+        "sWaveLength is " << audioSettings.samplesPerMS * length << "\n";*/
 
     Uint16 halfMagnitude = magnitude / 2;
     // How many total bytes we need to generate values for:
-    Uint32 sineWaveLength = samplesPerMS * length * 2;
+    Uint32 sineWaveLength = audioSettings.samplesPerMS * length * 2;
 
     // Samples per sine cycle:
-    float samplesPerCycle = (float)(samplesPerSec * 2) / freq;
+    float samplesPerCycle = (float)(audioSettings.audSpecHave.freq * 2) / freq;
     float radsPerStep = (2.0 * M_PI) / samplesPerCycle;
 
     // std::cout << "\nsamplesPerCycle: " << samplesPerCycle << "\n";
@@ -337,7 +337,7 @@ void Sine(float freq, int length, Uint16 magnitude, Uint8 *inBuf)
 AudioData Silence(float length)
 {
     AudioData returnAD;
-    int bufLength = length * samplesPerMS;
+    int bufLength = length * audioSettings.samplesPerMS;
 
     returnAD.length = bufLength;
     returnAD.buf = new Uint8[bufLength]();

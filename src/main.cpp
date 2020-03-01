@@ -13,13 +13,6 @@ int main(int argc, char* argv[])
         std::cout << "SDL initialised!!\n";
     }
 
-    std::cout << "BPM: " << songSettings.BPM << "\n";
-    std::cout << "noteLength(ms): " << songSettings.noteLenMS << "\n";
-#ifdef DEBUG
-	std::cout << "songSettings.barLenMS: " << songSettings.barLenMS << "\n";
-	std::cout << "beatsToBar: " << songSettings.beatsToBar << "\n";
-#endif
-
     Menu();
 
     return 0;
@@ -29,7 +22,14 @@ int main(int argc, char* argv[])
 void Menu()
 {
     while (true) {
-        
+
+		std::cout << "BPM: " << songSettings.BPM << "\n";
+		std::cout << "noteLength(ms): " << songSettings.noteLenMS << "\n";
+#ifdef DEBUG
+		std::cout << "songSettings.barLenMS: " << songSettings.barLenMS << "\n";
+		std::cout << "beatsToBar: " << songSettings.beatsToBar << "\n";
+#endif
+
         printf("SDL Error from last command (if any): %s\n", SDL_GetError());
 
         std::cout << "\n\n"

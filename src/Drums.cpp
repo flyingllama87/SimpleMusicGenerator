@@ -226,7 +226,7 @@ AudioData GiveKick()
     // 200ms kick
     Uint16 kickLength = 200;
 
-    Uint32 waveLength = samplesPerMS * kickLength * 2;
+    Uint32 waveLength = audioSettings.samplesPerMS * kickLength * 2;
 
     // declare buffers
     Uint8 *sineBuffer = new Uint8[waveLength];
@@ -264,7 +264,7 @@ AudioData GiveHihat()
     Uint16 hatLength = 100;
 
 
-    Uint32 waveLength = samplesPerMS * hatLength * 2;
+    Uint32 waveLength = audioSettings.samplesPerMS * hatLength * 2;
     Uint8* waveBuffer = new Uint8[waveLength];
 
     // Noise
@@ -285,7 +285,7 @@ AudioData GiveSnare()
 
     // 250ms snare
     Uint32 snareLength = 250;
-    Uint32 const waveLength = samplesPerMS * snareLength * 2;
+    Uint32 const waveLength = audioSettings.samplesPerMS * snareLength * 2;
 
     // Initialise
     Uint8* waveBuffer = new Uint8[waveLength];

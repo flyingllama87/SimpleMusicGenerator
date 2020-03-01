@@ -71,15 +71,36 @@ struct minorKey
 	}
 };
 
+void FidelityCheck()
+{
+	std::cout << "Do you want LoFi or HiFi? Enter 1 for LoFi (8000hz) & 2 for HiFi (48000hz)";
+
+	char fidelityInput = std::cin.get();
+
+	if (fidelityInput == '1')
+	{
+		audioSettings.audSpecWant.freq = 8000;
+		audioSettings.audSpecWant.samples = 4096;
+	}
+	else
+	{
+		audioSettings.audSpecWant.freq = 48000;
+		audioSettings.audSpecWant.samples = 32768;
+	}
+	std::cin.get();
+
+}
 
 void SetupAudio(bool callback)
 {
     SDL_memset(&audioSettings.audSpecWant, 0, sizeof(audioSettings.audSpecWant));
 
-    audioSettings.audSpecWant.freq = samplesPerSec;
+
+	FidelityCheck();
+    //audioSettings.audSpecWant.freq = samplesPerSec;
     audioSettings.audSpecWant.format = sampleFmt;
     audioSettings.audSpecWant.channels = numChannels;
-    audioSettings.audSpecWant.samples = samplesBufNum;
+    //audioSettings.audSpecWant.samples = samplesBufNum;
     if (callback) {
         audioSettings.audSpecWant.callback = GenAudioStream;
     }
@@ -112,14 +133,14 @@ void GenAudioStream(void* userdata, Uint8* stream, int len)
     /*
     int noOfSamplesRequested = len / 2;
 
-    std::cout << "No. of bytes requested: " << len << "\nLength of audio requested (ms): " << noOfSamplesRequested / samplesPerMS << "\n";
+    std::cout << "No. of bytes requested: " << len << "\nLength of audio requested (ms): " << noOfSamplesRequested / audioSettings.samplesPerMS << "\n";
     std::cout << "No. of samples requested: " << len / sizeof(int16_t) << "\n";
     
 	
     std::cout << "\nIn gen func.\n"
     "No of samples requested: " << noOfSamplesRequested << ".\n"
-    "Samples per ms: " << samplesPerMS << ".\n"
-    "ms of audio requested: " << (float)noOfSamplesRequested / samplesPerMS << "\n";
+    "Samples per ms: " << audioSettings.samplesPerMS << ".\n"
+    "ms of audio requested: " << (float)noOfSamplesRequested / audioSettings.samplesPerMS << "\n";
     std::cout << "internalAudioBuffer.pos: " << internalAudioBuffer.pos << "\n\n";
 	*/
 
@@ -211,7 +232,7 @@ void GenBassTrack(Uint8* bassBuf)
     }
 	case 1: // 1 note per bar
 	{
-		for (int c = 0; c < internalAudioBuffer.length; c += (songSettings.barLenMS * samplesPerMS * 2)) // 1 note per bar
+		for (int c = 0; c < internalAudioBuffer.length; c += (songSettings.barLenMS * audioSettings.samplesPerMS * 2)) // 1 note per bar
 		{
 			int chooseNote = rand() % 8;
 			float noteFreq = key.freqs[chooseNote];
@@ -333,7 +354,7 @@ void PlayScale()
     AudioData scale;
 
     // Buffer for total scale (8 notes) in 16-bit format
-    int bufLen16 = songSettings.noteLenMS * samplesPerMS * 8;
+    int bufLen16 = songSettings.noteLenMS * audioSettings.samplesPerMS * 8;
     // Buffer for total scale (8 notes) in 8-bit format
     int bufLen = bufLen16 * 2;
     Uint8* scaleBuf = new Uint8[bufLen];

@@ -25,13 +25,10 @@
 
 #define DEBUG 0
 
-#define samplesPerSec 48000
+//#define samplesPerSec 48000
 #define numChannels 1
 #define sampleFmt AUDIO_S16LSB
-#define samplesBufNum 32768 // Must be power of two.  Must be 4096 for LOADWAV. if samplesPerSec is 8000, use 4096.  if samplesPerSec is 48000 use 32768
-
-const float samplesPerMS = (float)samplesPerSec / 1000.0F;
-const float bytesPerMS = samplesPerMS * 2.0;
+//#define samplesBufNum 32768 // Must be power of two.  Must be 4096 for LOADWAV. if samplesPerSec is 8000, use 4096.  if samplesPerSec is 48000 use 32768
 
 // Magnitude settings.  Relies on 16 bit ints at the moment.  Should switch to float vals?
 #define fullMag 65535
@@ -91,14 +88,16 @@ void PlayScale();
 
 struct audioSettings
 {
-	bool initialised = false;
     SDL_AudioSpec audSpecWant, audSpecHave;
     SDL_AudioDeviceID device;
+	float samplesPerMS = (float)this->audSpecHave.freq / 1000.0F;
+	float bytesPerMS = samplesPerMS * 2.0;
 };
 extern audioSettings audioSettings;
 
 struct songSettings
 {
+
     int BPM;
     int beatsToBar;
     int barsPerMin;
@@ -142,10 +141,10 @@ struct songSettings
         this->halfNoteLenMS = noteLenMS / 2;
         this->qtrNoteLenMS = noteLenMS / 4;
         this->eighthNoteLenMS = noteLenMS / 8;
-		this->noteLenBytes = noteLenMS * bytesPerMS;
-		this->halfNoteLenBytes = halfNoteLenMS * bytesPerMS;
-		this->qtrNoteLenBytes = qtrNoteLenMS * bytesPerMS;
-		this->eighthNoteLenBytes = eighthNoteLenMS * bytesPerMS;
+		this->noteLenBytes = noteLenMS * audioSettings.bytesPerMS;
+		this->halfNoteLenBytes = halfNoteLenMS * audioSettings.bytesPerMS;
+		this->qtrNoteLenBytes = qtrNoteLenMS * audioSettings.bytesPerMS;
+		this->eighthNoteLenBytes = eighthNoteLenMS * audioSettings.bytesPerMS;
 
         // set drum sounds
         this->kickSound = GiveKick();
@@ -164,7 +163,7 @@ struct internalAudioBuffer
 
     internalAudioBuffer()
     {
-        length = songSettings.barLenMS * 4 * samplesPerMS * 2; // 4 bars, x2 for bytes
+        length = songSettings.barLenMS * 4 * audioSettings.samplesPerMS * 2; // 4 bars, x2 for bytes
         pos = -1;
         buf = new Uint8[length]();
     }
