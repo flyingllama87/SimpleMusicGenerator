@@ -73,8 +73,15 @@ struct minorKey
 
 void FidelityCheck()
 {
+    
+    // flush input buf
+    int c;
+    while ((c = getchar()) != '\n' && c != EOF) {}
+    
 	std::cout << "Do you want LoFi or HiFi? Enter 1 for LoFi (8000hz) & 2 for HiFi (48000hz)";
 
+
+    
 	char fidelityInput = std::cin.get();
 
 	if (fidelityInput == '1')
@@ -97,6 +104,7 @@ void SetupAudio(bool callback)
 
 
 	FidelityCheck();
+    
     //audioSettings.audSpecWant.freq = samplesPerSec;
     audioSettings.audSpecWant.format = sampleFmt;
     audioSettings.audSpecWant.channels = numChannels;
@@ -124,6 +132,11 @@ void SetupAudio(bool callback)
         printf("Audio format is little endian.\n");
 
     SDL_PauseAudioDevice(audioSettings.device, 0);
+    
+    audioSettings.Init();
+    internalAudioBuffer.Init();
+    songSettings.Init();
+    
 }
 
 

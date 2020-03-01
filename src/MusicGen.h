@@ -90,8 +90,14 @@ struct audioSettings
 {
     SDL_AudioSpec audSpecWant, audSpecHave;
     SDL_AudioDeviceID device;
-	float samplesPerMS = (float)this->audSpecHave.freq / 1000.0F;
-	float bytesPerMS = samplesPerMS * 2.0;
+    float samplesPerMS;
+    float bytesPerMS;
+    
+    void Init()
+    {
+        samplesPerMS = (float)this->audSpecHave.freq / 1000.0F;
+        bytesPerMS = samplesPerMS * 2.0;
+    }
 };
 extern audioSettings audioSettings;
 
@@ -121,7 +127,7 @@ struct songSettings
         this->BPM = 240;
         this->beatsToBar = 4;
         this->keyFreq = 0.0F;
-        init();
+        Init();
     }
 
     songSettings(Uint8 bpm, Uint8 beatsToBar, float keyFreq)
@@ -129,10 +135,10 @@ struct songSettings
         this->BPM = bpm;
         this->beatsToBar = beatsToBar;
         this->keyFreq = keyFreq;
-        init();
+        Init();
     }
 
-    void init()
+    void Init()
     {
         //set lengths
         this->barsPerMin = BPM / beatsToBar;
@@ -161,7 +167,7 @@ struct internalAudioBuffer
     int length;
     Uint8* buf;
 
-    internalAudioBuffer()
+    void Init()
     {
         length = songSettings.barLenMS * 4 * audioSettings.samplesPerMS * 2; // 4 bars, x2 for bytes
         pos = -1;

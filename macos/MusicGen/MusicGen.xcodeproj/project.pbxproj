@@ -7,11 +7,12 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		90F77FBF2409320600C3DF21 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 90F77FB92409320600C3DF21 /* main.cpp */; };
-		90F77FC02409320600C3DF21 /* Generators.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 90F77FBB2409320600C3DF21 /* Generators.cpp */; };
-		90F77FC12409320600C3DF21 /* AudioAndMusic.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 90F77FBC2409320600C3DF21 /* AudioAndMusic.cpp */; };
-		90F77FC22409320600C3DF21 /* Drums.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 90F77FBD2409320600C3DF21 /* Drums.cpp */; };
-		90F77FC32409320600C3DF21 /* UtilFunctions.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 90F77FBE2409320600C3DF21 /* UtilFunctions.cpp */; };
+		905F7D5E240C7549001B4099 /* UtilFunctions.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 905F7D58240C7549001B4099 /* UtilFunctions.cpp */; };
+		905F7D5F240C7549001B4099 /* Generators.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 905F7D59240C7549001B4099 /* Generators.cpp */; };
+		905F7D60240C7549001B4099 /* Drums.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 905F7D5A240C7549001B4099 /* Drums.cpp */; };
+		905F7D61240C7549001B4099 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 905F7D5B240C7549001B4099 /* main.cpp */; };
+		905F7D62240C7549001B4099 /* AudioAndMusic.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 905F7D5C240C7549001B4099 /* AudioAndMusic.cpp */; };
+		905F7D63240C7605001B4099 /* MusicGen.h in Headers */ = {isa = PBXBuildFile; fileRef = 905F7D5D240C7549001B4099 /* MusicGen.h */; };
 		90F77FC7240932C700C3DF21 /* libSDL2-2.0.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 90F77FC6240932C700C3DF21 /* libSDL2-2.0.0.dylib */; };
 		90F77FC8240932C700C3DF21 /* libSDL2-2.0.0.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = 90F77FC6240932C700C3DF21 /* libSDL2-2.0.0.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 /* End PBXBuildFile section */
@@ -40,13 +41,13 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		905F7D58240C7549001B4099 /* UtilFunctions.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = UtilFunctions.cpp; path = ../../src/UtilFunctions.cpp; sourceTree = "<group>"; };
+		905F7D59240C7549001B4099 /* Generators.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Generators.cpp; path = ../../src/Generators.cpp; sourceTree = "<group>"; };
+		905F7D5A240C7549001B4099 /* Drums.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Drums.cpp; path = ../../src/Drums.cpp; sourceTree = "<group>"; };
+		905F7D5B240C7549001B4099 /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = main.cpp; path = ../../src/main.cpp; sourceTree = "<group>"; };
+		905F7D5C240C7549001B4099 /* AudioAndMusic.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = AudioAndMusic.cpp; path = ../../src/AudioAndMusic.cpp; sourceTree = "<group>"; };
+		905F7D5D240C7549001B4099 /* MusicGen.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MusicGen.h; path = ../../src/MusicGen.h; sourceTree = "<group>"; };
 		90F77FAF240931C800C3DF21 /* MusicGen */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = MusicGen; sourceTree = BUILT_PRODUCTS_DIR; };
-		90F77FB92409320600C3DF21 /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = main.cpp; path = ../../../src/main.cpp; sourceTree = "<group>"; };
-		90F77FBA2409320600C3DF21 /* MusicGen.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MusicGen.h; path = ../../../src/MusicGen.h; sourceTree = "<group>"; };
-		90F77FBB2409320600C3DF21 /* Generators.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Generators.cpp; path = ../../../src/Generators.cpp; sourceTree = "<group>"; };
-		90F77FBC2409320600C3DF21 /* AudioAndMusic.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = AudioAndMusic.cpp; path = ../../../src/AudioAndMusic.cpp; sourceTree = "<group>"; };
-		90F77FBD2409320600C3DF21 /* Drums.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Drums.cpp; path = ../../../src/Drums.cpp; sourceTree = "<group>"; };
-		90F77FBE2409320600C3DF21 /* UtilFunctions.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = UtilFunctions.cpp; path = ../../../src/UtilFunctions.cpp; sourceTree = "<group>"; };
 		90F77FC5240932B200C3DF21 /* libSDL2.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libSDL2.a; path = ../../../../../../../../usr/local/Cellar/sdl2/2.0.10/lib/libSDL2.a; sourceTree = "<group>"; };
 		90F77FC6240932C700C3DF21 /* libSDL2-2.0.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libSDL2-2.0.0.dylib"; path = "../../../../../../../../usr/local/Cellar/sdl2/2.0.10/lib/libSDL2-2.0.0.dylib"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -63,10 +64,23 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		905F7D57240C751D001B4099 /* MusicGenerator */ = {
+			isa = PBXGroup;
+			children = (
+				905F7D5C240C7549001B4099 /* AudioAndMusic.cpp */,
+				905F7D5A240C7549001B4099 /* Drums.cpp */,
+				905F7D59240C7549001B4099 /* Generators.cpp */,
+				905F7D5B240C7549001B4099 /* main.cpp */,
+				905F7D5D240C7549001B4099 /* MusicGen.h */,
+				905F7D58240C7549001B4099 /* UtilFunctions.cpp */,
+			);
+			name = MusicGenerator;
+			sourceTree = "<group>";
+		};
 		90F77FA6240931C700C3DF21 = {
 			isa = PBXGroup;
 			children = (
-				90F77FB1240931C800C3DF21 /* MusicGen */,
+				905F7D57240C751D001B4099 /* MusicGenerator */,
 				90F77FB0240931C800C3DF21 /* Products */,
 				90F77FC4240932B200C3DF21 /* Frameworks */,
 			);
@@ -80,19 +94,6 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		90F77FB1240931C800C3DF21 /* MusicGen */ = {
-			isa = PBXGroup;
-			children = (
-				90F77FBC2409320600C3DF21 /* AudioAndMusic.cpp */,
-				90F77FBD2409320600C3DF21 /* Drums.cpp */,
-				90F77FBB2409320600C3DF21 /* Generators.cpp */,
-				90F77FB92409320600C3DF21 /* main.cpp */,
-				90F77FBA2409320600C3DF21 /* MusicGen.h */,
-				90F77FBE2409320600C3DF21 /* UtilFunctions.cpp */,
-			);
-			path = MusicGen;
-			sourceTree = "<group>";
-		};
 		90F77FC4240932B200C3DF21 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
@@ -104,11 +105,23 @@
 		};
 /* End PBXGroup section */
 
+/* Begin PBXHeadersBuildPhase section */
+		905F7D64240C7633001B4099 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				905F7D63240C7605001B4099 /* MusicGen.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
+
 /* Begin PBXNativeTarget section */
 		90F77FAE240931C800C3DF21 /* MusicGen */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 90F77FB6240931C800C3DF21 /* Build configuration list for PBXNativeTarget "MusicGen" */;
 			buildPhases = (
+				905F7D64240C7633001B4099 /* Headers */,
 				90F77FAB240931C800C3DF21 /* Sources */,
 				90F77FAC240931C800C3DF21 /* Frameworks */,
 				90F77FAD240931C800C3DF21 /* CopyFiles */,
@@ -160,11 +173,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				90F77FBF2409320600C3DF21 /* main.cpp in Sources */,
-				90F77FC22409320600C3DF21 /* Drums.cpp in Sources */,
-				90F77FC32409320600C3DF21 /* UtilFunctions.cpp in Sources */,
-				90F77FC02409320600C3DF21 /* Generators.cpp in Sources */,
-				90F77FC12409320600C3DF21 /* AudioAndMusic.cpp in Sources */,
+				905F7D61240C7549001B4099 /* main.cpp in Sources */,
+				905F7D62240C7549001B4099 /* AudioAndMusic.cpp in Sources */,
+				905F7D60240C7549001B4099 /* Drums.cpp in Sources */,
+				905F7D5F240C7549001B4099 /* Generators.cpp in Sources */,
+				905F7D5E240C7549001B4099 /* UtilFunctions.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
