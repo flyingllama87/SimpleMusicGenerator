@@ -21,8 +21,8 @@ void GenDrumBeat(Uint8 *drumBuf)
 	int pickRandDrumPattern = rand() % 7;
     std::cout << "\nPlaying drum pattern: " << pickRandDrumPattern << "\n";
 
-#ifdef DEBUG
-	std::cout << "internalAudioBuffer.length: " << internalAudioBuffer.length << "\n";
+#ifdef DEBUG_AUDIO
+    std::cout << "internalAudioBuffer.length: " << internalAudioBuffer.length << "\n";
 	std::cout << "songSettings.qtrNoteLenBytes: " << songSettings.qtrNoteLenBytes << "\n";
 	std::cout << "songSettings.qtrNoteLenMS: " << songSettings.qtrNoteLenMS << "\n";
 	std::cout << "songSettings.halfNoteLenMS: " << songSettings.halfNoteLenMS << "\n";
@@ -144,8 +144,8 @@ void GenDrumBeat(Uint8 *drumBuf)
         memcpy(snareHatBuf, snare.buf, snare.length);
         SDL_MixAudioFormat(snareHatBuf, hihat.buf, sampleFmt, hihat.length, SDL_MIX_MAXVOLUME);
 
-#ifdef DEBUG
-		std::cout << "snare.length: " << snare.length << "\n";
+#ifdef DEBUG_AUDIO
+        std::cout << "snare.length: " << snare.length << "\n";
 #endif
 
         for (int c = 0; c < internalAudioBuffer.length; c += songSettings.qtrNoteLenBytes)
@@ -182,21 +182,24 @@ void GenDrumBeat(Uint8 *drumBuf)
         break;
     }
 
-#ifdef DEBUG
-	std::cout << "Final barCount: " << barCount << "\n";
+#ifdef DEBUG_AUDIO
+    std::cout << "Final barCount: " << barCount << "\n";
 	std::cout << "Final beatCount: " << beatCount << "\n";
+    DumpBuffer(drumBuf, internalAudioBuffer.length, "drumBuffer,txt");
 #endif
 
-    //DumpBuffer(drumBuf, internalAudioBuffer.length, "testBuffer,txt");
 }
 
 void TestDrums()
 {
+    SetupAudio();
     AudioData silenceSec = Silence(1000);
     AudioData jiffy = Silence(100);
 
     AudioData kick = GiveKick();
+#ifdef DEBUG_AUDIO
     DumpBuffer(kick.buf, kick.length, "Kick.txt");
+#endif
     AudioPlayer(kick);
     AudioPlayer(jiffy);
     AudioPlayer(kick);
@@ -215,8 +218,9 @@ void TestDrums()
     AudioPlayer(jiffy);
     AudioPlayer(snare);
 
+#ifdef DEBUG_AUDIO
     DumpBuffer(snare.buf, snare.length, "snare.txt");
-
+#endif
 }
 
 AudioData GiveKick()

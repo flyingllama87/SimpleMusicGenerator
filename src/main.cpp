@@ -24,36 +24,43 @@ void Menu()
     while (true) {
 
 		std::cout << "BPM: " << songSettings.BPM << "\n";
-		std::cout << "noteLength(ms): " << songSettings.noteLenMS << "\n";
-#ifdef DEBUG
+        std::cout << "Key/Scale: " << songSettings.keyNote << " " << (songSettings.key == Key::Major ? "Major" : "Minor") << "\n";
+        std::cout << "LoFi: " << (songSettings.hiFi == true ? "Yep" : "Nup") << "\n";
+#ifdef DEBUG_AUDIO
+        std::cout << "noteLength(ms): " << songSettings.noteLenMS << "\n";
 		std::cout << "songSettings.barLenMS: " << songSettings.barLenMS << "\n";
 		std::cout << "beatsToBar: " << songSettings.beatsToBar << "\n";
 #endif
-
-        printf("SDL Error from last command (if any): %s\n", SDL_GetError());
+        if (SDL_GetError() == NULL)
+        {
+            printf("SDL Error from last command (if any): %s\n", SDL_GetError());
+        }
 
         std::cout << "\n\n"
-            "Press a to setup audio without callback\n"
-            "Press b to setup audio with callback\n"
-            "Press c to test wave/noise/effects generators\n"
+            "Press c to change settings\n"
+            "Press s to start music generator\n"
+            "Press P to pause music generation\n"
+            "Press o to test old wave/noise/effects generators\n"
             "Press d to test drums\n"
             "Press e to play a major scale\n"
-            "Press f to test wave/noise/effect generators with newer, more efficient method\n"
+            "Press t to test wave/noise/effect generators with new method\n"
             "Press q to quit\n\nAnswer: ";
 
         char menuInput = std::cin.get();
 
-        if (menuInput == 'a')
-            SetupAudio();
-        else if (menuInput == 'b')
+        if (menuInput == 'c')
+            ChangeAudioSettings();
+        else if (menuInput == 's')
             SetupAudio(true);
-        else if (menuInput == 'c')
+        else if (menuInput == 'p')
+            audioSettings.StopAudio();
+        else if (menuInput == 'o')
             DebugGenerators();
         else if (menuInput == 'd')
             TestDrums();
         else if (menuInput == 'e')
             PlayScale();
-        else if (menuInput == 'f')
+        else if (menuInput == 't')
             DebugGeneratorsNew();
         else if (menuInput == 'q')
         {
@@ -62,4 +69,9 @@ void Menu()
         }
         std::cin.get();
     }
+}
+
+void ChangeAudioSettings()
+{
+    std::cout << "Unimplemented\n";
 }

@@ -23,7 +23,7 @@
 #include <filesystem>
 #endif
 
-#define DEBUG 0
+// #define DEBUG_AUDIO 1
 
 //#define samplesPerSec 48000
 #define numChannels 1
@@ -43,6 +43,9 @@ struct AudioData
     Uint8* buf;
 };
 
+enum Key { Major, Minor };
+
+
 // Functions
 
 // Func prototypes
@@ -54,6 +57,7 @@ void DumpBuffer(Uint8* wavBuffer, int length, std::string fileName);
 void c16to8(int16_t* inBuf, int len, Uint8* outBuf);
 void GenAudioStream(void* userdata, Uint8* stream, int len);
 void GenMusicStream();
+void ChangeAudioSettings();
 
 void AudioPlayer(AudioData audioData);
 
@@ -92,18 +96,58 @@ struct audioSettings
     SDL_AudioDeviceID device;
     float samplesPerMS;
     float bytesPerMS;
+    bool inited = false;
     
-    void Init()
+    void Init(bool callback)
     {
+        SDL_memset(&audSpecWant, 0, sizeof(audSpecWant));
+        
+        //audioSettings.audSpecWant.freq = samplesPerSec;
+        audSpecWant.format = sampleFmt;
+        audSpecWant.channels = numChannels;
+        //audioSettings.audSpecWant.samples = samplesBufNum;
+        if (callback) {
+            audSpecWant.callback = GenAudioStream;
+        }
+        else {
+            audSpecWant.callback = NULL;
+        }
+
+        device = SDL_OpenAudioDevice(NULL, 0, &audSpecWant, &audSpecHave, SDL_AUDIO_ALLOW_ANY_CHANGE);
+        
+#ifdef DEBUG_AUDIO
+        std::cout << "\n\nBit Size: " << SDL_AUDIO_BITSIZE(audSpecHave.format) << "\n";
+        std::cout << "Bit Rate/Frequency: " << audSpecHave.freq << "\n";
+
+        if (SDL_AUDIO_ISSIGNED(audSpecHave.format))
+            printf("Audio format is signed.\n");
+        else
+            printf("Audio format is unsigned.\n");
+
+        if (SDL_AUDIO_ISBIGENDIAN(audSpecHave.format))
+            printf("Audio format is big endian.\n");
+        else
+            printf("Audio format is little endian.\n");
+#endif
+        
+        SDL_PauseAudioDevice(device, 0);
+        
         samplesPerMS = (float)this->audSpecHave.freq / 1000.0F;
         bytesPerMS = samplesPerMS * 2.0;
+        
+        // Set flag to let other structs kknow this one has been initialised.
+        inited = true;
+    }
+    
+    void StopAudio()
+    {
+        SDL_PauseAudioDevice(device, 1);
     }
 };
 extern audioSettings audioSettings;
 
 struct songSettings
 {
-
     int BPM;
     int beatsToBar;
     int barsPerMin;
@@ -116,30 +160,41 @@ struct songSettings
 	float halfNoteLenBytes;
 	float qtrNoteLenBytes;
 	float eighthNoteLenBytes;
-    float keyFreq; // Middle C
-
+    std::string keyNote;
+    Key key;
+    bool hiFi;
+    bool inited;
+    bool skipDrums;
+    bool skipBass;
+    bool skipLead;
+    
     AudioData kickSound;
     AudioData snareSound;
     AudioData hihatSound;
 
     songSettings()
     {
-        this->BPM = 240;
+        this->BPM = 120;
         this->beatsToBar = 4;
-        this->keyFreq = 0.0F;
-        Init();
+        this->keyNote = "C";
+        this->key = Major;
+        this->hiFi = false;
+        this->inited = false;
+        this->skipDrums = false;
+        this->skipBass = false;
+        this->skipLead = false;
     }
 
-    songSettings(Uint8 bpm, Uint8 beatsToBar, float keyFreq)
+    void Init() // Must be initialised after audioSettings are initialiosed.
     {
-        this->BPM = bpm;
-        this->beatsToBar = beatsToBar;
-        this->keyFreq = keyFreq;
-        Init();
-    }
-
-    void Init()
-    {
+        if (this->inited == true)
+        {
+            delete[] kickSound.buf;
+            delete[] snareSound.buf;
+            delete[] hihatSound.buf;
+        }
+        if (!audioSettings.inited)
+            std::cout << "\n\nWARNING: audioSettings not initialised.  This will fail.\n\n";
         //set lengths
         this->barsPerMin = BPM / beatsToBar;
         this->barLenMS = 60000 / barsPerMin; // bar length in ms.
@@ -156,8 +211,18 @@ struct songSettings
         this->kickSound = GiveKick();
         this->snareSound = GiveSnare();
         this->hihatSound = GiveHihat();
+        
+        this->inited = true;
     }
-
+    
+    ~songSettings()
+    {
+        std::cout << "\nCalling song Settings destructor\n";
+        delete[] kickSound.buf;
+        delete[] snareSound.buf;
+        delete[] hihatSound.buf;
+    }
+    
 };
 extern songSettings songSettings;
 
@@ -166,13 +231,33 @@ struct internalAudioBuffer
     int pos;
     int length;
     Uint8* buf;
-
+    bool inited;
+    
+    internalAudioBuffer()
+    {
+        inited = false;
+    }
+    
     void Init()
     {
+        if (this->inited == true)
+        {
+            delete[] this->buf;
+        }
+        if (!songSettings.inited || !audioSettings.inited)
+            std::cout << "\n\nWARNING: songSettings or audioSettings not initialised.  This will fail.\n\n";
         length = songSettings.barLenMS * 4 * audioSettings.samplesPerMS * 2; // 4 bars, x2 for bytes
         pos = -1;
         buf = new Uint8[length]();
+        inited = true;
     }
+    
+    ~internalAudioBuffer()
+    {
+        std::cout << "\nCalling internalAudioBuffer destructor\n";
+        delete[] buf;
+    }
+    
 };
 extern internalAudioBuffer internalAudioBuffer;
 

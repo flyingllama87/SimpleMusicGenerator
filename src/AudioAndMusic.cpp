@@ -80,8 +80,6 @@ void FidelityCheck()
     
 	std::cout << "Do you want LoFi or HiFi? Enter 1 for LoFi (8000hz) & 2 for HiFi (48000hz)";
 
-
-    
 	char fidelityInput = std::cin.get();
 
 	if (fidelityInput == '1')
@@ -97,48 +95,6 @@ void FidelityCheck()
 	std::cin.get();
 
 }
-
-void SetupAudio(bool callback)
-{
-    SDL_memset(&audioSettings.audSpecWant, 0, sizeof(audioSettings.audSpecWant));
-
-
-	FidelityCheck();
-    
-    //audioSettings.audSpecWant.freq = samplesPerSec;
-    audioSettings.audSpecWant.format = sampleFmt;
-    audioSettings.audSpecWant.channels = numChannels;
-    //audioSettings.audSpecWant.samples = samplesBufNum;
-    if (callback) {
-        audioSettings.audSpecWant.callback = GenAudioStream;
-    }
-    else {
-        audioSettings.audSpecWant.callback = NULL;
-    }
-
-    audioSettings.device = SDL_OpenAudioDevice(NULL, 0, &audioSettings.audSpecWant, &audioSettings.audSpecHave, 0);
-
-    std::cout << "\n\nBit Size: " << SDL_AUDIO_BITSIZE(audioSettings.audSpecHave.format) << "\n";
-    std::cout << "Bit Rate/Frequency: " << audioSettings.audSpecHave.freq << "\n";
-
-    if (SDL_AUDIO_ISSIGNED(audioSettings.audSpecHave.format))
-        printf("Audio format is signed.\n");
-    else
-        printf("Audio format is unsigned.\n");
-
-    if (SDL_AUDIO_ISBIGENDIAN(audioSettings.audSpecHave.format))
-        printf("Audio format is big endian.\n");
-    else
-        printf("Audio format is little endian.\n");
-
-    SDL_PauseAudioDevice(audioSettings.device, 0);
-    
-    audioSettings.Init();
-    internalAudioBuffer.Init();
-    songSettings.Init();
-    
-}
-
 
 // len is number of bytes not number of samples requested.
 void GenAudioStream(void* userdata, Uint8* stream, int len)
@@ -158,8 +114,11 @@ void GenAudioStream(void* userdata, Uint8* stream, int len)
 	*/
 
     int bytesTillIntBufEnd = internalAudioBuffer.length - internalAudioBuffer.pos;
-
-    if (internalAudioBuffer.pos == -1) // Fill audio buffer on first run.
+    if (!audioSettings.inited || !songSettings.inited || !internalAudioBuffer.inited)
+    {
+        std::cout << "Skipping callback as music functionality is not set up";
+    }
+    else if (internalAudioBuffer.pos == -1) // Fill audio buffer on first run.
     {
         GenMusicStream();
         memcpy(stream, &internalAudioBuffer.buf[internalAudioBuffer.pos], len);
@@ -184,9 +143,9 @@ void GenAudioStream(void* userdata, Uint8* stream, int len)
         internalAudioBuffer.pos += len;
     }
 
-    // c16to8(waveBuffer, noOfSamplesRequested, stream);
-    // DumpBuffer(stream, len, "ReqBuf8.txt");
-    //DumpBuffer(waveBuffer, len, "ReqBuf16.txt");
+#ifdef DEBUG_AUDIO
+    DumpBuffer(stream, len, "ReqBuf8.txt");
+#endif
 }
 
 
@@ -350,8 +309,9 @@ void GenBassTrack(Uint8* bassBuf)
         break;
     }
 
-  
-    //DumpBuffer(bassBuf, internalAudioBuffer.length, "BassBuffer,txt");
+#ifdef DEBUG_AUDIO
+    DumpBuffer(bassBuf, internalAudioBuffer.length, "BassBuffer,txt");
+#endif
 }
 
 
@@ -399,8 +359,10 @@ void PlayScale()
     Sine(key.notes["6th"], songSettings.noteLenMS, halfMag, &scaleBuf[noteLen * 5]);
     Sine(key.notes["7th"], songSettings.noteLenMS, halfMag, &scaleBuf[noteLen * 6]);
     Sine(key.notes["8th"], songSettings.noteLenMS, halfMag, &scaleBuf[noteLen * 7]);
-     
+    
+#ifdef DEBUG_AUDIO
     DumpBuffer(scaleBuf, bufLen, "ScaleSine.txt");
+#endif
     
     scale.buf = scaleBuf;
     scale.length = bufLen;
@@ -449,3 +411,9 @@ void PlayWAV(std::string fileName)
 
 }
 
+void SetupAudio(bool callback)
+{
+    audioSettings.Init(callback);
+    songSettings.Init();
+    internalAudioBuffer.Init();
+}

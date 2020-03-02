@@ -21,46 +21,46 @@ void DebugGenerators()
 
     // Noise
     waveBuffer = Noise(1000, false);
-    DumpBuffer(waveBuffer, waveLength, "Noise.txt");
+    DumpBuffer(waveBuffer, waveLength, "NoiseOld.txt");
     c16to8(waveBuffer, waveLength, tempAD.buf);
     AudioPlayer(tempAD);
 
     // Sawtooth
     waveBuffer = Sawtooth(440, 1000, halfMag);
-    DumpBuffer(waveBuffer, waveLength, "Sawtooth.txt");
+    DumpBuffer(waveBuffer, waveLength, "SawtoothOld.txt");
     c16to8(waveBuffer, waveLength, tempAD.buf);
     AudioPlayer(tempAD);
 
     // Square
     waveBuffer = Square(440, 1000, halfMag);
-    DumpBuffer(waveBuffer, waveLength, "Square.txt");
+    DumpBuffer(waveBuffer, waveLength, "SquareOld.txt");
     c16to8(waveBuffer, waveLength, tempAD.buf);
     AudioPlayer(tempAD);
 
     // Sine fade in
     waveBuffer = SineWave(440, 1000, halfMag);
     FadeIn(waveBuffer, waveLength);
-    DumpBuffer(waveBuffer, waveLength, "SineWaveFadeIn.txt");
+    DumpBuffer(waveBuffer, waveLength, "SineWaveFadeInOld.txt");
     c16to8(waveBuffer, waveLength, tempAD.buf);
     AudioPlayer(tempAD);
 
     // Sine
     waveBuffer = SineWave(440.0F, 1000, halfMag);
-    DumpBuffer(waveBuffer, waveLength, "SineWave.txt");
+    DumpBuffer(waveBuffer, waveLength, "SineWaveOld.txt");
     c16to8(waveBuffer, waveLength, tempAD.buf);
     AudioPlayer(tempAD);
 
     // Sine + FadeOut
     waveBuffer = SineWave(440, 1000, halfMag);
     FadeOut(waveBuffer, waveLength);
-    DumpBuffer(waveBuffer, waveLength, "SineWaveFadeOut.txt");
+    DumpBuffer(waveBuffer, waveLength, "SineWaveFadeOutOld.txt");
     c16to8(waveBuffer, waveLength, tempAD.buf);
     AudioPlayer(tempAD);
 
     // Sine + FadeIn
     waveBuffer = SineWave(440, 1000, halfMag);
     FadeIn(waveBuffer, waveLength);
-    DumpBuffer(waveBuffer, waveLength, "SineWaveFadeIn.txt");
+    DumpBuffer(waveBuffer, waveLength, "SineWaveFadeInOld.txt");
     c16to8(waveBuffer, waveLength, tempAD.buf);
     AudioPlayer(tempAD);
 
