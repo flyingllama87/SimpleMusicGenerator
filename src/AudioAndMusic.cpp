@@ -141,7 +141,6 @@ void GenMusicStream()
 
     internalAudioBuffer.pos = 0;
 
-
     SDL_MixAudioFormat(internalAudioBuffer.buf, drumBuf, sampleFmt, internalAudioBuffer.length, SDL_MIX_MAXVOLUME);
     SDL_MixAudioFormat(internalAudioBuffer.buf, bassBuf, sampleFmt, internalAudioBuffer.length, SDL_MIX_MAXVOLUME);
 
@@ -149,7 +148,6 @@ void GenMusicStream()
     delete[] bassBuf;
 
 }
-
 
 void GenBassTrack(Uint8* bassBuf)
 {
@@ -167,7 +165,7 @@ void GenBassTrack(Uint8* bassBuf)
     
     // Select bass pattern
     int pickRandBassPattern = rand() % 7;
-    std::cout << "\nPlaying bass pattern: " << pickRandBassPattern << "\n";
+    std::cout << "Playing bass pattern: " << pickRandBassPattern << "\n\n";
 
     // Here we go!
     int beatCount = 1;
@@ -255,8 +253,22 @@ void GenBassTrack(Uint8* bassBuf)
 		}
 		break;
 	}
-	case 4: // Silence
+	case 4: // Copy of case 0.  Was silence.  Maybe add in when we have lead in.
 	{
+        for (int c = 0; c < internalAudioBuffer.length; c += (songSettings.halfNoteLenBytes)) // 8 notes to bar
+        {
+            int chooseNote = rand() % 8;
+            float noteFreq = key.freqs[chooseNote];
+            Sawtooth(noteFreq, songSettings.halfNoteLenMS, qtrMag, &bassBuf[c]);
+
+            if (beatCount == 8)
+            {
+                beatCount = 0;
+                barCount++;
+            }
+            beatCount++;
+        }
+        break;
 	}
 	break;
 	case 5: // random through out, 4 notes per bar
@@ -283,7 +295,7 @@ void GenBassTrack(Uint8* bassBuf)
 			int chooseNote = rand() % 8;
 			float noteFreq = key.freqs[chooseNote];
 			Sawtooth(noteFreq, songSettings.noteLenMS, qtrMag, &bassBuf[c]);
-			FadeIn(&bassBuf[c], songSettings.noteLenBytes);
+			FadeOut(&bassBuf[c], songSettings.noteLenBytes);
 
 			if (beatCount == 4)
 			{
@@ -303,13 +315,9 @@ void GenBassTrack(Uint8* bassBuf)
 #endif
 }
 
-
-
 void PlayScale()
 {
-    // flush input buf
-    int c;
-    while ((c = getchar()) != '\n' && c != EOF) {}
+    SetupAudio();
 
     std::string strInputNoteName;
     float fInputFreq;
@@ -334,7 +342,7 @@ void PlayScale()
     // TODO: Fix this
     /*if (fInputFreq == Notes.KV.end()->second)
         std::cout << "\nReceived default note.  Was your input correct?\n";
-*/
+     */
     
     auto key = Scale(Key::Major, fInputFreq);
    
@@ -379,7 +387,6 @@ void AudioPlayer(AudioData audioData)
 
     if (success != 0)
         std::cout << "\nError outputting to device!!\n";
-
 }
 
 void PlayWAV(std::string fileName)
@@ -397,7 +404,6 @@ void PlayWAV(std::string fileName)
         std::cout << "\nError outputting to device!!\n";
 
     SDL_PauseAudioDevice(audioSettings.device, 0);
-
 }
 
 void SetupAudio(bool callback)

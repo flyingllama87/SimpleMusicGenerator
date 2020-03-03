@@ -22,9 +22,9 @@ int main(int argc, char* argv[])
 void Menu()
 {
     while (true) {
-		std::cout << "BPM: " << songSettings.BPM << "\n";
+		std::cout << "\nBPM: " << songSettings.BPM << "\n";
         std::cout << "Key/Scale: " << songSettings.keyNote << " " << (songSettings.key == Key::Major ? "Major" : "Minor") << "\n";
-        std::cout << "LoFi: " << (songSettings.hiFi == true ? "Yep" : "Nup") << "\n";
+        std::cout << "LoFi: " << (songSettings.loFi == true ? "Yep" : "Nup") << "\n";
 #ifdef DEBUG_AUDIO
         std::cout << "noteLength(ms): " << songSettings.noteLenMS << "\n";
 		std::cout << "songSettings.barLenMS: " << songSettings.barLenMS << "\n";
@@ -35,7 +35,7 @@ void Menu()
             printf("SDL Error from last command (if any): %s\n", SDL_GetError());
         }
 
-        std::cout << "\n\n"
+        std::cout << "\n"
             "Press c to change settings\n"
             "Press s to start music generator\n"
             "Press P to pause music generation\n"
@@ -79,7 +79,7 @@ void ChangeAudioSettings()
     {
         std::cout << "BPM: " << songSettings.BPM << "\n"
         "Key/Scale: " << songSettings.keyNote << " " << (songSettings.key == Key::Major ? "Major" : "Minor") << "\n"
-        "LoFi: " << (songSettings.hiFi == true ? "Yep" : "Nup") << "\n\n";
+        "LoFi: " << (songSettings.loFi == true ? "Yep" : "Nup") << "\n\n";
         
         std::cout << "What do you want to change?\n"
             "Press 1 to change BPM\n"
@@ -97,7 +97,7 @@ void ChangeAudioSettings()
                 while (true)
                 {
                     std::string strInputBPM;
-                    std::cout << "\nWhat do you want to set the BPM to? ";
+                    std::cout << "\nWhat do you want to set the BPM to? Needs to be divisible by 4. \n Answer: ";
                     std::getline(std::cin, strInputBPM);
                     if (!stringIsInt(strInputBPM))
                     {
@@ -105,6 +105,11 @@ void ChangeAudioSettings()
                         continue;
                     }
                     int inputBPM = std::stoi(strInputBPM);
+                    if (inputBPM % 4)
+                    {
+                        std::cout << "Not divisible by 4!\n";
+                        continue;
+                    }
                     if (inputBPM > 240 || inputBPM == 0)
                     {
                         std::cout << "Too fast!\n";
@@ -142,17 +147,17 @@ void ChangeAudioSettings()
             }
             case '4':
             {
-                if (songSettings.hiFi == true)
+                if (songSettings.loFi == true)
                 {
-                    songSettings.hiFi = false;
-                    audioSettings.audSpecWant.freq = 8000;
-                    audioSettings.audSpecWant.samples = 4096;
+                    songSettings.loFi = false;
+                    audioSettings.audSpecWant.freq = 48000;
+                    audioSettings.audSpecWant.samples = 32768;
                 }
                 else
                 {
-                    songSettings.hiFi = true;
-                    audioSettings.audSpecWant.freq = 48000;
-                    audioSettings.audSpecWant.samples = 32768;
+                    songSettings.loFi = true;
+                    audioSettings.audSpecWant.freq = 8000;
+                    audioSettings.audSpecWant.samples = 4096;
                 }
                 break;
             }

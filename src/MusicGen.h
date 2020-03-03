@@ -173,7 +173,7 @@ struct songSettings
 	float eighthNoteLenBytes;
     std::string keyNote;
     Key key;
-    bool hiFi;
+    bool loFi;
     bool inited;
     bool skipDrums;
     bool skipBass;
@@ -185,11 +185,11 @@ struct songSettings
 
     songSettings()
     {
-        this->BPM = 120;
+        this->BPM = 240;
         this->beatsToBar = 4;
-        this->keyNote = "C";
+        this->keyNote = "B";
         this->key = Major;
-        this->hiFi = false;
+        this->loFi = false;
         this->inited = false;
         this->skipDrums = false;
         this->skipBass = false;

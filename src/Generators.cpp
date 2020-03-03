@@ -12,6 +12,8 @@
 
 void DebugGenerators()
 {
+    SetupAudio();
+
     Uint32 waveLength = 1000 * audioSettings.samplesPerMS;
     int16_t* waveBuffer = new int16_t[waveLength]();
 
@@ -73,6 +75,8 @@ void DebugGenerators()
 
 void DebugGeneratorsNew()
 {
+    SetupAudio();
+
     Uint32 waveLength = 1000 * audioSettings.samplesPerMS * 2;
     Uint8* waveBuffer = new Uint8[waveLength]();
 

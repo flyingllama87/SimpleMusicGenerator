@@ -19,7 +19,7 @@ void GenDrumBeat(Uint8 *drumBuf)
     int barCount = 1;
 
 	int pickRandDrumPattern = rand() % 7;
-    std::cout << "\nPlaying drum pattern: " << pickRandDrumPattern << "\n";
+    std::cout << "Playing drum pattern: " << pickRandDrumPattern << "\n";
 
 #ifdef DEBUG_AUDIO
     std::cout << "internalAudioBuffer.length: " << internalAudioBuffer.length << "\n";
