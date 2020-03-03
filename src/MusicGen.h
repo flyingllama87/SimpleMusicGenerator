@@ -187,7 +187,7 @@ struct songSettings
     {
         this->BPM = 240;
         this->beatsToBar = 4;
-        this->keyNote = "B";
+        this->keyNote = "C";
         this->key = Major;
         this->loFi = false;
         this->inited = false;

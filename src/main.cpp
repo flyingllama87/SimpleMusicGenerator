@@ -3,7 +3,9 @@
 // main etc.
 int main(int argc, char* argv[])
 {
-    srand(0);
+    // Seed random number gen
+    srand(time(0));
+    
     if (SDL_Init(SDL_INIT_AUDIO) < 0)
     {
         std::cout << "Could not initialise SDL";
