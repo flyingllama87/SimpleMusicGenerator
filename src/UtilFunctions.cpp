@@ -49,3 +49,25 @@ void DumpBuffer(int16_t* wavBuffer, int length, std::string fileName)
 #endif
 }
 
+
+bool stringIsFloat (const std::string& s)
+{
+    std::string::const_iterator it = s.begin();
+    while (it != s.end() && (std::isdigit(*it) || *it == '.' )) ++it;
+    return !s.empty() && it == s.end();
+}
+
+bool stringIsInt (const std::string& s)
+{
+    std::string::const_iterator it = s.begin();
+    while (it != s.end() && std::isdigit(*it)) ++it;
+    return !s.empty() && it == s.end();
+}
+
+bool IsANote(std::string str)
+{
+    if (int(str[0]) >= 'A' && int(str[0]) <= 'G')
+        return true;
+    else
+        return false;
+}

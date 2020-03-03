@@ -71,30 +71,7 @@ struct minorKey
 	}
 };
 
-void FidelityCheck()
-{
-    
-    // flush input buf
-    int c;
-    while ((c = getchar()) != '\n' && c != EOF) {}
-    
-	std::cout << "Do you want LoFi or HiFi? Enter 1 for LoFi (8000hz) & 2 for HiFi (48000hz)";
 
-	char fidelityInput = std::cin.get();
-
-	if (fidelityInput == '1')
-	{
-		audioSettings.audSpecWant.freq = 8000;
-		audioSettings.audSpecWant.samples = 4096;
-	}
-	else
-	{
-		audioSettings.audSpecWant.freq = 48000;
-		audioSettings.audSpecWant.samples = 32768;
-	}
-	std::cin.get();
-
-}
 
 // len is number of bytes not number of samples requested.
 void GenAudioStream(void* userdata, Uint8* stream, int len)
@@ -417,3 +394,4 @@ void SetupAudio(bool callback)
     songSettings.Init();
     internalAudioBuffer.Init();
 }
+

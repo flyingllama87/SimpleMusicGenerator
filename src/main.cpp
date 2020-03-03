@@ -22,7 +22,6 @@ int main(int argc, char* argv[])
 void Menu()
 {
     while (true) {
-
 		std::cout << "BPM: " << songSettings.BPM << "\n";
         std::cout << "Key/Scale: " << songSettings.keyNote << " " << (songSettings.key == Key::Major ? "Major" : "Minor") << "\n";
         std::cout << "LoFi: " << (songSettings.hiFi == true ? "Yep" : "Nup") << "\n";
@@ -73,5 +72,102 @@ void Menu()
 
 void ChangeAudioSettings()
 {
-    std::cout << "Unimplemented\n";
+    // std::cout << "Unimplemented\n";
+    
+    // flush input buf
+    int c;
+    while ((c = getchar()) != '\n' && c != EOF) {}
+    
+    bool goBack = false;
+    
+    while (!goBack)
+    {
+        std::cout << "BPM: " << songSettings.BPM << "\n"
+        "Key/Scale: " << songSettings.keyNote << " " << (songSettings.key == Key::Major ? "Major" : "Minor") << "\n"
+        "LoFi: " << (songSettings.hiFi == true ? "Yep" : "Nup") << "\n\n";
+        
+        std::cout << "What do you want to change?\n"
+            "Press 1 to change BPM\n"
+            "Press 2 to change key base note\n"
+            "Press 3 to switch key tonality to major / minor\n"
+            "Press 4 to change fidelity\n"
+            "Press 5 to go back\n";
+        
+        std::string selection;
+        std::getline(std::cin, selection);
+        
+        switch (selection[0]) {
+            case '1':
+            {
+                while (true)
+                {
+                    std::string strInputBPM;
+                    std::cout << "\nWhat do you want to set the BPM to? ";
+                    std::getline(std::cin, strInputBPM);
+                    if (!stringIsInt(strInputBPM))
+                    {
+                        std::cout << "Invalid input\n";
+                        continue;
+                    }
+                    int inputBPM = std::stoi(strInputBPM);
+                    if (inputBPM > 240 || inputBPM == 0)
+                    {
+                        std::cout << "Too fast!\n";
+                        continue;
+                    }
+                    songSettings.BPM = inputBPM;
+                    break;
+                }
+                break;
+            }
+            case '2':
+            {
+                while (true)
+                {
+                    std::string strInputNote;
+                    std::cout << "\nWhat base note do you want to use? ";
+                    std::getline(std::cin, strInputNote);
+                    if (!IsANote(strInputNote))
+                    {
+                        std::cout << "Invalid input\n";
+                        continue;
+                    }
+                    songSettings.keyNote = strInputNote[0];
+                    break;
+                }
+                break;
+            }
+            case '3':
+            {
+                if (songSettings.key == Key::Major)
+                    songSettings.key = Key::Minor;
+                else
+                    songSettings.key = Key::Major;
+                break;
+            }
+            case '4':
+            {
+                if (songSettings.hiFi == true)
+                {
+                    songSettings.hiFi = false;
+                    audioSettings.audSpecWant.freq = 8000;
+                    audioSettings.audSpecWant.samples = 4096;
+                }
+                else
+                {
+                    songSettings.hiFi = true;
+                    audioSettings.audSpecWant.freq = 48000;
+                    audioSettings.audSpecWant.samples = 32768;
+                }
+                break;
+            }
+            case '5':
+            {
+                goBack = true;
+                break;
+            }
+            default:
+                break;
+        }
+    }
 }

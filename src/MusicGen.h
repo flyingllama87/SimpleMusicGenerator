@@ -88,6 +88,11 @@ void GenBassTrack(Uint8* bassBuf);
 
 void PlayScale();
 
+// Validation functions.
+bool stringIsFloat (const std::string& s);
+bool stringIsInt (const std::string& s);
+bool IsANote(std::string str);
+
 // Structs
 
 struct audioSettings
