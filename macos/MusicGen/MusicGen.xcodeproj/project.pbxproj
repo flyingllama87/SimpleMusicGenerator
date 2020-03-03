@@ -13,8 +13,7 @@
 		905F7D61240C7549001B4099 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 905F7D5B240C7549001B4099 /* main.cpp */; };
 		905F7D62240C7549001B4099 /* AudioAndMusic.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 905F7D5C240C7549001B4099 /* AudioAndMusic.cpp */; };
 		905F7D63240C7605001B4099 /* MusicGen.h in Headers */ = {isa = PBXBuildFile; fileRef = 905F7D5D240C7549001B4099 /* MusicGen.h */; };
-		90F77FC7240932C700C3DF21 /* libSDL2-2.0.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 90F77FC6240932C700C3DF21 /* libSDL2-2.0.0.dylib */; };
-		90F77FC8240932C700C3DF21 /* libSDL2-2.0.0.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = 90F77FC6240932C700C3DF21 /* libSDL2-2.0.0.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		90616CDD240E85E600FCE620 /* libSDL2-2.0.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 90F77FC6240932C700C3DF21 /* libSDL2-2.0.0.dylib */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -33,7 +32,6 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				90F77FC8240932C700C3DF21 /* libSDL2-2.0.0.dylib in Embed Libraries */,
 			);
 			name = "Embed Libraries";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -57,7 +55,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				90F77FC7240932C700C3DF21 /* libSDL2-2.0.0.dylib in Frameworks */,
+				90616CDD240E85E600FCE620 /* libSDL2-2.0.0.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

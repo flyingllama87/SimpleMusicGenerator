@@ -198,7 +198,7 @@ void TestDrums()
 
     AudioData kick = GiveKick();
 #ifdef DEBUG_AUDIO
-    DumpBuffer(kick.buf, kick.length, "Kick.txt");
+    DumpBuffer(kick.buf, kick.length, "kick.txt");
 #endif
     AudioPlayer(kick);
     AudioPlayer(jiffy);
@@ -210,7 +210,10 @@ void TestDrums()
     AudioPlayer(hihat);
     AudioPlayer(jiffy);
     AudioPlayer(hihat);
-
+#ifdef DEBUG_AUDIO
+    DumpBuffer(hihat.buf, hihat.length, "hihat.txt");
+#endif
+    
     AudioPlayer(silenceSec);
 
     AudioData snare = GiveSnare();

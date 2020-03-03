@@ -45,7 +45,9 @@ void Menu()
             "Press t to test wave/noise/effect generators with new method\n"
             "Press q to quit\n\nAnswer: ";
 
-        char menuInput = std::cin.get();
+        std::string menuStr;
+        std::getline(std::cin, menuStr);
+        char menuInput = menuStr[0];
 
         if (menuInput == 'c')
             ChangeAudioSettings();
@@ -66,18 +68,11 @@ void Menu()
             SDL_Quit();
             exit(0);
         }
-        std::cin.get();
     }
 }
 
 void ChangeAudioSettings()
 {
-    // std::cout << "Unimplemented\n";
-    
-    // flush input buf
-    int c;
-    while ((c = getchar()) != '\n' && c != EOF) {}
-    
     bool goBack = false;
     
     while (!goBack)

@@ -13,7 +13,7 @@ struct songSettings songSettings;
 struct internalAudioBuffer internalAudioBuffer;
 
 
-struct majorKey
+struct Scale
 {
 	const float twelthRootOf2 = powf(2.0f, 1.0f / 12.0f);
 
@@ -21,8 +21,19 @@ struct majorKey
 
 	std::map<std::string, float> notes;
 	std::vector<float> freqs;
-
-	majorKey(float freq)
+    
+    Scale(Key key, float freq)
+    {
+        if (key == Key::Major)
+            Major(freq);
+        else
+            Minor(freq);
+    }
+    
+    // Disable default constructor
+    Scale() = delete;
+    
+	void Major(float freq)
 	{
 		this->keyFreq = freq;
 
@@ -40,37 +51,26 @@ struct majorKey
 			freqs.push_back(it->second);
 		}
 	}
+    
+    void Minor(float freq)
+    {
+        this->keyFreq = freq;
+
+        notes.insert(std::make_pair("1st", this->keyFreq));
+        notes.insert(std::make_pair("2nd", this->keyFreq * powf(twelthRootOf2, 2.0f)));
+        notes.insert(std::make_pair("3rd", this->keyFreq * powf(twelthRootOf2, 3.0f)));
+        notes.insert(std::make_pair("4th", this->keyFreq * powf(twelthRootOf2, 5.0f)));
+        notes.insert(std::make_pair("5th", this->keyFreq * powf(twelthRootOf2, 7.0f)));
+        notes.insert(std::make_pair("6th", this->keyFreq * powf(twelthRootOf2, 8.0f)));
+        notes.insert(std::make_pair("7th", this->keyFreq * powf(twelthRootOf2, 10.0f)));
+        notes.insert(std::make_pair("8th", this->keyFreq * powf(twelthRootOf2, 12.0f)));
+
+        for (std::map<std::string, float>::iterator it = notes.begin(); it != notes.end(); it++)
+        {
+            freqs.push_back(it->second);
+        }
+    }
 };
-
-struct minorKey
-{
-	const float twelthRootOf2 = powf(2.0f, 1.0f / 12.0f);
-
-	float keyFreq = 0.0f;  // Will be overwritten during construction
-
-	std::map<std::string, float> notes;
-	std::vector<float> freqs;
-
-	minorKey(float freq)
-	{
-		this->keyFreq = freq;
-
-		notes.insert(std::make_pair("1st", this->keyFreq));
-		notes.insert(std::make_pair("2nd", this->keyFreq * powf(twelthRootOf2, 2.0f)));
-		notes.insert(std::make_pair("3rd", this->keyFreq * powf(twelthRootOf2, 3.0f)));
-		notes.insert(std::make_pair("4th", this->keyFreq * powf(twelthRootOf2, 5.0f)));
-		notes.insert(std::make_pair("5th", this->keyFreq * powf(twelthRootOf2, 7.0f)));
-		notes.insert(std::make_pair("6th", this->keyFreq * powf(twelthRootOf2, 8.0f)));
-		notes.insert(std::make_pair("7th", this->keyFreq * powf(twelthRootOf2, 10.0f)));
-		notes.insert(std::make_pair("8th", this->keyFreq * powf(twelthRootOf2, 12.0f)));
-
-		for (std::map<std::string, float>::iterator it = notes.begin(); it != notes.end(); it++)
-		{
-			freqs.push_back(it->second);
-		}
-	}
-};
-
 
 
 // len is number of bytes not number of samples requested.
@@ -153,14 +153,26 @@ void GenMusicStream()
 
 void GenBassTrack(Uint8* bassBuf)
 {
-    auto key = majorKey(Notes.getNoteFreq("C2"));
-
-    int beatCount = 1;
-    int barCount = 1;
-
+    // Get base note for bass
+    std::string bassScaleNote;
+    bassScaleNote.append(songSettings.keyNote);
+    bassScaleNote.append("2"); // second octave for bass
+    
+#ifdef DEBUG_AUDIO
+    std::cout << "Bass base scale note: " << bassScaleNote << "\n";
+#endif
+    
+    // Construct key scale
+    Scale key(songSettings.key, Notes.getNoteFreq(bassScaleNote));
+    
+    // Select bass pattern
     int pickRandBassPattern = rand() % 7;
     std::cout << "\nPlaying bass pattern: " << pickRandBassPattern << "\n";
 
+    // Here we go!
+    int beatCount = 1;
+    int barCount = 1;
+    
     switch (pickRandBassPattern) {
     case 0: // random through out, 8 halfnotes
     {
@@ -220,10 +232,10 @@ void GenBassTrack(Uint8* bassBuf)
 	case 3: // Change note every 2 bars, 2 notes per bar with silence in between
 	{
 		int chooseNote;
-		float noteFreq;
+		float noteFreq = 0;
 		for (int c = 0; c < internalAudioBuffer.length; c += (songSettings.noteLenBytes))
 		{
-			if (barCount == 1 || barCount == 3)
+			if ((barCount == 1 || barCount == 3) && beatCount == 1)
 			{
 				chooseNote = rand() % 8;
 				noteFreq = key.freqs[chooseNote];
@@ -324,7 +336,7 @@ void PlayScale()
         std::cout << "\nReceived default note.  Was your input correct?\n";
 */
     
-    auto key = majorKey(fInputFreq);
+    auto key = Scale(Key::Major, fInputFreq);
    
     int noteLen = songSettings.noteLenBytes;
 

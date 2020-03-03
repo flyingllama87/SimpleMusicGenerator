@@ -23,7 +23,7 @@
 #include <filesystem>
 #endif
 
-// #define DEBUG_AUDIO 1
+#define DEBUG_AUDIO 1
 
 //#define samplesPerSec 48000
 #define numChannels 1
@@ -103,10 +103,16 @@ struct audioSettings
     float bytesPerMS;
     bool inited = false;
     
-    void Init(bool callback)
+    audioSettings()
     {
         SDL_memset(&audSpecWant, 0, sizeof(audSpecWant));
-        
+        SDL_memset(&audSpecHave, 0, sizeof(audSpecHave));
+        audSpecWant.freq = 48000;
+        audSpecWant.samples = 32768;
+    }
+    
+    void Init(bool callback)
+    {
         //audioSettings.audSpecWant.freq = samplesPerSec;
         audSpecWant.format = sampleFmt;
         audSpecWant.channels = numChannels;
@@ -132,7 +138,7 @@ struct audioSettings
         if (SDL_AUDIO_ISBIGENDIAN(audSpecHave.format))
             printf("Audio format is big endian.\n");
         else
-            printf("Audio format is little endian.\n");
+            printf("Audio format is little endian.\n\n");
 #endif
         
         SDL_PauseAudioDevice(device, 0);
