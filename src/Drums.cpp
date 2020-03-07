@@ -6,10 +6,14 @@
 //
 
 #include "MusicGen.h"
-
+#include <Windows.h>
 
 void GenDrumBeat(Uint8 *drumBuf)
 {
+    LARGE_INTEGER cicles;
+    QueryPerformanceCounter(&cicles);
+    std::srand(cicles.QuadPart);
+
     AudioData kick = songSettings.kickSound;
     AudioData hihat = songSettings.hihatSound;
     AudioData snare = songSettings.snareSound;
@@ -199,10 +203,6 @@ void GenDrumBeat(Uint8 *drumBuf)
         std::cout << "Playing drum pattern: " << pickRandDrumPattern << " - Hi hat rolls!!! \n";
 
         bool hatRoll = false;
-
-#ifdef DEBUG_AUDIO
-        std::cout << "snare.length: " << snare.length << "\n";
-#endif
 
         for (int c = 0; c < internalAudioBuffer.length; c += songSettings.qtrNoteLenBytes)
         {

@@ -18,6 +18,7 @@
 #include <list>
 #include <functional>
 #include <algorithm>
+#include <random>
 
 #ifndef _WIN32 || _WIN64
 #include <filesystem>
@@ -47,9 +48,7 @@ struct AudioData
 enum Key { Major, Minor };
 
 
-// Functions
-
-// Func prototypes
+// Functions prototypes
 
 // Menu / CLI specific
 void Menu();
@@ -68,6 +67,8 @@ void GenMusicStream();
 void AudioPlayer(AudioData audioData);
 void SafeMemCopy(Uint8* destBuf, Uint8* srcBuf, Uint32 srcBufLen, int c);
 
+
+// Wave & Sound Generators
 void DebugGenerators();
 void DebugGeneratorsNew();
 int16_t* Square(float freq, float length, int magnitude);
@@ -83,21 +84,25 @@ void Sine(float freq, int length, Uint16 magnitude, Uint8* inBuf);
 void SafeSine(float freq, int length, Uint16 magnitude, Uint8 *inBuf, int currPos);
 AudioData Silence(float length);
 
+// Effects
 void FadeIn(int16_t* buffer, int numOfSamples);
 void FadeOut(int16_t* buffer, int numOfSamples);
 void FadeIn(Uint8* buffer, int numOfSamples);
 void FadeOut(Uint8* buffer, int numOfSamples);
 void SafeFadeOut(Uint8* buffer, int numOfBytes, int currPos);
 
+// Drums
 void GenDrumBeat(Uint8* drumBuf);
 void TestDrums();
 AudioData GiveKick();
 AudioData GiveHihat();
 AudioData GiveSnare();
 
+// Bass
 void GenBassTrack(Uint8* bassBuf);
 void GenLeadTrack(Uint8* leadBuf);
 
+// Music
 void PlayScale();
 
 // Validation functions.
@@ -126,8 +131,8 @@ struct audioSettings
     void Init(bool callback)
     {
         //audioSettings.audSpecWant.freq = samplesPerSec;
-        audSpecWant.format = sampleFmt;
-        audSpecWant.channels = numChannels;
+        audSpecWant.format = AUDIO_S16LSB;
+        audSpecWant.channels = 1;
         //audioSettings.audSpecWant.samples = samplesBufNum;
         if (callback) {
             audSpecWant.callback = GenAudioStream;

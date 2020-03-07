@@ -5,7 +5,7 @@
 //  Created by Morgan on 28/2/20.
 //  Copyright © 2020 Morgan. All rights reserved.
 //
-
+#include <Windows.h>
 #include "MusicGen.h"
 
 struct audioSettings audioSettings;
