@@ -1,11 +1,12 @@
 #include "MusicGen.h"
 
+
 // main etc.
 int main(int argc, char* argv[])
 {
+
     // Seed random number gen
-    srand(time(0));
-    
+
     if (SDL_Init(SDL_INIT_AUDIO) < 0)
     {
         std::cout << "Could not initialise SDL";
@@ -34,7 +35,7 @@ void Menu()
 #endif
         if (SDL_GetError() == NULL)
         {
-            printf("SDL Error from last command (if any): %s\n", SDL_GetError());
+            std::cout << "SDL Error from last command (if any):" << SDL_GetError() << "\n";
         }
 
         std::cout << "\n"

@@ -5,7 +5,7 @@
 //  Created by Morgan on 28/2/20.
 //  Copyright © 2020 Morgan. All rights reserved.
 //
-
+#include <Windows.h>
 #include "MusicGen.h"
 
 struct audioSettings audioSettings;
@@ -151,6 +151,12 @@ void GenMusicStream()
 
 void GenBassTrack(Uint8* bassBuf)
 {
+
+    LARGE_INTEGER cicles;
+
+    QueryPerformanceCounter(&cicles);
+    std::srand(cicles.QuadPart);
+
     // Get base note for bass
     std::string bassScaleNote;
     bassScaleNote.append(songSettings.keyNote);
@@ -164,7 +170,7 @@ void GenBassTrack(Uint8* bassBuf)
     Scale key(songSettings.key, Notes.getNoteFreq(bassScaleNote));
     
     // Select bass pattern
-    int pickRandBassPattern = rand() % 7;
+    int pickRandBassPattern = std::rand() % 7;
     std::cout << "Playing bass pattern: " << pickRandBassPattern << "\n\n";
 
     // Here we go!
@@ -176,7 +182,7 @@ void GenBassTrack(Uint8* bassBuf)
     {
         for (int c = 0; c < internalAudioBuffer.length; c += (songSettings.halfNoteLenBytes)) // 8 notes to bar
         {
-            int chooseNote = rand() % 8;
+            int chooseNote = std::rand() % 8;
             float noteFreq = key.freqs[chooseNote];
             Sawtooth(noteFreq, songSettings.halfNoteLenMS, qtrMag, &bassBuf[c]);
 
@@ -193,7 +199,7 @@ void GenBassTrack(Uint8* bassBuf)
 	{
 		for (int c = 0; c < internalAudioBuffer.length; c += (songSettings.barLenMS * audioSettings.samplesPerMS * 2)) // 1 note per bar
 		{
-			int chooseNote = rand() % 8;
+			int chooseNote = std::rand() % 8;
 			float noteFreq = key.freqs[chooseNote];
 			Sawtooth(noteFreq, songSettings.barLenMS, qtrMag, &bassBuf[c]);
 
@@ -210,7 +216,7 @@ void GenBassTrack(Uint8* bassBuf)
 	{
 		for (int c = 0; c < internalAudioBuffer.length; c += (songSettings.halfNoteLenBytes))
 		{
-			int chooseNote = rand() % 8;
+			int chooseNote = std::rand() % 8;
 			float noteFreq = key.freqs[chooseNote];
 			
 			if (beatCount % 2 == 1)
@@ -235,7 +241,7 @@ void GenBassTrack(Uint8* bassBuf)
 		{
 			if ((barCount == 1 || barCount == 3) && beatCount == 1)
 			{
-				chooseNote = rand() % 8;
+				chooseNote = std::rand() % 8;
 				noteFreq = key.freqs[chooseNote];
 			}
 
@@ -257,7 +263,7 @@ void GenBassTrack(Uint8* bassBuf)
 	{
         for (int c = 0; c < internalAudioBuffer.length; c += (songSettings.halfNoteLenBytes)) // 8 notes to bar
         {
-            int chooseNote = rand() % 8;
+            int chooseNote = std::rand() % 8;
             float noteFreq = key.freqs[chooseNote];
             Sawtooth(noteFreq, songSettings.halfNoteLenMS, qtrMag, &bassBuf[c]);
 
@@ -275,7 +281,7 @@ void GenBassTrack(Uint8* bassBuf)
 	{
 		for (int c = 0; c < internalAudioBuffer.length; c += (songSettings.noteLenBytes)) // 4 beats
 		{
-			int chooseNote = rand() % 8;
+			int chooseNote = std::rand() % 8;
 			float noteFreq = key.freqs[chooseNote];
 			Sawtooth(noteFreq, songSettings.noteLenMS, qtrMag, &bassBuf[c]);
 
@@ -292,7 +298,7 @@ void GenBassTrack(Uint8* bassBuf)
 	{
 		for (int c = 0; c < internalAudioBuffer.length; c += (songSettings.noteLenBytes)) // 8 beats
 		{
-			int chooseNote = rand() % 8;
+			int chooseNote = std::rand() % 8;
 			float noteFreq = key.freqs[chooseNote];
 			Sawtooth(noteFreq, songSettings.noteLenMS, qtrMag, &bassBuf[c]);
 			FadeOut(&bassBuf[c], songSettings.noteLenBytes);
@@ -311,7 +317,7 @@ void GenBassTrack(Uint8* bassBuf)
     }
 
 #ifdef DEBUG_AUDIO
-    DumpBuffer(bassBuf, internalAudioBuffer.length, "BassBuffer,txt");
+    DumpBuffer(bassBuf, internalAudioBuffer.length, "BassBuffer.txt");
 #endif
 }
 
@@ -413,3 +419,16 @@ void SetupAudio(bool callback)
     internalAudioBuffer.Init();
 }
 
+// Seed random number gen
+int Init_SDL()
+{
+    if (SDL_Init(SDL_INIT_AUDIO) < 0)
+    {
+        return 1;
+    }
+    else
+    {
+        return 0;
+    }
+    return 0;
+}

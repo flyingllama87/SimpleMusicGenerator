@@ -7,10 +7,14 @@
 //
 
 #include "MusicGen.h"
-
+#include <Windows.h>
 
 void GenDrumBeat(Uint8 *drumBuf)
 {
+    LARGE_INTEGER cicles;
+    QueryPerformanceCounter(&cicles);
+    std::srand(cicles.QuadPart);
+
     AudioData kick = songSettings.kickSound;
     AudioData hihat = songSettings.hihatSound;
     AudioData snare = songSettings.snareSound;
@@ -18,7 +22,7 @@ void GenDrumBeat(Uint8 *drumBuf)
     int beatCount = 1;
     int barCount = 1;
 
-	int pickRandDrumPattern = rand() % 7;
+	int pickRandDrumPattern = std::rand() % 7;
     std::cout << "Playing drum pattern: " << pickRandDrumPattern << "\n";
 
 #ifdef DEBUG_AUDIO
@@ -143,10 +147,6 @@ void GenDrumBeat(Uint8 *drumBuf)
         Uint8* snareHatBuf = new Uint8[snare.length];
         memcpy(snareHatBuf, snare.buf, snare.length);
         SDL_MixAudioFormat(snareHatBuf, hihat.buf, sampleFmt, hihat.length, SDL_MIX_MAXVOLUME);
-
-#ifdef DEBUG_AUDIO
-        std::cout << "snare.length: " << snare.length << "\n";
-#endif
 
         for (int c = 0; c < internalAudioBuffer.length; c += songSettings.qtrNoteLenBytes)
         {

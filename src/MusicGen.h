@@ -18,6 +18,7 @@
 #include <list>
 #include <functional>
 #include <algorithm>
+#include <random>
 
 #ifndef _WIN32 || _WIN64
 #include <filesystem>
@@ -46,10 +47,10 @@ struct AudioData
 enum Key { Major, Minor };
 
 
-// Functions
+// Functions prototypes
 
-// Func prototypes
-
+// Utils
+int Init_SDL();
 void Menu();
 void SetupAudio(bool callback = false);
 void DumpBuffer(int16_t* wavBuffer, int length, std::string fileName);
@@ -61,6 +62,8 @@ void ChangeAudioSettings();
 
 void AudioPlayer(AudioData audioData);
 
+
+// Wave & Sound Generators
 void DebugGenerators();
 void DebugGeneratorsNew();
 int16_t* Square(float freq, float length, int magnitude);
@@ -73,19 +76,23 @@ void Noise(float length, bool lowPitch, Uint8* inBuf, int magnitude = halfMag);
 void Sine(float freq, int length, Uint16 magnitude, Uint8* inBuf);
 AudioData Silence(float length);
 
+// Effects
 void FadeIn(int16_t* buffer, int numOfSamples);
 void FadeOut(int16_t* buffer, int numOfSamples);
 void FadeIn(Uint8* buffer, int numOfSamples);
 void FadeOut(Uint8* buffer, int numOfSamples);
 
+// Drums
 void GenDrumBeat(Uint8* drumBuf);
 void TestDrums();
 AudioData GiveKick();
 AudioData GiveHihat();
 AudioData GiveSnare();
 
+// Bass
 void GenBassTrack(Uint8* bassBuf);
 
+// Music
 void PlayScale();
 
 // Validation functions.
@@ -114,8 +121,8 @@ struct audioSettings
     void Init(bool callback)
     {
         //audioSettings.audSpecWant.freq = samplesPerSec;
-        audSpecWant.format = sampleFmt;
-        audSpecWant.channels = numChannels;
+        audSpecWant.format = AUDIO_S16LSB;
+        audSpecWant.channels = 1;
         //audioSettings.audSpecWant.samples = samplesBufNum;
         if (callback) {
             audSpecWant.callback = GenAudioStream;
@@ -124,7 +131,7 @@ struct audioSettings
             audSpecWant.callback = NULL;
         }
 
-        device = SDL_OpenAudioDevice(NULL, 0, &audSpecWant, &audSpecHave, SDL_AUDIO_ALLOW_ANY_CHANGE);
+        device = SDL_OpenAudioDevice(NULL, 0, &audSpecWant, &audSpecHave, 0);
         
 #ifdef DEBUG_AUDIO
         std::cout << "\n\nBit Size: " << SDL_AUDIO_BITSIZE(audSpecHave.format) << "\n";
