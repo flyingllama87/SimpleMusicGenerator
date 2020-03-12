@@ -7,6 +7,13 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		900282EC24178AE500574BF2 /* MusicGen_iOS.swift in Sources */ = {isa = PBXBuildFile; fileRef = 900282EB24178AE500574BF2 /* MusicGen_iOS.swift */; };
+		900282F224184B4400574BF2 /* AudioAndMusic.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 905F7D5C240C7549001B4099 /* AudioAndMusic.cpp */; };
+		900282F324184B4400574BF2 /* Drums.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 905F7D5A240C7549001B4099 /* Drums.cpp */; };
+		900282F424184B4400574BF2 /* Generators.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 905F7D59240C7549001B4099 /* Generators.cpp */; };
+		900282F724184B4400574BF2 /* UtilFunctions.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 905F7D58240C7549001B4099 /* UtilFunctions.cpp */; };
+		900282F924184B6400574BF2 /* MusicGen.h in Headers */ = {isa = PBXBuildFile; fileRef = 905F7D5D240C7549001B4099 /* MusicGen.h */; };
+		900282FB24184B9E00574BF2 /* SDL.h in Headers */ = {isa = PBXBuildFile; fileRef = 900282FA24184B9E00574BF2 /* SDL.h */; };
 		905F7D5E240C7549001B4099 /* UtilFunctions.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 905F7D58240C7549001B4099 /* UtilFunctions.cpp */; };
 		905F7D5F240C7549001B4099 /* Generators.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 905F7D59240C7549001B4099 /* Generators.cpp */; };
 		905F7D60240C7549001B4099 /* Drums.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 905F7D5A240C7549001B4099 /* Drums.cpp */; };
@@ -17,6 +24,15 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
+		900282E724178AE500574BF2 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "include/$(PRODUCT_NAME)";
+			dstSubfolderSpec = 16;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		90F77FAD240931C800C3DF21 /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -39,6 +55,10 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		900282E924178AE500574BF2 /* libMusicGen-iOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libMusicGen-iOS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		900282EB24178AE500574BF2 /* MusicGen_iOS.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MusicGen_iOS.swift; sourceTree = "<group>"; };
+		900282F024184B2100574BF2 /* libSDL2.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libSDL2.a; path = "../../SDL2_src/SDL2-2.0.10/Xcode-iOS/SDL/output/iOS/release/libSDL2.a"; sourceTree = "<group>"; };
+		900282FA24184B9E00574BF2 /* SDL.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SDL.h; path = "../../../SDL2_src/SDL2-2.0.10/include/SDL.h"; sourceTree = "<group>"; };
 		905F7D58240C7549001B4099 /* UtilFunctions.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = UtilFunctions.cpp; path = ../../src/UtilFunctions.cpp; sourceTree = "<group>"; };
 		905F7D59240C7549001B4099 /* Generators.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Generators.cpp; path = ../../src/Generators.cpp; sourceTree = "<group>"; };
 		905F7D5A240C7549001B4099 /* Drums.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Drums.cpp; path = ../../src/Drums.cpp; sourceTree = "<group>"; };
@@ -51,6 +71,13 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		900282E624178AE500574BF2 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		90F77FAC240931C800C3DF21 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -62,6 +89,15 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		900282EA24178AE500574BF2 /* MusicGen-iOS */ = {
+			isa = PBXGroup;
+			children = (
+				900282FA24184B9E00574BF2 /* SDL.h */,
+				900282EB24178AE500574BF2 /* MusicGen_iOS.swift */,
+			);
+			path = "MusicGen-iOS";
+			sourceTree = "<group>";
+		};
 		905F7D57240C751D001B4099 /* MusicGenerator */ = {
 			isa = PBXGroup;
 			children = (
@@ -79,6 +115,7 @@
 			isa = PBXGroup;
 			children = (
 				905F7D57240C751D001B4099 /* MusicGenerator */,
+				900282EA24178AE500574BF2 /* MusicGen-iOS */,
 				90F77FB0240931C800C3DF21 /* Products */,
 				90F77FC4240932B200C3DF21 /* Frameworks */,
 			);
@@ -88,6 +125,7 @@
 			isa = PBXGroup;
 			children = (
 				90F77FAF240931C800C3DF21 /* MusicGen */,
+				900282E924178AE500574BF2 /* libMusicGen-iOS.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -95,6 +133,7 @@
 		90F77FC4240932B200C3DF21 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				900282F024184B2100574BF2 /* libSDL2.a */,
 				90F77FC6240932C700C3DF21 /* libSDL2-2.0.0.dylib */,
 				90F77FC5240932B200C3DF21 /* libSDL2.a */,
 			);
@@ -104,6 +143,15 @@
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
+		900282F824184B5C00574BF2 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				900282FB24184B9E00574BF2 /* SDL.h in Headers */,
+				900282F924184B6400574BF2 /* MusicGen.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		905F7D64240C7633001B4099 /* Headers */ = {
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
@@ -115,6 +163,24 @@
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
+		900282E824178AE500574BF2 /* MusicGen-iOS */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 900282EF24178AE500574BF2 /* Build configuration list for PBXNativeTarget "MusicGen-iOS" */;
+			buildPhases = (
+				900282F824184B5C00574BF2 /* Headers */,
+				900282E524178AE500574BF2 /* Sources */,
+				900282E624178AE500574BF2 /* Frameworks */,
+				900282E724178AE500574BF2 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "MusicGen-iOS";
+			productName = "MusicGen-iOS";
+			productReference = 900282E924178AE500574BF2 /* libMusicGen-iOS.a */;
+			productType = "com.apple.product-type.library.static";
+		};
 		90F77FAE240931C800C3DF21 /* MusicGen */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 90F77FB6240931C800C3DF21 /* Build configuration list for PBXNativeTarget "MusicGen" */;
@@ -140,9 +206,13 @@
 		90F77FA7240931C700C3DF21 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
+				LastSwiftUpdateCheck = 1130;
 				LastUpgradeCheck = 1130;
 				ORGANIZATIONNAME = "Morgan Robertson";
 				TargetAttributes = {
+					900282E824178AE500574BF2 = {
+						CreatedOnToolsVersion = 11.3.1;
+					};
 					90F77FAE240931C800C3DF21 = {
 						CreatedOnToolsVersion = 11.3;
 					};
@@ -162,11 +232,24 @@
 			projectRoot = "";
 			targets = (
 				90F77FAE240931C800C3DF21 /* MusicGen */,
+				900282E824178AE500574BF2 /* MusicGen-iOS */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXSourcesBuildPhase section */
+		900282E524178AE500574BF2 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				900282F224184B4400574BF2 /* AudioAndMusic.cpp in Sources */,
+				900282F324184B4400574BF2 /* Drums.cpp in Sources */,
+				900282F424184B4400574BF2 /* Generators.cpp in Sources */,
+				900282F724184B4400574BF2 /* UtilFunctions.cpp in Sources */,
+				900282EC24178AE500574BF2 /* MusicGen_iOS.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		90F77FAB240931C800C3DF21 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -182,6 +265,46 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin XCBuildConfiguration section */
+		900282ED24178AE500574BF2 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = GCF77KUM9C;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.2;
+				ONLY_ACTIVE_ARCH = NO;
+				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OBJC_BRIDGING_HEADER = "";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALID_ARCHS = "arm64 arm64e armv7 armv7s x86_64";
+			};
+			name = Debug;
+		};
+		900282EE24178AE500574BF2 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = GCF77KUM9C;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.2;
+				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OBJC_BRIDGING_HEADER = "";
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+				VALID_ARCHS = "arm64 arm64e armv7 armv7s x86_64";
+			};
+			name = Release;
+		};
 		90F77FB4240931C800C3DF21 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -322,6 +445,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		900282EF24178AE500574BF2 /* Build configuration list for PBXNativeTarget "MusicGen-iOS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				900282ED24178AE500574BF2 /* Debug */,
+				900282EE24178AE500574BF2 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		90F77FAA240931C700C3DF21 /* Build configuration list for PBXProject "MusicGen" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

@@ -413,3 +413,16 @@ void SetupAudio(bool callback)
     internalAudioBuffer.Init();
 }
 
+int InitSDL()
+{
+    SDL_SetMainReady();
+    if (SDL_Init(SDL_INIT_AUDIO) < 0)
+    {
+        return 1;
+    }
+    else
+    {
+        return 0;
+    }
+    return 0;
+}

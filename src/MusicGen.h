@@ -50,15 +50,18 @@ enum Key { Major, Minor };
 
 // Func prototypes
 
+// Menu / CLI specific
 void Menu();
+void ChangeAudioSettings();
+
+// Audio specific
+int InitSDL();
 void SetupAudio(bool callback = false);
 void DumpBuffer(int16_t* wavBuffer, int length, std::string fileName);
 void DumpBuffer(Uint8* wavBuffer, int length, std::string fileName);
 void c16to8(int16_t* inBuf, int len, Uint8* outBuf);
 void GenAudioStream(void* userdata, Uint8* stream, int len);
 void GenMusicStream();
-void ChangeAudioSettings();
-
 void AudioPlayer(AudioData audioData);
 
 void DebugGenerators();
@@ -124,7 +127,7 @@ struct audioSettings
             audSpecWant.callback = NULL;
         }
 
-        device = SDL_OpenAudioDevice(NULL, 0, &audSpecWant, &audSpecHave, SDL_AUDIO_ALLOW_ANY_CHANGE);
+        device = SDL_OpenAudioDevice(NULL, 0, &audSpecWant, &audSpecHave, 0);
         
 #ifdef DEBUG_AUDIO
         std::cout << "\n\nBit Size: " << SDL_AUDIO_BITSIZE(audSpecHave.format) << "\n";
