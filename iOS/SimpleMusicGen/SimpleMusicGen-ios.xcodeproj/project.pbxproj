@@ -15,9 +15,10 @@
 		9024B2912419A1CE0087E2AF /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9024B2902419A1CE0087E2AF /* AudioToolbox.framework */; };
 		9024B2932419A2550087E2AF /* CoreMotion.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9024B2922419A2550087E2AF /* CoreMotion.framework */; };
 		9024B2952419A2B60087E2AF /* GameController.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9024B2942419A2B60087E2AF /* GameController.framework */; };
-		90680DDB241853390058C5DC /* libSDL2.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 90680DDA241853390058C5DC /* libSDL2.a */; };
-		90680DE32418645A0058C5DC /* SDL.h in Headers */ = {isa = PBXBuildFile; fileRef = 90680DE22418645A0058C5DC /* SDL.h */; };
-		90680DE5241864C80058C5DC /* libMusicGen.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 90680DE4241864C80058C5DC /* libMusicGen.a */; };
+		909919602419E20B00359DF4 /* SDL.h in Headers */ = {isa = PBXBuildFile; fileRef = 9099195F2419E20B00359DF4 /* SDL.h */; };
+		909A026C241A3263007E2590 /* libSDL2.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 909A026B241A3263007E2590 /* libSDL2.a */; };
+		909A026E241A3604007E2590 /* libMusicGen.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 909A026D241A3604007E2590 /* libMusicGen.a */; };
+		909A0270241A636F007E2590 /* CoreBluetooth.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 909A026F241A636F007E2590 /* CoreBluetooth.framework */; };
 		90B78508241787A500D505A9 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90B78507241787A500D505A9 /* AppDelegate.swift */; };
 		90B7850A241787A500D505A9 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90B78509241787A500D505A9 /* SceneDelegate.swift */; };
 		90B7850C241787A500D505A9 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90B7850B241787A500D505A9 /* ViewController.swift */; };
@@ -36,9 +37,10 @@
 		9024B2902419A1CE0087E2AF /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
 		9024B2922419A2550087E2AF /* CoreMotion.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMotion.framework; path = System/Library/Frameworks/CoreMotion.framework; sourceTree = SDKROOT; };
 		9024B2942419A2B60087E2AF /* GameController.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GameController.framework; path = System/Library/Frameworks/GameController.framework; sourceTree = SDKROOT; };
-		90680DDA241853390058C5DC /* libSDL2.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libSDL2.a; path = "../../SDL2_src/SDL2-2.0.10/Xcode-iOS/SDL/output/iOS/release/libSDL2.a"; sourceTree = "<group>"; };
-		90680DE22418645A0058C5DC /* SDL.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SDL.h; path = "../../SDL2_src/SDL2-2.0.10/include/SDL.h"; sourceTree = "<group>"; };
-		90680DE4241864C80058C5DC /* libMusicGen.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libMusicGen.a; path = ../../macos/MusicGen/DerivedData/MusicGen/Build/Products/libMusicGen.a; sourceTree = "<group>"; };
+		9099195F2419E20B00359DF4 /* SDL.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SDL.h; path = ../../SDL2_src/include/SDL.h; sourceTree = "<group>"; };
+		909A026B241A3263007E2590 /* libSDL2.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libSDL2.a; path = libs/libSDL2.a; sourceTree = "<group>"; };
+		909A026D241A3604007E2590 /* libMusicGen.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libMusicGen.a; path = libs/libMusicGen.a; sourceTree = "<group>"; };
+		909A026F241A636F007E2590 /* CoreBluetooth.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreBluetooth.framework; path = System/Library/Frameworks/CoreBluetooth.framework; sourceTree = SDKROOT; };
 		90B78504241787A500D505A9 /* SimpleMusicGen-ios.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "SimpleMusicGen-ios.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		90B78507241787A500D505A9 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		90B78509241787A500D505A9 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -54,13 +56,14 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				909A026E241A3604007E2590 /* libMusicGen.a in Frameworks */,
+				909A026C241A3263007E2590 /* libSDL2.a in Frameworks */,
+				909A0270241A636F007E2590 /* CoreBluetooth.framework in Frameworks */,
 				9024B2952419A2B60087E2AF /* GameController.framework in Frameworks */,
 				9024B2932419A2550087E2AF /* CoreMotion.framework in Frameworks */,
 				9024B2912419A1CE0087E2AF /* AudioToolbox.framework in Frameworks */,
 				9024B28D2419A19D0087E2AF /* CoreAudio.framework in Frameworks */,
 				9024B28B2419A15B0087E2AF /* AVFoundation.framework in Frameworks */,
-				90680DE5241864C80058C5DC /* libMusicGen.a in Frameworks */,
-				90680DDB241853390058C5DC /* libSDL2.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -70,8 +73,8 @@
 		9024B28324199E140087E2AF /* Interface */ = {
 			isa = PBXGroup;
 			children = (
+				9099195F2419E20B00359DF4 /* SDL.h */,
 				9024B28424199E780087E2AF /* MusicGen.h */,
-				90680DE22418645A0058C5DC /* SDL.h */,
 				9024B2872419A0460087E2AF /* MusicGenInterface.cpp */,
 				9024B2862419A0450087E2AF /* SimpleMusicGen-ios-Bridging-Header.h */,
 			);
@@ -81,14 +84,15 @@
 		90680DD9241853390058C5DC /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				909A026F241A636F007E2590 /* CoreBluetooth.framework */,
+				909A026D241A3604007E2590 /* libMusicGen.a */,
+				909A026B241A3263007E2590 /* libSDL2.a */,
 				9024B2942419A2B60087E2AF /* GameController.framework */,
 				9024B2922419A2550087E2AF /* CoreMotion.framework */,
 				9024B2902419A1CE0087E2AF /* AudioToolbox.framework */,
 				9024B28E2419A1B00087E2AF /* Foundation.framework */,
 				9024B28C2419A19D0087E2AF /* CoreAudio.framework */,
 				9024B28A2419A15B0087E2AF /* AVFoundation.framework */,
-				90680DE4241864C80058C5DC /* libMusicGen.a */,
-				90680DDA241853390058C5DC /* libSDL2.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -96,6 +100,7 @@
 		90B784FB241787A500D505A9 = {
 			isa = PBXGroup;
 			children = (
+				90BC8F67241A91B800B9AEE5 /* Resources */,
 				9024B28324199E140087E2AF /* Interface */,
 				90B78506241787A500D505A9 /* SimpleMusicGen */,
 				90B78505241787A500D505A9 /* Products */,
@@ -125,6 +130,13 @@
 			path = SimpleMusicGen;
 			sourceTree = "<group>";
 		};
+		90BC8F67241A91B800B9AEE5 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
@@ -133,7 +145,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				9024B2892419A0CF0087E2AF /* SimpleMusicGen-ios-Bridging-Header.h in Headers */,
-				90680DE32418645A0058C5DC /* SDL.h in Headers */,
+				909919602419E20B00359DF4 /* SDL.h in Headers */,
 				9024B28524199E780087E2AF /* MusicGen.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -361,12 +373,16 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = GCF77KUM9C;
+				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = SimpleMusicGen/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				LIBRARY_SEARCH_PATHS = "$(PROJECT_DIR)/**";
+				LIBRARY_SEARCH_PATHS = (
+					"$(PROJECT_DIR)/**",
+					"$(PROJECT_DIR)/libs",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = net.morganrobertson.SimpleMusicGen;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "SimpleMusicGen-ios-Bridging-Header.h";
@@ -383,12 +399,16 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = GCF77KUM9C;
+				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = SimpleMusicGen/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				LIBRARY_SEARCH_PATHS = "$(PROJECT_DIR)/**";
+				LIBRARY_SEARCH_PATHS = (
+					"$(PROJECT_DIR)/**",
+					"$(PROJECT_DIR)/libs",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = net.morganrobertson.SimpleMusicGen;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "SimpleMusicGen-ios-Bridging-Header.h";

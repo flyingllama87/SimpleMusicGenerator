@@ -7,13 +7,11 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		900282EC24178AE500574BF2 /* MusicGen_iOS.swift in Sources */ = {isa = PBXBuildFile; fileRef = 900282EB24178AE500574BF2 /* MusicGen_iOS.swift */; };
 		900282F224184B4400574BF2 /* AudioAndMusic.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 905F7D5C240C7549001B4099 /* AudioAndMusic.cpp */; };
 		900282F324184B4400574BF2 /* Drums.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 905F7D5A240C7549001B4099 /* Drums.cpp */; };
 		900282F424184B4400574BF2 /* Generators.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 905F7D59240C7549001B4099 /* Generators.cpp */; };
 		900282F724184B4400574BF2 /* UtilFunctions.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 905F7D58240C7549001B4099 /* UtilFunctions.cpp */; };
 		900282F924184B6400574BF2 /* MusicGen.h in Headers */ = {isa = PBXBuildFile; fileRef = 905F7D5D240C7549001B4099 /* MusicGen.h */; };
-		900282FB24184B9E00574BF2 /* SDL.h in Headers */ = {isa = PBXBuildFile; fileRef = 900282FA24184B9E00574BF2 /* SDL.h */; };
 		905F7D5E240C7549001B4099 /* UtilFunctions.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 905F7D58240C7549001B4099 /* UtilFunctions.cpp */; };
 		905F7D5F240C7549001B4099 /* Generators.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 905F7D59240C7549001B4099 /* Generators.cpp */; };
 		905F7D60240C7549001B4099 /* Drums.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 905F7D5A240C7549001B4099 /* Drums.cpp */; };
@@ -21,6 +19,8 @@
 		905F7D62240C7549001B4099 /* AudioAndMusic.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 905F7D5C240C7549001B4099 /* AudioAndMusic.cpp */; };
 		905F7D63240C7605001B4099 /* MusicGen.h in Headers */ = {isa = PBXBuildFile; fileRef = 905F7D5D240C7549001B4099 /* MusicGen.h */; };
 		90616CDD240E85E600FCE620 /* libSDL2-2.0.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 90F77FC6240932C700C3DF21 /* libSDL2-2.0.0.dylib */; };
+		909A0269241A3104007E2590 /* SDL.h in Headers */ = {isa = PBXBuildFile; fileRef = 909A0268241A3103007E2590 /* SDL.h */; };
+		909A026A241A3104007E2590 /* SDL.h in Headers */ = {isa = PBXBuildFile; fileRef = 909A0268241A3103007E2590 /* SDL.h */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -56,15 +56,14 @@
 
 /* Begin PBXFileReference section */
 		900282E924178AE500574BF2 /* libMusicGen-iOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libMusicGen-iOS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		900282EB24178AE500574BF2 /* MusicGen_iOS.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MusicGen_iOS.swift; sourceTree = "<group>"; };
 		900282F024184B2100574BF2 /* libSDL2.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libSDL2.a; path = "../../SDL2_src/SDL2-2.0.10/Xcode-iOS/SDL/output/iOS/release/libSDL2.a"; sourceTree = "<group>"; };
-		900282FA24184B9E00574BF2 /* SDL.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = SDL.h; path = "../../../SDL2_src/SDL2-2.0.10/include/SDL.h"; sourceTree = "<group>"; };
 		905F7D58240C7549001B4099 /* UtilFunctions.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = UtilFunctions.cpp; path = ../../src/UtilFunctions.cpp; sourceTree = "<group>"; };
 		905F7D59240C7549001B4099 /* Generators.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Generators.cpp; path = ../../src/Generators.cpp; sourceTree = "<group>"; };
 		905F7D5A240C7549001B4099 /* Drums.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Drums.cpp; path = ../../src/Drums.cpp; sourceTree = "<group>"; };
 		905F7D5B240C7549001B4099 /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = main.cpp; path = ../../src/main.cpp; sourceTree = "<group>"; };
 		905F7D5C240C7549001B4099 /* AudioAndMusic.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = AudioAndMusic.cpp; path = ../../src/AudioAndMusic.cpp; sourceTree = "<group>"; };
 		905F7D5D240C7549001B4099 /* MusicGen.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MusicGen.h; path = ../../src/MusicGen.h; sourceTree = "<group>"; };
+		909A0268241A3103007E2590 /* SDL.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SDL.h; path = ../../SDL2_src/include/SDL.h; sourceTree = "<group>"; };
 		90F77FAF240931C800C3DF21 /* MusicGen */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = MusicGen; sourceTree = BUILT_PRODUCTS_DIR; };
 		90F77FC5240932B200C3DF21 /* libSDL2.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libSDL2.a; path = ../../../../../../../../usr/local/Cellar/sdl2/2.0.10/lib/libSDL2.a; sourceTree = "<group>"; };
 		90F77FC6240932C700C3DF21 /* libSDL2-2.0.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libSDL2-2.0.0.dylib"; path = "../../../../../../../../usr/local/Cellar/sdl2/2.0.10/lib/libSDL2-2.0.0.dylib"; sourceTree = "<group>"; };
@@ -92,8 +91,6 @@
 		900282EA24178AE500574BF2 /* MusicGen-iOS */ = {
 			isa = PBXGroup;
 			children = (
-				900282FA24184B9E00574BF2 /* SDL.h */,
-				900282EB24178AE500574BF2 /* MusicGen_iOS.swift */,
 			);
 			path = "MusicGen-iOS";
 			sourceTree = "<group>";
@@ -114,6 +111,7 @@
 		90F77FA6240931C700C3DF21 = {
 			isa = PBXGroup;
 			children = (
+				909A0268241A3103007E2590 /* SDL.h */,
 				905F7D57240C751D001B4099 /* MusicGenerator */,
 				900282EA24178AE500574BF2 /* MusicGen-iOS */,
 				90F77FB0240931C800C3DF21 /* Products */,
@@ -147,7 +145,7 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				900282FB24184B9E00574BF2 /* SDL.h in Headers */,
+				909A026A241A3104007E2590 /* SDL.h in Headers */,
 				900282F924184B6400574BF2 /* MusicGen.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -156,6 +154,7 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				909A0269241A3104007E2590 /* SDL.h in Headers */,
 				905F7D63240C7605001B4099 /* MusicGen.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -246,7 +245,6 @@
 				900282F324184B4400574BF2 /* Drums.cpp in Sources */,
 				900282F424184B4400574BF2 /* Generators.cpp in Sources */,
 				900282F724184B4400574BF2 /* UtilFunctions.cpp in Sources */,
-				900282EC24178AE500574BF2 /* MusicGen_iOS.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

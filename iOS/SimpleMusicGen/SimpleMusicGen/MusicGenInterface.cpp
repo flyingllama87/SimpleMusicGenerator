@@ -18,3 +18,8 @@ extern "C" void PlayAudio()
 {
     SetupAudio(true);
 }
+
+extern "C" void StopAudio()
+{
+    audioSettings.StopAudio();
+}

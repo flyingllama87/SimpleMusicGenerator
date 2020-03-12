@@ -4,3 +4,4 @@
 
 void SetupSDL();
 void PlayAudio();
+void StopAudio();

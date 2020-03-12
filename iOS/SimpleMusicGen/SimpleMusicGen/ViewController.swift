@@ -10,16 +10,39 @@ import UIKit
 
 class ViewController: UIViewController {
 
+    var playing: Bool = false;
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         SetupSDL()
         // Do any additional setup after loading the view.
     }
 
-
+    @IBOutlet weak var buttonLabel: UIButton!
+    
     @IBAction func StartMusic(_ sender: Any) {
-        PlayAudio()
-        
+        if playing {
+            StopAudio()
+            playing = false
+            buttonLabel.setTitle("Start Music!", for: .normal)
+        }
+        else {
+            PlayAudio()
+            playing = true
+            buttonLabel.setTitle("Stop Music!", for: .normal)
+
+        }
     }
 }
 
+extension UIView {
+    @IBInspectable
+    var cornerRadius: CGFloat {
+        get {
+            return layer.cornerRadius
+        }
+        set {
+            layer.cornerRadius = newValue
+        }
+    }
+}
