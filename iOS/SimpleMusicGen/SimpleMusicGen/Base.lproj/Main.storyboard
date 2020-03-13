@@ -154,7 +154,7 @@
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="SZ1-dz-HYJ"/>
                     </view>
-                    <navigationItem key="navigationItem" id="1eY-wd-t8x"/>
+                    <navigationItem key="navigationItem" title="Config" id="1eY-wd-t8x"/>
                     <connections>
                         <outlet property="bpmPicker" destination="8ZH-cX-Kjc" id="fkH-ld-3gC"/>
                         <outlet property="keyPicker" destination="ERu-09-ksH" id="GmE-oI-6jU"/>
@@ -175,7 +175,7 @@
                         <color key="backgroundColor" red="0.97157210110000003" green="0.95636624100000001" blue="0.35654163360000002" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
                         <color key="barTintColor" red="0.97157210110000003" green="0.95636624100000001" blue="0.35654163360000002" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
                         <textAttributes key="titleTextAttributes">
-                            <fontDescription key="fontDescription" style="UICTFontTextStyleTitle0"/>
+                            <fontDescription key="fontDescription" style="UICTFontTextStyleTitle1"/>
                             <color key="textColor" red="0.16894975300000001" green="0.17555683850000001" blue="0.2549182773" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
                         </textAttributes>
                     </navigationBar>

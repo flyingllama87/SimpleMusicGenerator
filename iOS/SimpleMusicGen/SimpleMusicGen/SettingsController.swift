@@ -17,17 +17,18 @@ class SettingsController: UIViewController, UIPickerViewDelegate, UIPickerViewDa
     // Data sources for the pickers
     var bpmData: [String] = [String]()
     var scales: [String] = ["Minor", "Major"]
-    var notes: [String] = ["A", "B", "C", "D", "E", "F", "G"]
+    var notes: [Character] = ["A", "B", "C", "D", "E", "F", "G"]
     
-    // Store the selected data from the pickers
+    // Store the data from the pickers to send to the MusicGen lib/API
     var bpm: Int32;
     var note: Character;
     var scale: Int32;// 0 for Minor, 1 for Major
     var lofi: Bool;
     
-    
+    // Init the class vars to the current settings of the MusicGen lib
     required init?(coder aDecoder: NSCoder)  {
         let curSettings: userSettings = getSongSettings()
+        
         self.bpm = curSettings.BPM;
         self.lofi = curSettings.lofi;
         self.scale = curSettings.scale;
@@ -59,8 +60,9 @@ class SettingsController: UIViewController, UIPickerViewDelegate, UIPickerViewDa
     {
         if pickerView == keyPicker {
             if component == 0 {
-                note = Character(notes[row])
-            } else { // scale column
+                note = notes[row]
+            } else { // scale/tonality column
+                print("Setting tonality.  Row: " + String(row))
                 scale = Int32(row)
             }
         }
@@ -77,7 +79,7 @@ class SettingsController: UIViewController, UIPickerViewDelegate, UIPickerViewDa
     // The number of rows of data
     func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
         if pickerView == keyPicker {
-            return component > 0 ? 2 : 7
+            return component > 0 ? scales.count : notes.count
         }
         else {
             return bpmData.count
@@ -93,7 +95,7 @@ class SettingsController: UIViewController, UIPickerViewDelegate, UIPickerViewDa
                 }
                 return scales[row]
             }
-            return notes[row]
+            return String(notes[row])
             
         }
         if pickerView == bpmPicker {
@@ -107,9 +109,16 @@ class SettingsController: UIViewController, UIPickerViewDelegate, UIPickerViewDa
         bpmData = ["60", "120", "240"]
         // bpmData = (60...240).filter { $0 % 4 == 0}.map { String($0) }
         
-        self.bpmPicker.delegate = self
-        self.bpmPicker.dataSource = self
-        self.keyPicker.delegate = self
-        self.keyPicker.dataSource = self
+        bpmPicker.delegate = self
+        bpmPicker.dataSource = self
+        keyPicker.delegate = self
+        keyPicker.dataSource = self
+        
+        bpmPicker.selectRow(bpmData.firstIndex(of: String(bpm))! , inComponent: 0, animated: true)
+        keyPicker.selectRow(notes.firstIndex(of: note)!, inComponent: 0, animated: true)
+        keyPicker.selectRow(Int(scale), inComponent: 1, animated: true)
+        
+        lofiSwitch.isOn = lofi
+
     }
 }
