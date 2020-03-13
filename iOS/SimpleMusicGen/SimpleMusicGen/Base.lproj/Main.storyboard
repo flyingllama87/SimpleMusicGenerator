@@ -158,6 +158,7 @@
                     <connections>
                         <outlet property="bpmPicker" destination="8ZH-cX-Kjc" id="fkH-ld-3gC"/>
                         <outlet property="keyPicker" destination="ERu-09-ksH" id="GmE-oI-6jU"/>
+                        <outlet property="lofiSwitch" destination="S9O-bc-juZ" id="7cQ-ve-vO4"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="eoz-d6-VfQ" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>

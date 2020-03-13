@@ -430,7 +430,7 @@ int InitSDL()
 
 void ConfigSong(int bpm, char note, int scale, bool lofi)
 {
-
+    // scale == 1 then major; scale == 0 then minor
     songSettings.BPM = bpm;
     songSettings.keyNote = note;
     if (scale > 0)

@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 50;
+	objectVersion = 52;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -19,9 +19,11 @@
 		909A026C241A3263007E2590 /* libSDL2.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 909A026B241A3263007E2590 /* libSDL2.a */; };
 		909A026E241A3604007E2590 /* libMusicGen.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 909A026D241A3604007E2590 /* libMusicGen.a */; };
 		909A0270241A636F007E2590 /* CoreBluetooth.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 909A026F241A636F007E2590 /* CoreBluetooth.framework */; };
+		909A1B49241BCE6500BF6F57 /* Gifu in Frameworks */ = {isa = PBXBuildFile; productRef = 909A1B48241BCE6500BF6F57 /* Gifu */; };
+		909A1B4B241BCE9500BF6F57 /* SettingsController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 909A1B4A241BCE9500BF6F57 /* SettingsController.swift */; };
 		90B78508241787A500D505A9 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90B78507241787A500D505A9 /* AppDelegate.swift */; };
 		90B7850A241787A500D505A9 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90B78509241787A500D505A9 /* SceneDelegate.swift */; };
-		90B7850C241787A500D505A9 /* ViewControllers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90B7850B241787A500D505A9 /* ViewControllers.swift */; };
+		90B7850C241787A500D505A9 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90B7850B241787A500D505A9 /* ViewController.swift */; };
 		90B7850F241787A500D505A9 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 90B7850D241787A500D505A9 /* Main.storyboard */; };
 		90B78511241787A700D505A9 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 90B78510241787A700D505A9 /* Assets.xcassets */; };
 		90B78514241787A700D505A9 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 90B78512241787A700D505A9 /* LaunchScreen.storyboard */; };
@@ -41,10 +43,11 @@
 		909A026B241A3263007E2590 /* libSDL2.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libSDL2.a; path = libs/libSDL2.a; sourceTree = "<group>"; };
 		909A026D241A3604007E2590 /* libMusicGen.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libMusicGen.a; path = libs/libMusicGen.a; sourceTree = "<group>"; };
 		909A026F241A636F007E2590 /* CoreBluetooth.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreBluetooth.framework; path = System/Library/Frameworks/CoreBluetooth.framework; sourceTree = SDKROOT; };
+		909A1B4A241BCE9500BF6F57 /* SettingsController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsController.swift; sourceTree = "<group>"; };
 		90B78504241787A500D505A9 /* SimpleMusicGen-ios.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "SimpleMusicGen-ios.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		90B78507241787A500D505A9 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		90B78509241787A500D505A9 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
-		90B7850B241787A500D505A9 /* ViewControllers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewControllers.swift; sourceTree = "<group>"; };
+		90B7850B241787A500D505A9 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
 		90B7850E241787A500D505A9 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		90B78510241787A700D505A9 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		90B78513241787A700D505A9 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
@@ -61,6 +64,7 @@
 				909A0270241A636F007E2590 /* CoreBluetooth.framework in Frameworks */,
 				9024B2952419A2B60087E2AF /* GameController.framework in Frameworks */,
 				9024B2932419A2550087E2AF /* CoreMotion.framework in Frameworks */,
+				909A1B49241BCE6500BF6F57 /* Gifu in Frameworks */,
 				9024B2912419A1CE0087E2AF /* AudioToolbox.framework in Frameworks */,
 				9024B28D2419A19D0087E2AF /* CoreAudio.framework in Frameworks */,
 				9024B28B2419A15B0087E2AF /* AVFoundation.framework in Frameworks */,
@@ -121,11 +125,12 @@
 			children = (
 				90B78507241787A500D505A9 /* AppDelegate.swift */,
 				90B78509241787A500D505A9 /* SceneDelegate.swift */,
-				90B7850B241787A500D505A9 /* ViewControllers.swift */,
+				90B7850B241787A500D505A9 /* ViewController.swift */,
 				90B7850D241787A500D505A9 /* Main.storyboard */,
 				90B78510241787A700D505A9 /* Assets.xcassets */,
 				90B78512241787A700D505A9 /* LaunchScreen.storyboard */,
 				90B78515241787A700D505A9 /* Info.plist */,
+				909A1B4A241BCE9500BF6F57 /* SettingsController.swift */,
 			);
 			path = SimpleMusicGen;
 			sourceTree = "<group>";
@@ -167,6 +172,9 @@
 			dependencies = (
 			);
 			name = "SimpleMusicGen-ios";
+			packageProductDependencies = (
+				909A1B48241BCE6500BF6F57 /* Gifu */,
+			);
 			productName = SimpleMusicGen;
 			productReference = 90B78504241787A500D505A9 /* SimpleMusicGen-ios.app */;
 			productType = "com.apple.product-type.application";
@@ -196,6 +204,9 @@
 				Base,
 			);
 			mainGroup = 90B784FB241787A500D505A9;
+			packageReferences = (
+				909A1B47241BCE6500BF6F57 /* XCRemoteSwiftPackageReference "Gifu" */,
+			);
 			productRefGroup = 90B78505241787A500D505A9 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -223,7 +234,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				90B7850C241787A500D505A9 /* ViewControllers.swift in Sources */,
+				90B7850C241787A500D505A9 /* ViewController.swift in Sources */,
+				909A1B4B241BCE9500BF6F57 /* SettingsController.swift in Sources */,
 				90B78508241787A500D505A9 /* AppDelegate.swift in Sources */,
 				9024B2882419A0460087E2AF /* MusicGenInterface.cpp in Sources */,
 				90B7850A241787A500D505A9 /* SceneDelegate.swift in Sources */,
@@ -441,6 +453,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		909A1B47241BCE6500BF6F57 /* XCRemoteSwiftPackageReference "Gifu" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/kaishin/Gifu";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 3.2.2;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		909A1B48241BCE6500BF6F57 /* Gifu */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 909A1B47241BCE6500BF6F57 /* XCRemoteSwiftPackageReference "Gifu" */;
+			productName = Gifu;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 90B784FC241787A500D505A9 /* Project object */;
 }
