@@ -30,7 +30,7 @@ void DumpBuffer(Uint8* wavBuffer, int length, std::string fileName)
     }
     waveBufferFile.close();
 
-#ifndef _WIN32 || _WIN64
+#ifdef PRINT_PATHS
     std::cout << "Current path is " << std::__fs::filesystem::current_path() << '\n';
 #endif
 }
@@ -44,7 +44,7 @@ void DumpBuffer(int16_t* wavBuffer, int length, std::string fileName)
     }
     waveBufferFile.close();
 
-#ifndef _WIN32 || _WIN64
+#ifdef PRINT_PATHS
     std::cout << "Current path is " << std::__fs::filesystem::current_path() << '\n';
 #endif
 }

@@ -52,10 +52,11 @@ enum Key { Major, Minor };
 
 // Menu / CLI specific
 void Menu();
-void ChangeAudioSettings();
+void ChangeSongSettingsCLI(); // CLI for changing song & audio settings.
 
 // Audio specific
 int InitSDL();
+void ConfigSong(int bpm, char note, int scale, bool lofi);
 void SetupAudio(bool callback = false);
 void DumpBuffer(int16_t* wavBuffer, int length, std::string fileName);
 void DumpBuffer(Uint8* wavBuffer, int length, std::string fileName);
@@ -156,9 +157,18 @@ struct audioSettings
     void StopAudio()
     {
         SDL_PauseAudioDevice(device, 1);
+        SDL_CloseAudioDevice(device);
     }
 };
 extern audioSettings audioSettings;
+
+struct userSettings {
+    int BPM;
+    char note;
+    int scale;
+    bool lofi;
+};
+userSettings GetSongSettings();
 
 struct songSettings
 {

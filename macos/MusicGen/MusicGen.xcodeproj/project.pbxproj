@@ -21,15 +21,17 @@
 		90616CDD240E85E600FCE620 /* libSDL2-2.0.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 90F77FC6240932C700C3DF21 /* libSDL2-2.0.0.dylib */; };
 		909A0269241A3104007E2590 /* SDL.h in Headers */ = {isa = PBXBuildFile; fileRef = 909A0268241A3103007E2590 /* SDL.h */; };
 		909A026A241A3104007E2590 /* SDL.h in Headers */ = {isa = PBXBuildFile; fileRef = 909A0268241A3103007E2590 /* SDL.h */; };
+		90A9DC4B241B823500F077EF /* libMusicGen.a in CopyFiles */ = {isa = PBXBuildFile; fileRef = 90A9DC4A241B823500F077EF /* libMusicGen.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
 		900282E724178AE500574BF2 /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
-			dstPath = "include/$(PRODUCT_NAME)";
-			dstSubfolderSpec = 16;
+			dstPath = /Users/morgan/Desktop/code/PersonalCode/SimpleMusicGenerator/iOS/SimpleMusicGen/libs;
+			dstSubfolderSpec = 0;
 			files = (
+				90A9DC4B241B823500F077EF /* libMusicGen.a in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -64,6 +66,7 @@
 		905F7D5C240C7549001B4099 /* AudioAndMusic.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = AudioAndMusic.cpp; path = ../../src/AudioAndMusic.cpp; sourceTree = "<group>"; };
 		905F7D5D240C7549001B4099 /* MusicGen.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MusicGen.h; path = ../../src/MusicGen.h; sourceTree = "<group>"; };
 		909A0268241A3103007E2590 /* SDL.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SDL.h; path = ../../SDL2_src/include/SDL.h; sourceTree = "<group>"; };
+		90A9DC4A241B823500F077EF /* libMusicGen.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libMusicGen.a; path = DerivedData/MusicGen/Build/Products/libMusicGen.a; sourceTree = "<group>"; };
 		90F77FAF240931C800C3DF21 /* MusicGen */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = MusicGen; sourceTree = BUILT_PRODUCTS_DIR; };
 		90F77FC5240932B200C3DF21 /* libSDL2.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libSDL2.a; path = ../../../../../../../../usr/local/Cellar/sdl2/2.0.10/lib/libSDL2.a; sourceTree = "<group>"; };
 		90F77FC6240932C700C3DF21 /* libSDL2-2.0.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libSDL2-2.0.0.dylib"; path = "../../../../../../../../usr/local/Cellar/sdl2/2.0.10/lib/libSDL2-2.0.0.dylib"; sourceTree = "<group>"; };
@@ -111,6 +114,7 @@
 		90F77FA6240931C700C3DF21 = {
 			isa = PBXGroup;
 			children = (
+				90A9DC4A241B823500F077EF /* libMusicGen.a */,
 				909A0268241A3103007E2590 /* SDL.h */,
 				905F7D57240C751D001B4099 /* MusicGenerator */,
 				900282EA24178AE500574BF2 /* MusicGen-iOS */,
@@ -169,6 +173,7 @@
 				900282F824184B5C00574BF2 /* Headers */,
 				900282E524178AE500574BF2 /* Sources */,
 				900282E624178AE500574BF2 /* Frameworks */,
+				90A9DC45241B7F7000F077EF /* Run Script */,
 				900282E724178AE500574BF2 /* CopyFiles */,
 			);
 			buildRules = (
@@ -236,6 +241,27 @@
 		};
 /* End PBXProject section */
 
+/* Begin PBXShellScriptBuildPhase section */
+		90A9DC45241B7F7000F077EF /* Run Script */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Run Script";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\ncd $BUILD_ROOT\npwd\n\nlipo -create ./Debug-iphonesimulator/libMusicGen-iOS.a ./Debug-iphoneos/libMusicGen-iOS.a -output ./libMusicGen.a\n";
+		};
+/* End PBXShellScriptBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
 		900282E524178AE500574BF2 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
@@ -268,7 +294,7 @@
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = GCF77KUM9C;
-				IPHONEOS_DEPLOYMENT_TARGET = 13.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -288,7 +314,7 @@
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = GCF77KUM9C;
-				IPHONEOS_DEPLOYMENT_TARGET = 13.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;

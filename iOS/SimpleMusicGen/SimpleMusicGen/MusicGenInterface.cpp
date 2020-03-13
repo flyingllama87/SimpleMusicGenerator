@@ -23,3 +23,13 @@ extern "C" void StopAudio()
 {
     audioSettings.StopAudio();
 }
+
+extern "C" void SongConfig(int bpm, char note, int scale, bool lofi)
+{
+    ConfigSong(bpm, note, scale, lofi);
+}
+
+extern "C" userSettings getSongSettings()
+{
+    return GetSongSettings();
+}

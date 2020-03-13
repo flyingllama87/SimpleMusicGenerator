@@ -52,7 +52,7 @@ void Menu()
         char menuInput = menuStr[0];
 
         if (menuInput == 'c')
-            ChangeAudioSettings();
+            ChangeSongSettingsCLI();
         else if (menuInput == 's')
             SetupAudio(true);
         else if (menuInput == 'p')
@@ -73,7 +73,7 @@ void Menu()
     }
 }
 
-void ChangeAudioSettings()
+void ChangeSongSettingsCLI()
 {
     bool goBack = false;
     

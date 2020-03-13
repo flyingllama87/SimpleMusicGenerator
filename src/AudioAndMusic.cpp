@@ -426,3 +426,40 @@ int InitSDL()
     }
     return 0;
 }
+
+
+void ConfigSong(int bpm, char note, int scale, bool lofi)
+{
+
+    songSettings.BPM = bpm;
+    songSettings.keyNote = note;
+    if (scale > 0)
+        songSettings.key = Key::Major;
+    else
+        songSettings.key = Key::Minor;
+    
+    if (lofi)
+    {
+        songSettings.loFi = true;
+        audioSettings.audSpecWant.freq = 8000;
+        audioSettings.audSpecWant.samples = 4096;
+    
+    } else {
+        songSettings.loFi = false;
+        audioSettings.audSpecWant.freq = 48000;
+        audioSettings.audSpecWant.samples = 32768;
+    }
+}
+
+
+userSettings GetSongSettings(){
+    userSettings us;
+    us.BPM = songSettings.BPM;
+    us.note = songSettings.keyNote[0];
+    if (songSettings.key == Key::Major)
+        us.scale = 1;
+    else
+        us.scale = 0;
+    us.lofi = songSettings.loFi;
+    return us;
+}

@@ -2,6 +2,7 @@
 <document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="15705" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="XEK-78-pa6">
     <device id="retina4_7" orientation="portrait" appearance="light"/>
     <dependencies>
+        <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="15706"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
@@ -16,7 +17,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <button opaque="NO" contentMode="center" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="uyq-ZG-4bx">
-                                <rect key="frame" x="87.5" y="503.5" width="200" height="46"/>
+                                <rect key="frame" x="87.5" y="482" width="200" height="46"/>
                                 <color key="backgroundColor" red="0.16894975300000001" green="0.17555683850000001" blue="0.2549182773" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="200" id="a0M-zZ-8pF"/>
@@ -42,10 +43,20 @@
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <color key="tintColor" systemColor="systemPinkColor" red="1" green="0.1764705882" blue="0.33333333329999998" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                             </imageView>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="center" horizontalHuggingPriority="251" verticalHuggingPriority="251" verticalCompressionResistancePriority="751" text="BPM: 120 Key: C Major LoFi: Nup" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="6" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="WYp-gp-wce">
-                                <rect key="frame" x="127" y="371" width="121" height="82.5"/>
-                                <fontDescription key="fontDescription" style="UICTFontTextStyleTitle2"/>
-                                <nil key="textColor"/>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="center" horizontalHuggingPriority="251" verticalHuggingPriority="251" verticalCompressionResistancePriority="751" usesAttributedText="YES" lineBreakMode="tailTruncation" numberOfLines="6" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="WYp-gp-wce">
+                                <rect key="frame" x="87.5" y="371" width="200" height="61"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="200" id="ipa-4v-Dcg"/>
+                                </constraints>
+                                <attributedString key="attributedText">
+                                    <fragment content="BPM: 120 Key: C Major LoFi: Nup">
+                                        <attributes>
+                                            <color key="NSColor" red="0.16894975300000001" green="0.17555683850000001" blue="0.2549182773" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+                                            <font key="NSFont" metaFont="system" size="17"/>
+                                            <paragraphStyle key="NSParagraphStyle" alignment="center" lineBreakMode="wordWrapping" baseWritingDirection="natural" tighteningFactorForTruncation="0.0"/>
+                                        </attributes>
+                                    </fragment>
+                                </attributedString>
                                 <nil key="highlightedColor"/>
                             </label>
                         </subviews>
@@ -59,7 +70,7 @@
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                     </view>
                     <navigationItem key="navigationItem" title="♾🎧" id="zCC-jm-24M">
-                        <barButtonItem key="rightBarButtonItem" title="Config" style="plain" id="sTc-hc-riy">
+                        <barButtonItem key="rightBarButtonItem" title="Config" style="done" id="sTc-hc-riy">
                             <color key="tintColor" red="0.16894975300000001" green="0.17555683850000001" blue="0.2549182773" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
                             <connections>
                                 <segue destination="iOv-Hy-1cL" kind="show" id="wL0-co-7XX"/>
@@ -68,6 +79,7 @@
                     </navigationItem>
                     <connections>
                         <outlet property="buttonLabel" destination="uyq-ZG-4bx" id="q2v-Zh-9RG"/>
+                        <outlet property="settingsLabel" destination="WYp-gp-wce" id="2Q2-t0-bex"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
@@ -77,39 +89,39 @@
         <!--Settings-->
         <scene sceneID="ipc-Ic-s3V">
             <objects>
-                <viewController id="iOv-Hy-1cL" userLabel="Settings" sceneMemberID="viewController">
+                <viewController id="iOv-Hy-1cL" userLabel="Settings" customClass="SettingsController" customModule="SimpleMusicGen_ios" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="ErM-Yt-0zV">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="623"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <pickerView contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="8ZH-cX-Kjc">
-                                <rect key="frame" x="28" y="54" width="320" height="216"/>
+                                <rect key="frame" x="27.5" y="43.5" width="320" height="216"/>
                             </pickerView>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="BPM:" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="3gf-FH-RFP">
                                 <rect key="frame" x="155" y="10" width="65" height="33.5"/>
                                 <fontDescription key="fontDescription" style="UICTFontTextStyleTitle1"/>
-                                <nil key="textColor"/>
+                                <color key="textColor" red="0.1726138294" green="0.17222628000000001" blue="0.20392873880000001" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
                                 <nil key="highlightedColor"/>
                             </label>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Key:" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="TJy-kB-5Ri">
-                                <rect key="frame" x="161" y="289.5" width="53" height="33.5"/>
+                                <rect key="frame" x="161" y="259.5" width="53" height="33.5"/>
                                 <fontDescription key="fontDescription" style="UICTFontTextStyleTitle1"/>
-                                <nil key="textColor"/>
+                                <color key="textColor" red="0.1726138294" green="0.17222628000000001" blue="0.20392873880000001" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
                                 <nil key="highlightedColor"/>
                             </label>
                             <pickerView contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="ERu-09-ksH">
-                                <rect key="frame" x="28" y="333" width="320" height="200"/>
+                                <rect key="frame" x="27.5" y="293" width="320" height="200"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="200" id="Ndg-ef-KIP"/>
                                 </constraints>
                             </pickerView>
                             <stackView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Lzz-pc-DN9">
-                                <rect key="frame" x="127.5" y="543" width="120" height="35"/>
+                                <rect key="frame" x="127.5" y="493" width="120" height="35"/>
                                 <subviews>
-                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="LoFI:" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ZuC-MN-ZkQ">
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="LoFi:" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ZuC-MN-ZkQ">
                                         <rect key="frame" x="0.0" y="0.0" width="71" height="35"/>
                                         <fontDescription key="fontDescription" style="UICTFontTextStyleTitle1"/>
-                                        <nil key="textColor"/>
+                                        <color key="textColor" red="0.16894975300000001" green="0.17555683850000001" blue="0.2549182773" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
                                         <nil key="highlightedColor"/>
                                     </label>
                                     <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="S9O-bc-juZ">
@@ -117,6 +129,7 @@
                                         <constraints>
                                             <constraint firstAttribute="width" constant="49" id="25m-QN-gVy"/>
                                         </constraints>
+                                        <color key="onTintColor" red="0.97157210110000003" green="0.95636624100000001" blue="0.35654163360000002" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
                                     </switch>
                                 </subviews>
                                 <constraints>
@@ -127,14 +140,14 @@
                         </subviews>
                         <color key="backgroundColor" red="0.58367151019999997" green="0.53674829010000003" blue="0.58824467660000002" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
                         <constraints>
-                            <constraint firstItem="TJy-kB-5Ri" firstAttribute="top" secondItem="8ZH-cX-Kjc" secondAttribute="bottom" constant="20" id="5Fk-cH-MDy"/>
+                            <constraint firstItem="TJy-kB-5Ri" firstAttribute="top" secondItem="8ZH-cX-Kjc" secondAttribute="bottom" id="5Fk-cH-MDy"/>
                             <constraint firstItem="Lzz-pc-DN9" firstAttribute="centerX" secondItem="ErM-Yt-0zV" secondAttribute="centerX" id="7IA-RY-akt"/>
                             <constraint firstItem="TJy-kB-5Ri" firstAttribute="centerX" secondItem="ErM-Yt-0zV" secondAttribute="centerX" id="9N0-AW-nok"/>
                             <constraint firstItem="ERu-09-ksH" firstAttribute="centerX" secondItem="ErM-Yt-0zV" secondAttribute="centerX" id="CgE-Uw-bhf"/>
-                            <constraint firstItem="ERu-09-ksH" firstAttribute="top" secondItem="TJy-kB-5Ri" secondAttribute="bottom" constant="10" id="NVe-gD-pxP"/>
+                            <constraint firstItem="ERu-09-ksH" firstAttribute="top" secondItem="TJy-kB-5Ri" secondAttribute="bottom" id="NVe-gD-pxP"/>
                             <constraint firstItem="3gf-FH-RFP" firstAttribute="centerX" secondItem="ErM-Yt-0zV" secondAttribute="centerX" id="OYa-c5-RFp"/>
-                            <constraint firstItem="Lzz-pc-DN9" firstAttribute="top" secondItem="ERu-09-ksH" secondAttribute="bottom" constant="10" id="QhQ-qF-jjY"/>
-                            <constraint firstItem="8ZH-cX-Kjc" firstAttribute="top" secondItem="3gf-FH-RFP" secondAttribute="bottom" constant="10" id="RzS-lm-gdw"/>
+                            <constraint firstItem="Lzz-pc-DN9" firstAttribute="top" secondItem="ERu-09-ksH" secondAttribute="bottom" id="QhQ-qF-jjY"/>
+                            <constraint firstItem="8ZH-cX-Kjc" firstAttribute="top" secondItem="3gf-FH-RFP" secondAttribute="bottom" id="RzS-lm-gdw"/>
                             <constraint firstItem="TJy-kB-5Ri" firstAttribute="centerX" secondItem="ErM-Yt-0zV" secondAttribute="centerX" id="bsf-13-JaA"/>
                             <constraint firstItem="3gf-FH-RFP" firstAttribute="top" secondItem="SZ1-dz-HYJ" secondAttribute="top" constant="10" id="mT4-nD-SHA"/>
                             <constraint firstItem="8ZH-cX-Kjc" firstAttribute="centerX" secondItem="ErM-Yt-0zV" secondAttribute="centerX" id="pfE-DW-V4u"/>
@@ -142,6 +155,10 @@
                         <viewLayoutGuide key="safeArea" id="SZ1-dz-HYJ"/>
                     </view>
                     <navigationItem key="navigationItem" id="1eY-wd-t8x"/>
+                    <connections>
+                        <outlet property="bpmPicker" destination="8ZH-cX-Kjc" id="fkH-ld-3gC"/>
+                        <outlet property="keyPicker" destination="ERu-09-ksH" id="GmE-oI-6jU"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="eoz-d6-VfQ" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
