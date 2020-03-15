@@ -17,9 +17,10 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <button opaque="NO" contentMode="center" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="uyq-ZG-4bx">
-                                <rect key="frame" x="87.5" y="482" width="200" height="46"/>
+                                <rect key="frame" x="87.5" y="522" width="200" height="51"/>
                                 <color key="backgroundColor" red="0.16894975300000001" green="0.17555683850000001" blue="0.2549182773" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
                                 <constraints>
+                                    <constraint firstAttribute="height" constant="51" id="7Sm-Gz-7eM"/>
                                     <constraint firstAttribute="width" constant="200" id="a0M-zZ-8pF"/>
                                 </constraints>
                                 <fontDescription key="fontDescription" style="UICTFontTextStyleTitle1"/>
@@ -38,13 +39,8 @@
                                     <action selector="StartMusic:" destination="BYZ-38-t0r" eventType="touchUpInside" id="QwB-xm-qhT"/>
                                 </connections>
                             </button>
-                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="pixel art note.svg" id="mGt-uO-EVZ">
-                                <rect key="frame" x="80" y="99" width="254" height="222"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                <color key="tintColor" systemColor="systemPinkColor" red="1" green="0.1764705882" blue="0.33333333329999998" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                            </imageView>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="center" horizontalHuggingPriority="251" verticalHuggingPriority="251" verticalCompressionResistancePriority="751" usesAttributedText="YES" lineBreakMode="tailTruncation" numberOfLines="6" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="WYp-gp-wce">
-                                <rect key="frame" x="87.5" y="371" width="200" height="61"/>
+                                <rect key="frame" x="87.5" y="311" width="200" height="61"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="200" id="ipa-4v-Dcg"/>
                                 </constraints>
@@ -59,13 +55,19 @@
                                 </attributedString>
                                 <nil key="highlightedColor"/>
                             </label>
+                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="synth.gif" id="mGt-uO-EVZ" customClass="GIFImageView" customModule="Gifu">
+                                <rect key="frame" x="87" y="61" width="200" height="200"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <color key="tintColor" systemColor="systemPinkColor" red="1" green="0.1764705882" blue="0.33333333329999998" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                            </imageView>
                         </subviews>
                         <color key="backgroundColor" red="0.58367151019999997" green="0.53674829010000003" blue="0.58824467660000002" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
                         <constraints>
-                            <constraint firstItem="WYp-gp-wce" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="0mA-j5-Bcn"/>
-                            <constraint firstItem="uyq-ZG-4bx" firstAttribute="top" secondItem="WYp-gp-wce" secondAttribute="bottom" constant="50" id="SNR-tD-tjd"/>
+                            <constraint firstItem="WYp-gp-wce" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="Ib8-Ex-cQM"/>
+                            <constraint firstItem="uyq-ZG-4bx" firstAttribute="top" secondItem="8bC-Xf-vdC" secondAttribute="top" constant="522" id="K1J-79-F3e"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="bottom" secondItem="uyq-ZG-4bx" secondAttribute="bottom" constant="50" id="lMa-Ut-cQk"/>
                             <constraint firstItem="uyq-ZG-4bx" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="qgq-k0-ctf"/>
-                            <constraint firstItem="WYp-gp-wce" firstAttribute="top" secondItem="mGt-uO-EVZ" secondAttribute="bottom" constant="50" id="s9Q-CV-vsc"/>
+                            <constraint firstItem="WYp-gp-wce" firstAttribute="top" secondItem="mGt-uO-EVZ" secondAttribute="bottom" constant="50" id="vvu-K4-O4N"/>
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                     </view>
@@ -79,12 +81,13 @@
                     </navigationItem>
                     <connections>
                         <outlet property="buttonLabel" destination="uyq-ZG-4bx" id="q2v-Zh-9RG"/>
+                        <outlet property="gifView" destination="mGt-uO-EVZ" id="obT-ha-Sl7"/>
                         <outlet property="settingsLabel" destination="WYp-gp-wce" id="2Q2-t0-bex"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1747.826086956522" y="95.758928571428569"/>
+            <point key="canvasLocation" x="1746.4000000000001" y="94.902548725637189"/>
         </scene>
         <!--Settings-->
         <scene sceneID="ipc-Ic-s3V">
@@ -95,37 +98,38 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <pickerView contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="8ZH-cX-Kjc">
-                                <rect key="frame" x="27.5" y="43.5" width="320" height="216"/>
+                                <rect key="frame" x="27.5" y="58.5" width="320" height="216"/>
+                                <color key="tintColor" red="0.97157210110000003" green="0.95636624100000001" blue="0.35654163360000002" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
                             </pickerView>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="BPM:" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="3gf-FH-RFP">
-                                <rect key="frame" x="155" y="10" width="65" height="33.5"/>
+                                <rect key="frame" x="155" y="25" width="65" height="33.5"/>
                                 <fontDescription key="fontDescription" style="UICTFontTextStyleTitle1"/>
                                 <color key="textColor" red="0.1726138294" green="0.17222628000000001" blue="0.20392873880000001" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
                                 <nil key="highlightedColor"/>
                             </label>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Key:" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="TJy-kB-5Ri">
-                                <rect key="frame" x="161" y="259.5" width="53" height="33.5"/>
-                                <fontDescription key="fontDescription" style="UICTFontTextStyleTitle1"/>
+                                <rect key="frame" x="160" y="274.5" width="55.5" height="33"/>
+                                <fontDescription key="fontDescription" name="HelveticaNeue" family="Helvetica Neue" pointSize="28"/>
                                 <color key="textColor" red="0.1726138294" green="0.17222628000000001" blue="0.20392873880000001" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
                                 <nil key="highlightedColor"/>
                             </label>
                             <pickerView contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="ERu-09-ksH">
-                                <rect key="frame" x="27.5" y="293" width="320" height="200"/>
+                                <rect key="frame" x="27.5" y="307.5" width="320" height="200"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="200" id="Ndg-ef-KIP"/>
                                 </constraints>
                             </pickerView>
                             <stackView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Lzz-pc-DN9">
-                                <rect key="frame" x="127.5" y="493" width="120" height="35"/>
+                                <rect key="frame" x="112.5" y="507.5" width="150" height="35"/>
                                 <subviews>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="LoFi:" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ZuC-MN-ZkQ">
-                                        <rect key="frame" x="0.0" y="0.0" width="71" height="35"/>
+                                        <rect key="frame" x="0.0" y="0.0" width="101" height="35"/>
                                         <fontDescription key="fontDescription" style="UICTFontTextStyleTitle1"/>
                                         <color key="textColor" red="0.16894975300000001" green="0.17555683850000001" blue="0.2549182773" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
                                         <nil key="highlightedColor"/>
                                     </label>
                                     <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="S9O-bc-juZ">
-                                        <rect key="frame" x="71" y="0.0" width="51" height="35"/>
+                                        <rect key="frame" x="101" y="0.0" width="51" height="35"/>
                                         <constraints>
                                             <constraint firstAttribute="width" constant="49" id="25m-QN-gVy"/>
                                         </constraints>
@@ -133,7 +137,7 @@
                                     </switch>
                                 </subviews>
                                 <constraints>
-                                    <constraint firstAttribute="width" constant="120" id="VCh-db-1t3"/>
+                                    <constraint firstAttribute="width" constant="150" id="VCh-db-1t3"/>
                                     <constraint firstAttribute="height" constant="35" id="maz-cE-bAA"/>
                                 </constraints>
                             </stackView>
@@ -149,7 +153,7 @@
                             <constraint firstItem="Lzz-pc-DN9" firstAttribute="top" secondItem="ERu-09-ksH" secondAttribute="bottom" id="QhQ-qF-jjY"/>
                             <constraint firstItem="8ZH-cX-Kjc" firstAttribute="top" secondItem="3gf-FH-RFP" secondAttribute="bottom" id="RzS-lm-gdw"/>
                             <constraint firstItem="TJy-kB-5Ri" firstAttribute="centerX" secondItem="ErM-Yt-0zV" secondAttribute="centerX" id="bsf-13-JaA"/>
-                            <constraint firstItem="3gf-FH-RFP" firstAttribute="top" secondItem="SZ1-dz-HYJ" secondAttribute="top" constant="10" id="mT4-nD-SHA"/>
+                            <constraint firstItem="3gf-FH-RFP" firstAttribute="top" secondItem="SZ1-dz-HYJ" secondAttribute="top" constant="25" id="mT4-nD-SHA"/>
                             <constraint firstItem="8ZH-cX-Kjc" firstAttribute="centerX" secondItem="ErM-Yt-0zV" secondAttribute="centerX" id="pfE-DW-V4u"/>
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="SZ1-dz-HYJ"/>
@@ -177,6 +181,7 @@
                         <textAttributes key="titleTextAttributes">
                             <fontDescription key="fontDescription" style="UICTFontTextStyleTitle1"/>
                             <color key="textColor" red="0.16894975300000001" green="0.17555683850000001" blue="0.2549182773" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+                            <color key="textShadowColor" red="0.1726138294" green="0.17222628000000001" blue="0.20392873880000001" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
                         </textAttributes>
                     </navigationBar>
                     <connections>
@@ -189,6 +194,6 @@
         </scene>
     </scenes>
     <resources>
-        <image name="pixel art note.svg" width="51" height="95"/>
+        <image name="synth.gif" width="200" height="200"/>
     </resources>
 </document>

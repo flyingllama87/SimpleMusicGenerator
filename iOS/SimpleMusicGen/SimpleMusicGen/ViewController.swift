@@ -7,11 +7,13 @@
 //
 
 import UIKit
+import Gifu
 
 class ViewController: UIViewController {
 
     @IBOutlet weak var settingsLabel: UILabel!
     @IBOutlet weak var buttonLabel: UIButton!
+    @IBOutlet weak var gifView: GIFImageView!
     
     var playing: Bool = false;
     
@@ -40,6 +42,7 @@ class ViewController: UIViewController {
         super.viewDidLoad()
         SetupSDL()
         updateSettingsLabel()
+        gifView.prepareForAnimation(withGIFNamed: "synth")
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -49,6 +52,7 @@ class ViewController: UIViewController {
     
     @IBAction func StartMusic(_ sender: Any) {
         if playing {
+            gifView.stopAnimatingGIF()
             StopAudio()
             playing = false
             buttonLabel.setTitle("Start Music!", for: .normal)
@@ -56,8 +60,8 @@ class ViewController: UIViewController {
         else {
             PlayAudio()
             playing = true
+            gifView.startAnimatingGIF()
             buttonLabel.setTitle("Stop Music!", for: .normal)
-
         }
     }
 }
@@ -74,3 +78,12 @@ extension UIView {
     }
 }
 
+class GIFView: UIImageView, GIFAnimatable {
+  public lazy var animator: Animator? = {
+    return Animator(withDelegate: self)
+  }()
+    
+  override public func display(_ layer: CALayer) {
+    updateImageIfNeeded()
+  }
+}

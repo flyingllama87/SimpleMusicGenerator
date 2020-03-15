@@ -62,7 +62,6 @@ class SettingsController: UIViewController, UIPickerViewDelegate, UIPickerViewDa
             if component == 0 {
                 note = notes[row]
             } else { // scale/tonality column
-                print("Setting tonality.  Row: " + String(row))
                 scale = Int32(row)
             }
         }
