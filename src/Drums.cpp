@@ -1,6 +1,5 @@
 //
 //  Drums.cpp
-//  test
 //
 //  Created by Morgan on 28/2/20.
 //  Copyright © 2020 Morgan. All rights reserved.
@@ -34,14 +33,14 @@ void GenDrumBeat(Uint8 *drumBuf)
         for (int c = 0; c < internalAudioBuffer.length; c += (songSettings.halfNoteLenBytes))
         {
             if (beatCount == 1 || beatCount == 2)
-                memcpy(&drumBuf[c], kick.buf, kick.length);
+                SafeMemCopy(drumBuf, kick.buf, kick.length, c);
             else if (beatCount == 3 || beatCount == 4 || beatCount == 7)
-                memcpy(&drumBuf[c], hihat.buf, hihat.length);
+                SafeMemCopy(drumBuf, hihat.buf, hihat.length, c);
             else if (beatCount == 5 || beatCount == 6)
-                memcpy(&drumBuf[c], snare.buf, snare.length);
+                SafeMemCopy(drumBuf, snare.buf, snare.length, c);
             else
             {
-                memcpy(&drumBuf[c], hihat.buf, hihat.length);
+                SafeMemCopy(drumBuf, hihat.buf, hihat.length, c);
                 beatCount = 0;
                 barCount++;
             }
@@ -52,14 +51,14 @@ void GenDrumBeat(Uint8 *drumBuf)
         for (int c = 0; c < internalAudioBuffer.length; c += songSettings.noteLenBytes)
         {
             if (beatCount == 1)
-                memcpy(&drumBuf[c], kick.buf, kick.length);
+                SafeMemCopy(drumBuf, kick.buf, kick.length, c);
             else if (beatCount == 2)
-                memcpy(&drumBuf[c], hihat.buf, hihat.length);
+                SafeMemCopy(drumBuf, hihat.buf, hihat.length, c);
             else if (beatCount == 3)
-                memcpy(&drumBuf[c], snare.buf, snare.length);
+                SafeMemCopy(drumBuf, snare.buf, snare.length, c);
             else if (beatCount == 4)
             {
-                memcpy(&drumBuf[c], hihat.buf, hihat.length);
+                SafeMemCopy(drumBuf, hihat.buf, hihat.length, c);
                 beatCount = 0;
                 barCount++;
             }
@@ -70,11 +69,11 @@ void GenDrumBeat(Uint8 *drumBuf)
         for (int c = 0; c < internalAudioBuffer.length; c += songSettings.noteLenBytes)
         {
             if (beatCount == 1)
-                memcpy(&drumBuf[c], kick.buf, kick.length);
+                SafeMemCopy(drumBuf, kick.buf, kick.length, c);
             else if (beatCount == 2)
-                memcpy(&drumBuf[c], kick.buf, kick.length);
+                SafeMemCopy(drumBuf, kick.buf, kick.length, c);
             else if (beatCount == 3)
-                memcpy(&drumBuf[c], snare.buf, snare.length);
+                SafeMemCopy(drumBuf, snare.buf, snare.length, c);
             else
             {
                 beatCount = 0;
@@ -96,17 +95,17 @@ void GenDrumBeat(Uint8 *drumBuf)
         for (int c = 0; c < internalAudioBuffer.length; c += (songSettings.halfNoteLenBytes))
         {
             if (beatCount == 1)
-                memcpy(&drumBuf[c], kickHatBuf, kick.length);
+                SafeMemCopy(drumBuf, kickHatBuf, kick.length, c);
             else if (beatCount == 8)
             {
-                memcpy(&drumBuf[c], hihat.buf, hihat.length);
+                SafeMemCopy(drumBuf, hihat.buf, hihat.length, c);
                 beatCount = 0;
                 barCount++;
             }
             else if (beatCount == 5)
-                memcpy(&drumBuf[c], snareHatBuf, snare.length);
+                SafeMemCopy(drumBuf, snareHatBuf, snare.length, c);
             else
-                memcpy(&drumBuf[c], hihat.buf, hihat.length);
+                SafeMemCopy(drumBuf, hihat.buf, hihat.length, c);
             beatCount++;
         }
         break;
@@ -115,9 +114,9 @@ void GenDrumBeat(Uint8 *drumBuf)
         for (int c = 0; c < internalAudioBuffer.length; c += songSettings.noteLenBytes)
         {
             if (beatCount == 1)
-                memcpy(&drumBuf[c], kick.buf, kick.length);
+                SafeMemCopy(drumBuf, kick.buf, kick.length, c);
             else if (beatCount == 3)
-                memcpy(&drumBuf[c], snare.buf, snare.length);
+                SafeMemCopy(drumBuf, snare.buf, snare.length, c);
             else if (beatCount == 4)
                 beatCount = 0;
             beatCount++;
@@ -128,7 +127,7 @@ void GenDrumBeat(Uint8 *drumBuf)
         {
             if (beatCount == 4)
                 beatCount = 0;
-            memcpy(&drumBuf[c], kick.buf, kick.length);
+            SafeMemCopy(drumBuf, kick.buf, kick.length, c);
             beatCount++;
         }
         break;
@@ -155,18 +154,17 @@ void GenDrumBeat(Uint8 *drumBuf)
                 beatCount == 7 ||
                 beatCount == 8 ||
                 beatCount == 13))
-                memcpy(&drumBuf[c], hihat.buf, hihat.length);
+                SafeMemCopy(drumBuf, hihat.buf, hihat.length, c);
 
             if (beatCount == 1)
-                memcpy(&drumBuf[c], kickHatBuf, kick.length);
+                SafeMemCopy(drumBuf, kickHatBuf, kick.length, c);
 
             if (beatCount == 9)
-                memcpy(&drumBuf[c], snareHatBuf, snare.length);
+                SafeMemCopy(drumBuf, snareHatBuf, snare.length, c);
 
             if (!hatRoll && (beatCount == 5 ||
-                beatCount == 13
-                ))
-                memcpy(&drumBuf[c], hihat.buf, hihat.length);
+                beatCount == 13))
+                SafeMemCopy(drumBuf, hihat.buf, hihat.length, c);
 
             if (beatCount == 16)
             {

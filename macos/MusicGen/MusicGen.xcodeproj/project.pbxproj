@@ -22,6 +22,8 @@
 		909A0269241A3104007E2590 /* SDL.h in Headers */ = {isa = PBXBuildFile; fileRef = 909A0268241A3103007E2590 /* SDL.h */; };
 		909A026A241A3104007E2590 /* SDL.h in Headers */ = {isa = PBXBuildFile; fileRef = 909A0268241A3103007E2590 /* SDL.h */; };
 		90A9DC4B241B823500F077EF /* libMusicGen.a in CopyFiles */ = {isa = PBXBuildFile; fileRef = 90A9DC4A241B823500F077EF /* libMusicGen.a */; };
+		90FCA4862438433400EA41C8 /* Bass.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 90FCA4852438433400EA41C8 /* Bass.cpp */; };
+		90FCA4872438433400EA41C8 /* Bass.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 90FCA4852438433400EA41C8 /* Bass.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -70,6 +72,7 @@
 		90F77FAF240931C800C3DF21 /* MusicGen */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = MusicGen; sourceTree = BUILT_PRODUCTS_DIR; };
 		90F77FC5240932B200C3DF21 /* libSDL2.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libSDL2.a; path = ../../../../../../../../usr/local/Cellar/sdl2/2.0.10/lib/libSDL2.a; sourceTree = "<group>"; };
 		90F77FC6240932C700C3DF21 /* libSDL2-2.0.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libSDL2-2.0.0.dylib"; path = "../../../../../../../../usr/local/Cellar/sdl2/2.0.10/lib/libSDL2-2.0.0.dylib"; sourceTree = "<group>"; };
+		90FCA4852438433400EA41C8 /* Bass.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Bass.cpp; path = ../../src/Bass.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -107,6 +110,7 @@
 				905F7D5B240C7549001B4099 /* main.cpp */,
 				905F7D5D240C7549001B4099 /* MusicGen.h */,
 				905F7D58240C7549001B4099 /* UtilFunctions.cpp */,
+				90FCA4852438433400EA41C8 /* Bass.cpp */,
 			);
 			name = MusicGenerator;
 			sourceTree = "<group>";
@@ -271,6 +275,7 @@
 				900282F324184B4400574BF2 /* Drums.cpp in Sources */,
 				900282F424184B4400574BF2 /* Generators.cpp in Sources */,
 				900282F724184B4400574BF2 /* UtilFunctions.cpp in Sources */,
+				90FCA4872438433400EA41C8 /* Bass.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -278,6 +283,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				90FCA4862438433400EA41C8 /* Bass.cpp in Sources */,
 				905F7D61240C7549001B4099 /* main.cpp in Sources */,
 				905F7D62240C7549001B4099 /* AudioAndMusic.cpp in Sources */,
 				905F7D60240C7549001B4099 /* Drums.cpp in Sources */,
