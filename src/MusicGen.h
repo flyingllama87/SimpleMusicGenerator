@@ -24,6 +24,7 @@
 #endif
 
 // #define DEBUG_AUDIO 1
+// #define PRINT_PATHS 1
 
 //#define samplesPerSec 48000
 #define numChannels 1
@@ -57,6 +58,7 @@ void ChangeSongSettingsCLI(); // CLI for changing song & audio settings.
 // Audio specific
 int InitSDL();
 void ConfigSong(int bpm, char note, int scale, bool lofi);
+void RandomConfig();
 void SetupAudio(bool callback = false);
 void DumpBuffer(int16_t* wavBuffer, int length, std::string fileName);
 void DumpBuffer(Uint8* wavBuffer, int length, std::string fileName);
@@ -73,15 +75,19 @@ int16_t* Sawtooth(float freq, float length, Uint16 magnitude);
 int16_t* Noise(float length, bool lowPitch, int magnitude = halfMag);
 int16_t* SineWave(float freq, float length, Uint16 magnitude);
 void Square(float freq, int length, int magnitude, Uint8* inBuf);
+void SafeSquare(float freq, int length, int magnitude, Uint8 *inBuf, int currPos);
 void Sawtooth(float freq, int length, Uint16 magnitude, Uint8* inBuf);
+void SafeSawtooth(float freq, int length, Uint16 magnitude, Uint8 *inBuf, int currPos);
 void Noise(float length, bool lowPitch, Uint8* inBuf, int magnitude = halfMag);
 void Sine(float freq, int length, Uint16 magnitude, Uint8* inBuf);
+void SafeSine(float freq, int length, Uint16 magnitude, Uint8 *inBuf, int currPos);
 AudioData Silence(float length);
 
 void FadeIn(int16_t* buffer, int numOfSamples);
 void FadeOut(int16_t* buffer, int numOfSamples);
 void FadeIn(Uint8* buffer, int numOfSamples);
 void FadeOut(Uint8* buffer, int numOfSamples);
+void SafeFadeOut(Uint8* buffer, int numOfBytes, int currPos);
 
 void GenDrumBeat(Uint8* drumBuf);
 void TestDrums();
@@ -90,6 +96,7 @@ AudioData GiveHihat();
 AudioData GiveSnare();
 
 void GenBassTrack(Uint8* bassBuf);
+void GenLeadTrack(Uint8* leadBuf);
 
 void PlayScale();
 
@@ -175,8 +182,8 @@ struct songSettings
 {
     int BPM;
     int beatsToBar;
-    int barsPerMin;
-    int barLenMS; // bar length in ms.
+    float barsPerMin;
+    float barLenMS; // bar length in ms.
     float noteLenMS; // Get noteLength in ms. 60000 = 1 min in milliseconds.
     float halfNoteLenMS;
     float qtrNoteLenMS;
@@ -189,9 +196,9 @@ struct songSettings
     Key key;
     bool loFi;
     bool inited;
-    bool skipDrums;
-    bool skipBass;
-    bool skipLead;
+    bool genDrums;
+    bool genBass;
+    bool genLead;
     
     AudioData kickSound;
     AudioData snareSound;
@@ -205,12 +212,12 @@ struct songSettings
         this->key = Major;
         this->loFi = false;
         this->inited = false;
-        this->skipDrums = false;
-        this->skipBass = false;
-        this->skipLead = false;
+        this->genDrums = true;
+        this->genBass = true;
+        this->genLead = true;
     }
 
-    void Init() // Must be initialised after audioSettings are initialiosed.
+    void Init() // Must be initialised after audioSettings are initialised.
     {
         if (this->inited == true)
         {
@@ -310,7 +317,14 @@ static struct Notes
         std::make_pair("F2", 87.31f),
         std::make_pair("E2", 82.41f),
         std::make_pair("D2", 73.42f),
-        std::make_pair("C2", 65.41f)
+        std::make_pair("C2", 65.41f),
+        std::make_pair("B1", 61.74f),
+        std::make_pair("A1", 55.00f),
+        std::make_pair("G1", 49.00f),
+        std::make_pair("F1", 43.65f),
+        std::make_pair("E1", 41.20f),
+        std::make_pair("D1", 36.71f),
+        std::make_pair("C1", 32.70f),
     };
         
     float getNoteFreq(std::string requestedNote)

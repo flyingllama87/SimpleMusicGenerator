@@ -128,6 +128,19 @@ void DebugGeneratorsNew()
     FadeOut(&waveBuffer[0], waveLength);
     AudioPlayer(tempAD);
 
+    std::cout << "Testing 'safe' generators\n";
+    
+    // Sawtooth
+    SafeSawtooth(440, 1000, halfMag, waveBuffer, 0);
+    DumpBuffer(waveBuffer, waveLength, "SafeSawtooth.txt");
+    AudioPlayer(tempAD);
+
+    // Sawtooth + FadeOut
+    SafeSawtooth(440, 1000, halfMag, waveBuffer, 0);
+    SafeFadeOut(waveBuffer, waveLength, 0);
+    DumpBuffer(waveBuffer, waveLength, "SafeSawtoothFadeOut.txt");
+    AudioPlayer(tempAD);
+    
     delete[] waveBuffer;
 }
 
@@ -210,6 +223,26 @@ void Sawtooth(float freq, int length, Uint16 magnitude, Uint8 *inBuf)
     }
 }
 
+void SafeSawtooth(float freq, int length, Uint16 magnitude, Uint8 *inBuf, int currPos)
+{
+    Uint32 sawtoothWaveLength = audioSettings.samplesPerMS * length * 2;
+    Uint32 destBufferWaveEnd = currPos + sawtoothWaveLength;
+
+    if (currPos + sawtoothWaveLength > internalAudioBuffer.length)
+        destBufferWaveEnd = internalAudioBuffer.length;
+
+    int cycleLength = (audioSettings.audSpecHave.freq * 2) / freq;
+    float stepVal = (float)magnitude / (float)cycleLength;
+    Uint16 halfMagnitude = magnitude / 2;
+
+    for (int c = currPos; c < destBufferWaveEnd; c+=2)
+    {
+        int currentCyclePos = c % cycleLength;
+        int16_t sawVal = ((float)stepVal * (float)currentCyclePos) - halfMagnitude;
+        inBuf[c] = sawVal & 0xFF;
+        inBuf[c + 1] = sawVal >> 8;
+    }
+}
 
 int16_t* Sawtooth(float freq, float length, Uint16 magnitude)
 {
@@ -288,6 +321,41 @@ void Square(float freq, int length, int magnitude, Uint8 *inBuf)
     }
 }
 
+void SafeSquare(float freq, int length, int magnitude, Uint8 *inBuf, int currPos)
+{
+
+    Uint32 squareWaveLength = audioSettings.samplesPerMS * length * 2;
+    Uint32 destBufferWaveEnd = currPos + squareWaveLength;
+
+    if (currPos + squareWaveLength > internalAudioBuffer.length)
+        destBufferWaveEnd = internalAudioBuffer.length;
+
+
+    // Change X twice as much as the frequency for complete square cycle
+    int changeSignEveryXCycles = audioSettings.audSpecHave.freq / (freq * 2);
+    bool writeHigh = false;
+    Uint16 halfMagnitude = magnitude / 2;
+
+    for (int c = currPos; c < destBufferWaveEnd; c+=2)
+    {
+        if ((c/2) % changeSignEveryXCycles == 0)
+            writeHigh = !writeHigh;
+
+        if (writeHigh)
+        {
+            int16_t squareVal = halfMagnitude;
+            inBuf[c] = squareVal & 0xFF;
+            inBuf[c + 1] = squareVal >> 8;
+        }
+        else
+        {
+            int16_t squareVal = halfMagnitude * -1;
+            inBuf[c] = squareVal & 0xFF;
+            inBuf[c + 1] = squareVal >> 8;
+        }
+    }
+}
+
 // Expects length in ms
 int16_t* SineWave(float freq, float length, Uint16 magnitude)
 {
@@ -338,6 +406,32 @@ void Sine(float freq, int length, Uint16 magnitude, Uint8 *inBuf)
 }
 
 // Expects length in ms
+void SafeSine(float freq, int length, Uint16 magnitude, Uint8 *inBuf, int currPos)
+{
+
+    Uint32 sineWaveLength = audioSettings.samplesPerMS * length * 2;
+    Uint32 destBufferWaveEnd = currPos + sineWaveLength;
+
+    if (currPos + sineWaveLength > internalAudioBuffer.length)
+        destBufferWaveEnd = internalAudioBuffer.length;
+
+    Uint16 halfMagnitude = magnitude / 2;
+
+    // Samples per sine cycle:
+    float samplesPerCycle = (float)(audioSettings.audSpecHave.freq * 2) / freq;
+    float radsPerStep = (2.0 * M_PI) / samplesPerCycle;
+
+    // std::cout << "\nsamplesPerCycle: " << samplesPerCycle << "\n";
+
+    for (int c = currPos; c < destBufferWaveEnd; c+=2)
+    {
+        int16_t sineVal = (sin((float)c * radsPerStep)) * halfMagnitude;
+        inBuf[c] = sineVal & 0xFF;
+        inBuf[c + 1] = sineVal >> 8;
+    }
+}
+
+// Expects length in ms
 AudioData Silence(float length)
 {
     AudioData returnAD;
@@ -378,6 +472,26 @@ void FadeOut(Uint8* buffer, int numOfBytes)
     {
         // Use the next line to calculate how much we need to reduce the signal by
         float cycleLengthRatio = (float)(numOfBytes - c) / (float)numOfBytes;
+        // Convert the input buffer to 16 bit, apply the fade to the current value and convert back to 8 bit buffer
+        int16_t bufCurVal16 = (int16_t)(((buffer[c+1] & 0xFF) << 8) | (buffer[c] & 0xFF));
+        bufCurVal16 = (int16_t)((float)bufCurVal16 * cycleLengthRatio);
+        buffer[c] = bufCurVal16 & 0xFF;
+        buffer[c + 1] = bufCurVal16 >> 8;
+    }
+}
+
+// Expects length in total number of bytes.
+void SafeFadeOut(Uint8* buffer, int numOfBytes, int currPos)
+{
+    int destBufferFadeOutEndPos = numOfBytes + currPos;
+    
+    if (destBufferFadeOutEndPos > internalAudioBuffer.length)
+        destBufferFadeOutEndPos = internalAudioBuffer.length;
+    
+    for (int c = currPos; c < destBufferFadeOutEndPos; c+=2)
+    {
+        // Use the next line to calculate how much we need to reduce the signal by
+        float cycleLengthRatio = (float)(numOfBytes - (c - currPos)) / (float)numOfBytes;
         // Convert the input buffer to 16 bit, apply the fade to the current value and convert back to 8 bit buffer
         int16_t bufCurVal16 = (int16_t)(((buffer[c+1] & 0xFF) << 8) | (buffer[c] & 0xFF));
         bufCurVal16 = (int16_t)((float)bufCurVal16 * cycleLengthRatio);

@@ -71,21 +71,36 @@ void GenMusicStream()
     std::fill_n(internalAudioBuffer.buf, internalAudioBuffer.length, 0);
 
     // Drums
-
     Uint8* drumBuf = new Uint8[internalAudioBuffer.length] ();
-    GenDrumBeat(drumBuf);
-
+    if (songSettings.genDrums)
+        GenDrumBeat(drumBuf);
+    
+    // Bass
     Uint8* bassBuf = new Uint8[internalAudioBuffer.length] ();
-    //GenBassTrack(bassBuf);
+    if (songSettings.genBass)
+        GenBassTrack(bassBuf);
 
+    // Lead
+    Uint8* leadBuf = new Uint8[internalAudioBuffer.length] ();
+    if (songSettings.genLead)
+        GenLeadTrack(leadBuf);
+    
     internalAudioBuffer.pos = 0;
 
-    SDL_MixAudioFormat(internalAudioBuffer.buf, drumBuf, sampleFmt, internalAudioBuffer.length, SDL_MIX_MAXVOLUME);
-    SDL_MixAudioFormat(internalAudioBuffer.buf, bassBuf, sampleFmt, internalAudioBuffer.length, SDL_MIX_MAXVOLUME);
-
+    if (songSettings.genDrums)
+        SDL_MixAudioFormat(internalAudioBuffer.buf, drumBuf, sampleFmt, internalAudioBuffer.length, SDL_MIX_MAXVOLUME);
+    
+    if (songSettings.genBass)
+        SDL_MixAudioFormat(internalAudioBuffer.buf, bassBuf, sampleFmt, internalAudioBuffer.length, SDL_MIX_MAXVOLUME);
+    
+    if (songSettings.genLead)
+        SDL_MixAudioFormat(internalAudioBuffer.buf, leadBuf, sampleFmt, internalAudioBuffer.length, SDL_MIX_MAXVOLUME);
+    
     delete[] drumBuf;
     delete[] bassBuf;
+    delete[] leadBuf;
 
+    std::cout << "\n";
 }
 
 void PlayScale()
@@ -212,6 +227,30 @@ void ConfigSong(int bpm, char note, int scale, bool lofi)
         songSettings.key = Key::Minor;
     
     if (lofi)
+    {
+        songSettings.loFi = true;
+        audioSettings.audSpecWant.freq = 8000;
+        audioSettings.audSpecWant.samples = 4096;
+    
+    } else {
+        songSettings.loFi = false;
+        audioSettings.audSpecWant.freq = 48000;
+        audioSettings.audSpecWant.samples = 32768;
+    }
+}
+
+
+void RandomConfig()
+{
+    songSettings.BPM = ((rand() % 45) * 4) + 60;
+    char note = (rand() % 7) + 65;
+    songSettings.keyNote = note;
+    if (rand() % 2)
+        songSettings.key = Key::Major;
+    else
+        songSettings.key = Key::Minor;
+    
+    if (rand() % 2)
     {
         songSettings.loFi = true;
         audioSettings.audSpecWant.freq = 8000;

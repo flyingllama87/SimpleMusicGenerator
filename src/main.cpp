@@ -40,6 +40,7 @@ void Menu()
         std::cout << "\n"
             "Press c to change settings\n"
             "Press s to start music generator\n"
+            "Press r to start music generator with random config\n"
             "Press P to pause music generation\n"
             "Press o to test old wave/noise/effects generators\n"
             "Press d to test drums\n"
@@ -55,6 +56,16 @@ void Menu()
             ChangeSongSettingsCLI();
         else if (menuInput == 's')
             SetupAudio(true);
+        else if (menuInput == 'r')
+        {
+            RandomConfig();
+
+            std::cout << "\n\nBPM: " << songSettings.BPM << "\n"
+            "Key/Scale: " << songSettings.keyNote << " " << (songSettings.key == Key::Major ? "Major" : "Minor") << "\n"
+            "LoFi: " << (songSettings.loFi == true ? "Yep" : "Nup") << "\n\n";
+            
+            SetupAudio(true);
+        }
         else if (menuInput == 'p')
             audioSettings.StopAudio();
         else if (menuInput == 'o')
