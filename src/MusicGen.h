@@ -214,6 +214,8 @@ struct songSettings
     bool genBass;
     bool genLead;
     bool leadSine = false;
+    bool leadSawtooth = false;
+    bool leadSquare = true;
     
     AudioData kickSound;
     AudioData snareSound;

@@ -173,7 +173,26 @@ void GenLeadTrack(Uint8* leadBuf, int leadBufLength)
     if (rand() % 15 == 6)
     {
         std::cout << "   > RNJesus wants to switch lead instruments\n";
-        songSettings.leadSine = !songSettings.leadSine;
+        int instrument = rand() % 3;
+        if (instrument == 0) // saw
+        {
+            songSettings.leadSine = false;
+            songSettings.leadSquare = false;
+            songSettings.leadSawtooth = true;
+
+        }
+        else if (instrument == 1) // sine
+        {
+            songSettings.leadSine = true;
+            songSettings.leadSquare = false;
+            songSettings.leadSawtooth = false;
+        }
+        else // square
+        {
+            songSettings.leadSine = false;
+            songSettings.leadSquare = true;
+            songSettings.leadSawtooth = false;
+        }
     }
 
     // Select lead pattern
@@ -194,9 +213,9 @@ void GenLeadTrack(Uint8* leadBuf, int leadBufLength)
             )
             pickRandLeadPattern = rand() % 12;
 
+        // really discourage these
         if (pickRandLeadPattern == 2 ||
-            pickRandLeadPattern == 7 ||
-            pickRandLeadPattern == 10
+            pickRandLeadPattern == 7
             )
             pickRandLeadPattern = rand() % 12;
 

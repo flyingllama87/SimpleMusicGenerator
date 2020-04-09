@@ -535,8 +535,11 @@ void SafeFadeIn(Uint8* buffer, int numOfBytes, int currPos)
 
 void SafeLead(float freq, int length, Uint16 magnitude, Uint8* inBuf, int currPos)
 {
-    if (songSettings.leadSine)
+    if (songSettings.leadSawtooth)
+        SafeSawtooth(freq, length, magnitude, inBuf, currPos);
+    else if (songSettings.leadSine)
         SafeSine(freq, length, magnitude, inBuf, currPos);
     else
         SafeSquare(freq, length, magnitude, inBuf, currPos);
+
 }

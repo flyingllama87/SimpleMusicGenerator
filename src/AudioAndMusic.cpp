@@ -66,13 +66,13 @@ void GenAudioStream(void* userdata, Uint8* stream, int len)
         // Calculate how much extra data we need
         int extraBytesRequired = len - bytesTillIntBufEnd;
 
-        int randTest = rand() % 100;
+        int randTestChance = rand() % 100;
 
         // Generate a new drum beat / music track or repeat the old one?
-        if (randTest > 90)
+        if (randTestChance < 20)
         {
             internalAudioBuffer.pos = 0;
-            std::cout << "   > RNJesus wants that bar to repeat... \n\n";
+            std::cout << "   > RNJesus wants the previous bar to repeat first... \n";
         }
         else
         {
@@ -97,7 +97,7 @@ void GenAudioStream(void* userdata, Uint8* stream, int len)
 
                 // Evaluate switching musical keys or BPM between thread generations
                 // switch keys?
-                if (randTest > 80 && internalAudioBuffer.backBufferLength == internalAudioBuffer.length)
+                if (randTestChance > 90 && internalAudioBuffer.backBufferLength == internalAudioBuffer.length)
                 {
                     // TO DO: Use some music theory, pick the IV, V or vi
                     char note = (rand() % 7) + 65;
@@ -107,16 +107,16 @@ void GenAudioStream(void* userdata, Uint8* stream, int len)
                     else
                         songSettings.key = Key::Minor;
 
-                    std::cout << "   > RNJesus wants to change the key to: " << songSettings.keyNote << " " << (songSettings.key == Key::Major ? "Major" : "Minor") << "\n\n";
+                    std::cout << "\n   > RNJesus wants to change the key to: " << songSettings.keyNote << " " << (songSettings.key == Key::Major ? "Major" : "Minor") << "\n";
                     // reinit
                     songSettings.Init();
                 }
 
                 // switch bpm?
-                if ((randTest > 50 || (songSettings.BPM < 110 && randTest % 5 == 0)) && internalAudioBuffer.backBufferLength == internalAudioBuffer.length)
+                if ((randTestChance > 80 || (songSettings.BPM < 110 && randTestChance % 5 == 0)) && internalAudioBuffer.backBufferLength == internalAudioBuffer.length)
                 {
                     songSettings.BPM = ((rand() % 31) * 4) + 116;
-                    std::cout << "   > RNJesus wants to change the BPM to:" << songSettings.BPM << "\n\n";
+                    std::cout << "\n   > RNJesus wants to change the BPM to: " << songSettings.BPM << "\n";
                     // reinit
                     songSettings.Init();
                     internalAudioBuffer.InitBackBuffer();
@@ -202,7 +202,7 @@ void GenMusicStream()
 int WriteMusicBuffer(void* ptr)
 {
 
-    std::cout << "\nNext bar:\n";
+    std::cout << "\nNext measure (4/4):\n";
 
     // Seed random number gen in callback thread
 #ifdef _WIN64
@@ -251,8 +251,6 @@ int WriteMusicBuffer(void* ptr)
     delete[] drumBuf;
     delete[] bassBuf;
     delete[] leadBuf;
-
-    std::cout << "\n";
 
     return 1;
 }
