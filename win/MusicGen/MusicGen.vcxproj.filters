@@ -30,7 +30,7 @@
     <ClCompile Include="..\..\src\UtilFunctions.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\SimpleMusicGen_wrap.cpp">
+    <ClCompile Include="..\..\src\Bass.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

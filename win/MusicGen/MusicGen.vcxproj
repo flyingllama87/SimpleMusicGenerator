@@ -20,10 +20,10 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\AudioAndMusic.cpp" />
+    <ClCompile Include="..\..\src\Bass.cpp" />
     <ClCompile Include="..\..\src\Drums.cpp" />
     <ClCompile Include="..\..\src\Generators.cpp" />
     <ClCompile Include="..\..\src\main.cpp" />
-    <ClCompile Include="..\..\src\SimpleMusicGen_wrap.cpp" />
     <ClCompile Include="..\..\src\UtilFunctions.cpp" />
   </ItemGroup>
   <ItemGroup>

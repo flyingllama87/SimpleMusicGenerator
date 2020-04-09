@@ -7,4 +7,4 @@
 %}
 
 void SetupAudio(bool callback);
-int Init_SDL();
+int InitSDL();
