@@ -73,10 +73,10 @@ bool IsANote(std::string str)
 }
 
 // Only copy from the source buffer if there is enough room in the internal audio buffers
-void SafeMemCopy(Uint8* destBuf, Uint8* srcBuf, Uint32 srcBufLen, int c)
+void SafeMemCopy(Uint8* destBuf, Uint8* srcBuf, Uint32 srcBufLen, int c, int destBufLen)
 {
-    if (srcBufLen > internalAudioBuffer.length - c)
-        srcBufLen = internalAudioBuffer.length - c;
+    if (srcBufLen > destBufLen - c)
+        srcBufLen = destBufLen - c;
         
     memcpy(&destBuf[c], srcBuf, srcBufLen);
 

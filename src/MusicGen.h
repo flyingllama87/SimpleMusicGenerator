@@ -64,8 +64,8 @@ void c16to8(int16_t* inBuf, int len, Uint8* outBuf);
 void GenAudioStream(void* userdata, Uint8* stream, int len);
 void GenMusicStream();
 void AudioPlayer(AudioData audioData);
-void SafeMemCopy(Uint8* destBuf, Uint8* srcBuf, Uint32 srcBufLen, int c);
-Key SwitchKey(Key key);
+void SafeMemCopy(Uint8* destBuf, Uint8* srcBuf, Uint32 srcBufLen, int c, int destBufLen);
+int WriteMusicBuffer(void* ptr);
 
 
 // Wave & Sound Generators
@@ -93,19 +93,20 @@ void FadeOut(Uint8* buffer, int numOfSamples);
 void SafeFadeOut(Uint8* buffer, int numOfBytes, int currPos);
 void SafeFadeIn(Uint8* buffer, int numOfBytes, int currPos);
 
+// Music
+void PlayScale();
+Key SwitchKey(Key key);
+
 // Drums
-void GenDrumBeat(Uint8* drumBuf);
+void GenDrumBeat(Uint8* drumBuf, int drumBufLength);
 void TestDrums();
 AudioData GiveKick();
 AudioData GiveHihat();
 AudioData GiveSnare();
 
 // Bass
-void GenBassTrack(Uint8* bassBuf);
-void GenLeadTrack(Uint8* leadBuf);
-
-// Music
-void PlayScale();
+void GenBassTrack(Uint8* bassBuf, int bassBufLength);
+void GenLeadTrack(Uint8* leadBuf, int leadBufLength);
 
 // Validation functions.
 bool stringIsFloat (const std::string& s);
@@ -294,8 +295,9 @@ struct internalAudioBuffer
 {
     int pos;
     int length;
+    int backBufferLength;
     Uint8* buf;
-    Uint8* bufferSwap;
+    Uint8* backBuf;
     bool inited;
     
     internalAudioBuffer()
@@ -305,26 +307,44 @@ struct internalAudioBuffer
     
     void Init()
     {
+        pos = -1;
+        InitBackBuffer();
+        InitBuffer();
+    }
+    
+    void InitBackBuffer()
+    {
+        if (this->inited == true)
+        {
+            delete[] this->backBuf;
+        }
+        if (!songSettings.inited || !audioSettings.inited)
+            std::cout << "\n\nWARNING: songSettings or audioSettings not initialised.  This will fail.\n\n";
+        backBufferLength = songSettings.barLenMS * 4 * audioSettings.samplesPerMS * 2; // 4 bars, x2 for bytes
+        backBufferLength = backBufferLength + (backBufferLength % 2); // Make length  if it wasn't.
+        backBuf = new Uint8[backBufferLength]();
+    }
+
+        void InitBuffer()
+    {
         if (this->inited == true)
         {
             delete[] this->buf;
-            delete[] bufferSwap;
         }
         if (!songSettings.inited || !audioSettings.inited)
             std::cout << "\n\nWARNING: songSettings or audioSettings not initialised.  This will fail.\n\n";
         length = songSettings.barLenMS * 4 * audioSettings.samplesPerMS * 2; // 4 bars, x2 for bytes
-        length = length + (length % 2); // Make length even if it wasn't.
-        pos = -1;
+        length = length + (length % 2); // Make length  if it wasn't.
+
         buf = new Uint8[length]();
-        bufferSwap = new Uint8[length]();
         inited = true;
     }
-    
+
     ~internalAudioBuffer()
     {
         std::cout << "\nCalling internalAudioBuffer destructor\n";
         delete[] buf;
-        delete[] bufferSwap;
+        delete[] backBuf;
 
     }
     

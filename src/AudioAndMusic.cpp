@@ -15,6 +15,8 @@ struct internalAudioBuffer internalAudioBuffer;
 // len is number of bytes not number of samples requested.
 void GenAudioStream(void* userdata, Uint8* stream, int len)
 {
+    static SDL_Thread* backBufferThread;
+
     // Seed random number gen in callback thread
 #ifdef _WIN64
     LARGE_INTEGER cicles;
@@ -35,6 +37,10 @@ void GenAudioStream(void* userdata, Uint8* stream, int len)
     "ms of audio requested: " << (float)noOfSamplesRequested / audioSettings.samplesPerMS << "\n";
     */
 
+   // std::cout << "internalAudioBuffer.backBufLength; " << internalAudioBuffer.backBufferLength << "\n";
+  //  std::cout << "internalAudioBuffer.length; " << internalAudioBuffer.length << "\n";
+
+
     int bytesTillIntBufEnd = internalAudioBuffer.length - internalAudioBuffer.pos;
     if (!audioSettings.inited || !songSettings.inited || !internalAudioBuffer.inited)
     {
@@ -42,7 +48,13 @@ void GenAudioStream(void* userdata, Uint8* stream, int len)
     }
     else if (internalAudioBuffer.pos == -1) // Fill audio buffer on first run.
     {
+        // Fill back buffer
+        backBufferThread = SDL_CreateThread(WriteMusicBuffer, "backBuffer", internalAudioBuffer.backBuf);
+        if (NULL == backBufferThread)
+            printf("SDL_CreateThread failed: %s\n", SDL_GetError());
+        //Generate the music stream manually.
         GenMusicStream();
+
         memcpy(stream, &internalAudioBuffer.buf[internalAudioBuffer.pos], len);
         internalAudioBuffer.pos += len;
     }
@@ -54,41 +66,74 @@ void GenAudioStream(void* userdata, Uint8* stream, int len)
         // Calculate how much extra data we need
         int extraBytesRequired = len - bytesTillIntBufEnd;
 
-        int randTest = rand();
-
-        // switch keys?
-        if (randTest % 25 == 10)
-        {
-            char note = (rand() % 7) + 65;
-            songSettings.keyNote = note;
-            if (rand() % 2)
-                songSettings.key = Key::Major;
-            else
-                songSettings.key = Key::Minor;
-
-            std::cout << "   > RNJesus wants to change the key to: " << songSettings.keyNote << " " << (songSettings.key == Key::Major ? "Major" : "Minor") << "\n\n";
-            // reinit
-            songSettings.Init();
-        }
-
-        // switch bpm?
-        if (randTest % 20 == 5)
-        {
-            songSettings.BPM = ((rand() % 31) * 4) + 116;
-            std::cout << "   > RNJesus wants to change the BPM to:" << songSettings.BPM << "\n\n";
-            // reinit
-            songSettings.Init();
-            internalAudioBuffer.Init();
-        }
+        int randTest = rand() % 100;
 
         // Generate a new drum beat / music track or repeat the old one?
-        if (randTest < 5)
+        if (randTest > 90)
         {
             internalAudioBuffer.pos = 0;
             std::cout << "   > RNJesus wants that bar to repeat... \n\n";
         }
         else
-            GenMusicStream();
+        {
+            if (backBufferThread != NULL)
+            {
+                // Yield thread
+                int retVal = NULL;
+                SDL_WaitThread(backBufferThread, &retVal);
+                backBufferThread = NULL;
+
+                // Refresh primary buffer
+                internalAudioBuffer.InitBuffer();
+                if (retVal != NULL)
+                {
+                    memmove(internalAudioBuffer.buf, internalAudioBuffer.backBuf, min(internalAudioBuffer.length, internalAudioBuffer.backBufferLength));
+                    internalAudioBuffer.pos = 0;
+                }
+                else {
+                    std::cout << "***ERROR*** Something happened with the BG thread!!! \n";
+                    GenMusicStream();
+                }
+
+                // Evaluate switching musical keys or BPM between thread generations
+                // switch keys?
+                if (randTest > 80 && internalAudioBuffer.backBufferLength == internalAudioBuffer.length)
+                {
+                    // TO DO: Use some music theory, pick the IV, V or vi
+                    char note = (rand() % 7) + 65;
+                    songSettings.keyNote = note;
+                    if (rand() % 2)
+                        songSettings.key = Key::Major;
+                    else
+                        songSettings.key = Key::Minor;
+
+                    std::cout << "   > RNJesus wants to change the key to: " << songSettings.keyNote << " " << (songSettings.key == Key::Major ? "Major" : "Minor") << "\n\n";
+                    // reinit
+                    songSettings.Init();
+                }
+
+                // switch bpm?
+                if ((randTest > 50 || (songSettings.BPM < 110 && randTest % 5 == 0)) && internalAudioBuffer.backBufferLength == internalAudioBuffer.length)
+                {
+                    songSettings.BPM = ((rand() % 31) * 4) + 116;
+                    std::cout << "   > RNJesus wants to change the BPM to:" << songSettings.BPM << "\n\n";
+                    // reinit
+                    songSettings.Init();
+                    internalAudioBuffer.InitBackBuffer();
+                }
+
+                // Launch new thread to generate music to backBuffer
+                backBufferThread = SDL_CreateThread(WriteMusicBuffer, "backBuffer", internalAudioBuffer.backBuf);
+                if (NULL == backBufferThread)
+                    printf("SDL_CreateThread failed: %s\n", SDL_GetError());
+                
+            }
+            else
+            {
+                std::cout << "***ERROR*** Something happened with the BG thread!!! \n";
+                GenMusicStream();
+            }
+        }
 
         // fill the stream buffer with whatever is required from the NEW music buffer
         memcpy(&stream[bytesTillIntBufEnd], &internalAudioBuffer.buf[internalAudioBuffer.pos], extraBytesRequired);
@@ -115,17 +160,17 @@ void GenMusicStream()
     // Drums
     Uint8* drumBuf = new Uint8[internalAudioBuffer.length] ();
     if (songSettings.genDrums)
-        GenDrumBeat(drumBuf);
+        GenDrumBeat(drumBuf, internalAudioBuffer.length);
     
     // Bass
     Uint8* bassBuf = new Uint8[internalAudioBuffer.length] ();
     if (songSettings.genBass)
-        GenBassTrack(bassBuf);
+        GenBassTrack(bassBuf, internalAudioBuffer.length);
 
     // Lead
     Uint8* leadBuf = new Uint8[internalAudioBuffer.length] ();
     if (songSettings.genLead)
-        GenLeadTrack(leadBuf);
+        GenLeadTrack(leadBuf, internalAudioBuffer.length);
     
     internalAudioBuffer.pos = 0;
 
@@ -151,6 +196,65 @@ void GenMusicStream()
     delete[] leadBuf;
 
     std::cout << "\n";
+}
+
+
+int WriteMusicBuffer(void* ptr)
+{
+
+    std::cout << "\nNext bar:\n";
+
+    // Seed random number gen in callback thread
+#ifdef _WIN64
+    LARGE_INTEGER cicles;
+    QueryPerformanceCounter(&cicles);
+    std::srand(cicles.QuadPart);
+#endif
+
+    Uint8* inBuf = (Uint8*)ptr;
+
+    // Clear internal buffer
+    std::fill_n(inBuf, internalAudioBuffer.backBufferLength, 0);
+
+    // Drums
+    Uint8* drumBuf = new Uint8[internalAudioBuffer.backBufferLength]();
+    if (songSettings.genDrums)
+        GenDrumBeat(drumBuf, internalAudioBuffer.backBufferLength);
+
+    // Bass
+    Uint8* bassBuf = new Uint8[internalAudioBuffer.backBufferLength]();
+    if (songSettings.genBass)
+        GenBassTrack(bassBuf, internalAudioBuffer.backBufferLength);
+
+    // Lead
+    Uint8* leadBuf = new Uint8[internalAudioBuffer.backBufferLength]();
+    if (songSettings.genLead)
+        GenLeadTrack(leadBuf, internalAudioBuffer.backBufferLength);
+
+    if (songSettings.genDrums)
+        SDL_MixAudioFormat(inBuf, drumBuf, sampleFmt, internalAudioBuffer.backBufferLength, SDL_MIX_MAXVOLUME);
+
+    if (songSettings.genBass)
+        SDL_MixAudioFormat(inBuf, bassBuf, sampleFmt, internalAudioBuffer.backBufferLength, SDL_MIX_MAXVOLUME);
+
+    if (songSettings.genLead)
+        SDL_MixAudioFormat(inBuf, leadBuf, sampleFmt, internalAudioBuffer.backBufferLength, SDL_MIX_MAXVOLUME);
+
+#ifdef DEBUG_BUFFERS
+    DumpBuffer(drumBuf, internalAudioBuffer.length, "DrumBuffer.txt");
+    DumpBuffer(bassBuf, internalAudioBuffer.length, "BassBuffer.txt");
+    DumpBuffer(leadBuf, internalAudioBuffer.length, "LeadBuffer.txt");
+    DumpBuffer(inBuf, internalAudioBuffer.length, "FullBuffer.txt");
+    std::cout << "Dumping Buffers!\n";
+#endif
+
+    delete[] drumBuf;
+    delete[] bassBuf;
+    delete[] leadBuf;
+
+    std::cout << "\n";
+
+    return 1;
 }
 
 void PlayScale()

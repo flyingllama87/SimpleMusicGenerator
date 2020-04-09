@@ -8,7 +8,7 @@
 #include "MusicGen.h"
 
 
-void GenBassTrack(Uint8* bassBuf)
+void GenBassTrack(Uint8* bassBuf, int drumBufLength)
 {
     // Get base note for bass
     std::string bassScaleNote;
@@ -44,7 +44,7 @@ void GenBassTrack(Uint8* bassBuf)
     switch (pickRandBassPattern) {
     case 0: // 1 note per bar
     {
-        for (int c = 0; c < internalAudioBuffer.length; c += (songSettings.barLenMS * audioSettings.samplesPerMS * 2)) // 1 note per bar
+        for (int c = 0; c < drumBufLength; c += (songSettings.barLenMS * audioSettings.samplesPerMS * 2)) // 1 note per bar
         {
             int chooseNote = rand() % 8;
             float noteFreq = key.freqs[chooseNote];
@@ -61,7 +61,7 @@ void GenBassTrack(Uint8* bassBuf)
     }
     case 1: // play a half note, wait, play another half note.  Could actually be done more efficiently
     {
-        for (int c = 0; c < internalAudioBuffer.length; c += (songSettings.halfNoteLenBytes))
+        for (int c = 0; c < drumBufLength; c += (songSettings.halfNoteLenBytes))
         {
             int chooseNote = rand() % 8;
             float noteFreq = key.freqs[chooseNote];
@@ -84,7 +84,7 @@ void GenBassTrack(Uint8* bassBuf)
     {
         int chooseNote;
         float noteFreq = 0;
-        for (int c = 0; c < internalAudioBuffer.length; c += (songSettings.noteLenBytes))
+        for (int c = 0; c < drumBufLength; c += (songSettings.noteLenBytes))
         {
             if ((barCount == 1 || barCount == 3) && beatCount == 1)
             {
@@ -108,7 +108,7 @@ void GenBassTrack(Uint8* bassBuf)
     }
     case 3: // random through out, 4 notes per bar
     {
-        for (int c = 0; c < internalAudioBuffer.length; c += (songSettings.noteLenBytes)) // 4 beats
+        for (int c = 0; c < drumBufLength; c += (songSettings.noteLenBytes)) // 4 beats
         {
             int chooseNote = rand() % 8;
             float noteFreq = key.freqs[chooseNote];
@@ -125,7 +125,7 @@ void GenBassTrack(Uint8* bassBuf)
     }
     case 4: // random through out, 4 notes per bar, fadeout
     {
-        for (int c = 0; c < internalAudioBuffer.length; c += (songSettings.noteLenBytes)) // 8 beats
+        for (int c = 0; c < drumBufLength; c += (songSettings.noteLenBytes)) // 8 beats
         {
             int chooseNote = rand() % 8;
             float noteFreq = key.freqs[chooseNote];
@@ -146,7 +146,7 @@ void GenBassTrack(Uint8* bassBuf)
     }
 
 #ifdef DEBUG_AUDIO
-    DumpBuffer(bassBuf, internalAudioBuffer.length, "BassBuffer.txt");
+    DumpBuffer(bassBuf, drumBufLength, "BassBuffer.txt");
 #endif
 }
 
@@ -155,7 +155,7 @@ void GenBassTrack(Uint8* bassBuf)
 
 
 
-void GenLeadTrack(Uint8* leadBuf)
+void GenLeadTrack(Uint8* leadBuf, int leadBufLength)
 {
     // Get base note for lead
     std::string leadScaleNote;
@@ -218,7 +218,7 @@ void GenLeadTrack(Uint8* leadBuf)
     switch (pickRandLeadPattern) {
     case 0: // random through out, 8 halfnotes
     {
-        for (int c = 0; c < internalAudioBuffer.length; c += (songSettings.halfNoteLenBytes)) // 8 notes to bar
+        for (int c = 0; c < leadBufLength; c += (songSettings.halfNoteLenBytes)) // 8 notes to bar
         {
             int chooseNote = rand() % 8;
             float noteFreq = key.freqs[chooseNote];
@@ -235,7 +235,7 @@ void GenLeadTrack(Uint8* leadBuf)
     }
     case 1: // play a half note, wait, play another half note.  Could actually be done more efficiently
     {
-        for (int c = 0; c < internalAudioBuffer.length; c += (songSettings.halfNoteLenBytes))
+        for (int c = 0; c < leadBufLength; c += (songSettings.halfNoteLenBytes))
         {
             int chooseNote = rand() % 8;
             float noteFreq = key.freqs[chooseNote];
@@ -259,7 +259,7 @@ void GenLeadTrack(Uint8* leadBuf)
         int chooseNote;
         float noteFreq = 0;
         int noteCount = 1;
-        for (int c = 0; c < internalAudioBuffer.length; c += (songSettings.halfNoteLenBytes))
+        for (int c = 0; c < leadBufLength; c += (songSettings.halfNoteLenBytes))
         {
 
             if (noteCount % 3 == 1) // Generate a new note
@@ -285,7 +285,7 @@ void GenLeadTrack(Uint8* leadBuf)
     }
     case 3: // same as 0 but there is a chance of silence
     {
-        for (int c = 0; c < internalAudioBuffer.length; c += (songSettings.halfNoteLenBytes)) // 8 notes to bar
+        for (int c = 0; c < leadBufLength; c += (songSettings.halfNoteLenBytes)) // 8 notes to bar
         {
             int chooseNote = rand() % 10; // chance of silence
             if (chooseNote < 8)
@@ -305,7 +305,7 @@ void GenLeadTrack(Uint8* leadBuf)
     }
     case 4: // random through out, 4 notes per bar
     {
-        for (int c = 0; c < internalAudioBuffer.length; c += (songSettings.noteLenBytes)) // 4 beats
+        for (int c = 0; c < leadBufLength; c += (songSettings.noteLenBytes)) // 4 beats
         {
             int chooseNote = rand() % 8;
             float noteFreq = key.freqs[chooseNote];
@@ -322,7 +322,7 @@ void GenLeadTrack(Uint8* leadBuf)
     }
     case 5: // random through out, 4 notes per bar, fadeout
     {
-        for (int c = 0; c < internalAudioBuffer.length; c += (songSettings.noteLenBytes)) // 8 beats
+        for (int c = 0; c < leadBufLength; c += (songSettings.noteLenBytes)) // 8 beats
         {
             int chooseNote = rand() % 8;
             float noteFreq = key.freqs[chooseNote];
@@ -340,7 +340,7 @@ void GenLeadTrack(Uint8* leadBuf)
     }
     case 6: // Silence
     {
-        for (int c = 0; c < internalAudioBuffer.length; c += (songSettings.halfNoteLenBytes)) // 8 notes to bar
+        for (int c = 0; c < leadBufLength; c += (songSettings.halfNoteLenBytes)) // 8 notes to bar
         {
             if (beatCount == 8)
             {
@@ -361,7 +361,7 @@ void GenLeadTrack(Uint8* leadBuf)
         float seventhInterval = 440.0f;
         bool randMode = false;
         int climbSpeed = songSettings.qtrNoteLenBytes;
-        for (int c = 0; c < internalAudioBuffer.length; c += climbSpeed) // 16 notes to bar
+        for (int c = 0; c < leadBufLength; c += climbSpeed) // 16 notes to bar
         {
             if (arpCount % 7 == 0 && !randMode)
             {
@@ -455,7 +455,7 @@ void GenLeadTrack(Uint8* leadBuf)
     }
     case 8: // 16th notes! Only play when bpm is 120 or under
     {
-        for (int c = 0; c + songSettings.qtrNoteLenBytes < internalAudioBuffer.length; c += (songSettings.qtrNoteLenBytes)) // 16 notes to bar
+        for (int c = 0; c + songSettings.qtrNoteLenBytes < leadBufLength; c += (songSettings.qtrNoteLenBytes)) // 16 notes to bar
         {
             int chooseNote = rand() % 9;
 
@@ -476,7 +476,7 @@ void GenLeadTrack(Uint8* leadBuf)
     }
     case 9: // play a qtr note, wait qtr note, play another qtr half note, etc.
     {
-        for (int c = 0; c < internalAudioBuffer.length; c += (songSettings.qtrNoteLenBytes))
+        for (int c = 0; c < leadBufLength; c += (songSettings.qtrNoteLenBytes))
         {
 
             if (beatCount % 2 == 1)
@@ -497,7 +497,7 @@ void GenLeadTrack(Uint8* leadBuf)
     }
     case 10: // random through out, 8 notes per bar, fadeout
     {
-        for (int c = 0; c < internalAudioBuffer.length; c += songSettings.barLenBytes) // 1 beat per bar
+        for (int c = 0; c < leadBufLength; c += songSettings.barLenBytes) // 1 beat per bar
         {
             int chooseNote = rand() % 8;
             float noteFreq = key.freqs[chooseNote];
@@ -524,7 +524,7 @@ void GenLeadTrack(Uint8* leadBuf)
         float seventhInterval = 440.0f;
         bool randMode = false;
         int climbSpeed = songSettings.halfNoteLenBytes;
-        for (int c = 0; c < internalAudioBuffer.length; c += climbSpeed) // 8 notes to bar
+        for (int c = 0; c < leadBufLength; c += climbSpeed) // 8 notes to bar
         {
             if (arpCount % 7 == 0 && !randMode)
             {
@@ -621,6 +621,6 @@ void GenLeadTrack(Uint8* leadBuf)
     }
 
 #ifdef DEBUG_AUDIO
-    DumpBuffer(leadBuf, internalAudioBuffer.length, "LeadBuffer.txt");
+    DumpBuffer(leadBuf, drumBufLength, "LeadBuffer.txt");
 #endif
 }

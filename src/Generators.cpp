@@ -228,8 +228,8 @@ void SafeSawtooth(float freq, int length, Uint16 magnitude, Uint8 *inBuf, int cu
     Uint32 sawtoothWaveLength = audioSettings.samplesPerMS * length * 2;
     Uint32 destBufferWaveEnd = currPos + sawtoothWaveLength;
 
-    if (currPos + sawtoothWaveLength > internalAudioBuffer.length)
-        destBufferWaveEnd = internalAudioBuffer.length;
+    if (currPos + sawtoothWaveLength > internalAudioBuffer.backBufferLength)
+        destBufferWaveEnd = internalAudioBuffer.backBufferLength;
 
     int cycleLength = (audioSettings.audSpecHave.freq * 2) / freq;
     float stepVal = (float)magnitude / (float)cycleLength;
@@ -327,8 +327,8 @@ void SafeSquare(float freq, int length, int magnitude, Uint8 *inBuf, int currPos
     Uint32 squareWaveLength = audioSettings.samplesPerMS * length * 2;
     Uint32 destBufferWaveEnd = currPos + squareWaveLength;
 
-    if (currPos + squareWaveLength >= internalAudioBuffer.length)
-        destBufferWaveEnd = internalAudioBuffer.length;
+    if (currPos + squareWaveLength >= internalAudioBuffer.backBufferLength)
+        destBufferWaveEnd = internalAudioBuffer.backBufferLength;
 
     // Change X twice as much as the frequency for complete square cycle
     int changeSignEveryXCycles = audioSettings.audSpecHave.freq / (freq * 2);
@@ -411,8 +411,8 @@ void SafeSine(float freq, int length, Uint16 magnitude, Uint8 *inBuf, int currPo
     Uint32 sineWaveLength = audioSettings.samplesPerMS * length * 2;
     Uint32 destBufferWaveEnd = currPos + sineWaveLength;
 
-    if (currPos + sineWaveLength > internalAudioBuffer.length)
-        destBufferWaveEnd = internalAudioBuffer.length;
+    if (currPos + sineWaveLength > internalAudioBuffer.backBufferLength)
+        destBufferWaveEnd = internalAudioBuffer.backBufferLength;
 
     Uint16 halfMagnitude = magnitude / 2;
 
@@ -484,8 +484,8 @@ void SafeFadeOut(Uint8* buffer, int numOfBytes, int currPos)
 {
     int destBufferFadeOutEndPos = numOfBytes + currPos;
     
-    if (destBufferFadeOutEndPos > internalAudioBuffer.length)
-        destBufferFadeOutEndPos = internalAudioBuffer.length;
+    if (destBufferFadeOutEndPos > internalAudioBuffer.backBufferLength)
+        destBufferFadeOutEndPos = internalAudioBuffer.backBufferLength;
     
     for (int c = currPos; c < destBufferFadeOutEndPos; c+=2)
     {
@@ -519,8 +519,8 @@ void SafeFadeIn(Uint8* buffer, int numOfBytes, int currPos)
 {
     int destBufferFadeOutEndPos = numOfBytes + currPos;
 
-    if (destBufferFadeOutEndPos > internalAudioBuffer.length)
-        destBufferFadeOutEndPos = internalAudioBuffer.length;
+    if (destBufferFadeOutEndPos > internalAudioBuffer.backBufferLength)
+        destBufferFadeOutEndPos = internalAudioBuffer.backBufferLength;
 
     for (int c = currPos; c < destBufferFadeOutEndPos; c += 2)
     {

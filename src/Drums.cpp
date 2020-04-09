@@ -8,7 +8,7 @@
 #include "MusicGen.h"
 #include <Windows.h>
 
-void GenDrumBeat(Uint8 *drumBuf)
+void GenDrumBeat(Uint8 *drumBuf, int drumBufLength)
 {
     AudioData kick = songSettings.kickSound;
     AudioData hihat = songSettings.hihatSound;
@@ -42,7 +42,7 @@ void GenDrumBeat(Uint8 *drumBuf)
 
     
 #ifdef DEBUG_AUDIO
-    std::cout << "internalAudioBuffer.length: " << internalAudioBuffer.length << "\n";
+    std::cout << "drumBufLength: " << drumBufLength << "\n";
 	std::cout << "songSettings.qtrNoteLenBytes: " << songSettings.qtrNoteLenBytes << "\n";
 	std::cout << "songSettings.qtrNoteLenMS: " << songSettings.qtrNoteLenMS << "\n";
 	std::cout << "songSettings.halfNoteLenMS: " << songSettings.halfNoteLenMS << "\n";
@@ -52,17 +52,17 @@ void GenDrumBeat(Uint8 *drumBuf)
     switch (pickRandDrumPattern) {
     case 0:
         std::cout << "Playing drum pattern: " << pickRandDrumPattern << " - kick x2, hat x2, snare x2, hat x2 \n";
-        for (int c = 0; c < internalAudioBuffer.length; c += (songSettings.halfNoteLenBytes))
+        for (int c = 0; c < drumBufLength; c += (songSettings.halfNoteLenBytes))
         {
             if (beatCount == 1 || beatCount == 2)
-                SafeMemCopy(drumBuf, kick.buf, kick.length, c);
+                SafeMemCopy(drumBuf, kick.buf, kick.length, c, drumBufLength);
             else if (beatCount == 3 || beatCount == 4 || beatCount == 7)
-                SafeMemCopy(drumBuf, hihat.buf, hihat.length, c);
+                SafeMemCopy(drumBuf, hihat.buf, hihat.length, c, drumBufLength);
             else if (beatCount == 5 || beatCount == 6)
-                SafeMemCopy(drumBuf, snare.buf, snare.length, c);
+                SafeMemCopy(drumBuf, snare.buf, snare.length, c, drumBufLength);
             else
             {
-                SafeMemCopy(drumBuf, hihat.buf, hihat.length, c);
+                SafeMemCopy(drumBuf, hihat.buf, hihat.length, c, drumBufLength);
                 beatCount = 0;
                 barCount++;
             }
@@ -72,17 +72,17 @@ void GenDrumBeat(Uint8 *drumBuf)
     case 1: //
         std::cout << "Playing drum pattern: " << pickRandDrumPattern << " - classic kick, hat, snare, hat \n";
 
-        for (int c = 0; c < internalAudioBuffer.length; c += songSettings.noteLenBytes)
+        for (int c = 0; c < drumBufLength; c += songSettings.noteLenBytes)
         {
             if (beatCount == 1)
-                SafeMemCopy(drumBuf, kick.buf, kick.length, c);
+                SafeMemCopy(drumBuf, kick.buf, kick.length, c, drumBufLength);
             else if (beatCount == 2)
-                SafeMemCopy(drumBuf, hihat.buf, hihat.length, c);
+                SafeMemCopy(drumBuf, hihat.buf, hihat.length, c, drumBufLength);
             else if (beatCount == 3)
-                SafeMemCopy(drumBuf, snare.buf, snare.length, c);
+                SafeMemCopy(drumBuf, snare.buf, snare.length, c, drumBufLength);
             else if (beatCount == 4)
             {
-                SafeMemCopy(drumBuf, hihat.buf, hihat.length, c);
+                SafeMemCopy(drumBuf, hihat.buf, hihat.length, c, drumBufLength);
                 beatCount = 0;
                 barCount++;
             }
@@ -95,20 +95,20 @@ void GenDrumBeat(Uint8 *drumBuf)
         {
             std::cout << "Playing drum pattern: " << pickRandDrumPattern << " - hip-hop slow \n";
 
-            for (int c = 0; c < internalAudioBuffer.length; c += songSettings.qtrNoteLenBytes)
+            for (int c = 0; c < drumBufLength; c += songSettings.qtrNoteLenBytes)
             {
                 if (beatCount == 1 ||
                     beatCount == 8 ||
                     beatCount == 9 ||
                     beatCount == 11)
-                    SafeMemCopy(drumBuf, kick.buf, kick.length, c);
+                    SafeMemCopy(drumBuf, kick.buf, kick.length, c, drumBufLength);
                 
                 if (beatCount == 5 ||
                     beatCount == 13)
-                    SafeMemCopy(drumBuf, snare.buf, snare.length, c);
+                    SafeMemCopy(drumBuf, snare.buf, snare.length, c, drumBufLength);
                 
                 if (false)
-                    SafeMemCopy(drumBuf, hihat.buf, hihat.length, c);
+                    SafeMemCopy(drumBuf, hihat.buf, hihat.length, c, drumBufLength);
 
                 if (beatCount == 16)
                 {
@@ -121,7 +121,7 @@ void GenDrumBeat(Uint8 *drumBuf)
         {
             std::cout << "Playing drum pattern: " << pickRandDrumPattern << " - hip-hop fast \n";
 
-            for (int c = 0; c < internalAudioBuffer.length; c += songSettings.qtrNoteLenBytes)
+            for (int c = 0; c < drumBufLength; c += songSettings.qtrNoteLenBytes)
             {
                 
                 if (beatCount == 1 ||
@@ -129,15 +129,15 @@ void GenDrumBeat(Uint8 *drumBuf)
                     beatCount == 5 ||
                     beatCount == 13
                     )
-                    SafeMemCopy(drumBuf, kickHat.buf, kickHat.length, c);
+                    SafeMemCopy(drumBuf, kickHat.buf, kickHat.length, c, drumBufLength);
                 
                 if (beatCount == 7 ||
                     beatCount == 11 ||
                     beatCount == 15)
-                    SafeMemCopy(drumBuf, hihat.buf, hihat.length, c);
+                    SafeMemCopy(drumBuf, hihat.buf, hihat.length, c, drumBufLength);
                 
                 if (beatCount == 9)
-                    SafeMemCopy(drumBuf, snareHat.buf, snare.length, c);
+                    SafeMemCopy(drumBuf, snareHat.buf, snare.length, c, drumBufLength);
 
                 if (beatCount == 16)
                 {
@@ -153,20 +153,20 @@ void GenDrumBeat(Uint8 *drumBuf)
     {
         std::cout << "Playing drum pattern: " << pickRandDrumPattern << " - Kick & snare with hi-hat every half beat \n";
 
-        for (int c = 0; c < internalAudioBuffer.length; c += (songSettings.halfNoteLenBytes))
+        for (int c = 0; c < drumBufLength; c += (songSettings.halfNoteLenBytes))
         {
             if (beatCount == 1)
-                SafeMemCopy(drumBuf, kickHat.buf, kickHat.length, c);
+                SafeMemCopy(drumBuf, kickHat.buf, kickHat.length, c, drumBufLength);
             else if (beatCount == 8)
             {
-                SafeMemCopy(drumBuf, hihat.buf, hihat.length, c);
+                SafeMemCopy(drumBuf, hihat.buf, hihat.length, c, drumBufLength);
                 beatCount = 0;
                 barCount++;
             }
             else if (beatCount == 5)
-                SafeMemCopy(drumBuf, snareHat.buf, snareHat.length, c);
+                SafeMemCopy(drumBuf, snareHat.buf, snareHat.length, c, drumBufLength);
             else
-                SafeMemCopy(drumBuf, hihat.buf, hihat.length, c);
+                SafeMemCopy(drumBuf, hihat.buf, hihat.length, c, drumBufLength);
             beatCount++;
         }
         break;
@@ -174,12 +174,12 @@ void GenDrumBeat(Uint8 *drumBuf)
     case 4: // Kick & snare, 2 beats each
         std::cout << "Playing drum pattern: " << pickRandDrumPattern << " - Kick & snare (repeat), 2 beats each \n";
 
-        for (int c = 0; c < internalAudioBuffer.length; c += songSettings.noteLenBytes)
+        for (int c = 0; c < drumBufLength; c += songSettings.noteLenBytes)
         {
             if (beatCount == 1)
-                SafeMemCopy(drumBuf, kick.buf, kick.length, c);
+                SafeMemCopy(drumBuf, kick.buf, kick.length, c, drumBufLength);
             else if (beatCount == 3)
-                SafeMemCopy(drumBuf, snare.buf, snare.length, c);
+                SafeMemCopy(drumBuf, snare.buf, snare.length, c, drumBufLength);
             else if (beatCount == 4)
                 beatCount = 0;
             beatCount++;
@@ -188,13 +188,13 @@ void GenDrumBeat(Uint8 *drumBuf)
     case 5:
         std::cout << "Playing drum pattern: " << pickRandDrumPattern << " - Just a kick at the start of every bar \n";
 
-        for (int c = 0; c < internalAudioBuffer.length; c += songSettings.noteLenBytes)
+        for (int c = 0; c < drumBufLength; c += songSettings.noteLenBytes)
         {
             if (beatCount == 4)
                 beatCount = 0;
             
             if (beatCount == 1)
-                SafeMemCopy(drumBuf, kick.buf, kick.length, c);
+                SafeMemCopy(drumBuf, kick.buf, kick.length, c, drumBufLength);
             
             beatCount++;
         }
@@ -205,24 +205,24 @@ void GenDrumBeat(Uint8 *drumBuf)
 
         bool hatRoll = false;
 
-        for (int c = 0; c < internalAudioBuffer.length; c += songSettings.qtrNoteLenBytes)
+        for (int c = 0; c < drumBufLength; c += songSettings.qtrNoteLenBytes)
         {
             if (hatRoll && (beatCount == 5 ||
                 beatCount == 6 ||
                 beatCount == 7 ||
                 beatCount == 8 ||
                 beatCount == 13))
-                SafeMemCopy(drumBuf, hihat.buf, hihat.length, c);
+                SafeMemCopy(drumBuf, hihat.buf, hihat.length, c, drumBufLength);
 
             if (beatCount == 1)
-                SafeMemCopy(drumBuf, kickHat.buf, kickHat.length, c);
+                SafeMemCopy(drumBuf, kickHat.buf, kickHat.length, c, drumBufLength);
 
             if (beatCount == 9)
-                SafeMemCopy(drumBuf, snareHat.buf, snareHat.length, c);
+                SafeMemCopy(drumBuf, snareHat.buf, snareHat.length, c, drumBufLength);
 
             if (!hatRoll && (beatCount == 5 ||
                 beatCount == 13))
-                SafeMemCopy(drumBuf, hihat.buf, hihat.length, c);
+                SafeMemCopy(drumBuf, hihat.buf, hihat.length, c, drumBufLength);
 
             if (beatCount == 16)
             {
@@ -237,7 +237,7 @@ void GenDrumBeat(Uint8 *drumBuf)
     case 7:
         std::cout << "Playing drum pattern: " << pickRandDrumPattern << " - Kick Snare (slow) \n";
 
-        for (int c = 0; c < internalAudioBuffer.length; c += songSettings.noteLenBytes)
+        for (int c = 0; c < drumBufLength; c += songSettings.noteLenBytes)
         {
             if (beatCount == 4)
             {
@@ -246,10 +246,10 @@ void GenDrumBeat(Uint8 *drumBuf)
             }
             
             if (( barCount == 1 || barCount == 3) && beatCount == 1)
-                SafeMemCopy(drumBuf, kick.buf, kick.length, c);
+                SafeMemCopy(drumBuf, kick.buf, kick.length, c, drumBufLength);
             
             if (( barCount == 2 || barCount == 4) && beatCount == 1)
-                SafeMemCopy(drumBuf, snare.buf, snare.length, c);
+                SafeMemCopy(drumBuf, snare.buf, snare.length, c, drumBufLength);
             
             beatCount++;
         }
@@ -294,20 +294,20 @@ void GenDrumBeat(Uint8 *drumBuf)
         else if (drumChoice == 2)
             randDrum4 = hihat;
         
-        for (int c = 0; c < internalAudioBuffer.length; c += songSettings.qtrNoteLenBytes)
+        for (int c = 0; c < drumBufLength; c += songSettings.qtrNoteLenBytes)
         {
             
             if (beatCount == 1)
-                SafeMemCopy(drumBuf, randDrum1.buf, randDrum1.length, c);
+                SafeMemCopy(drumBuf, randDrum1.buf, randDrum1.length, c, drumBufLength);
             
             if (beatCount == 5)
-                SafeMemCopy(drumBuf, randDrum2.buf, randDrum2.length, c);
+                SafeMemCopy(drumBuf, randDrum2.buf, randDrum2.length, c, drumBufLength);
             
             if (beatCount == 9)
-                SafeMemCopy(drumBuf, randDrum3.buf, randDrum3.length, c);
+                SafeMemCopy(drumBuf, randDrum3.buf, randDrum3.length, c, drumBufLength);
             
             if (beatCount == 13)
-                SafeMemCopy(drumBuf, randDrum4.buf, randDrum4.length, c);
+                SafeMemCopy(drumBuf, randDrum4.buf, randDrum4.length, c, drumBufLength);
 
 
             if (beatCount == 16)
@@ -322,17 +322,17 @@ void GenDrumBeat(Uint8 *drumBuf)
     case 9: //
         std::cout << "Playing drum pattern: " << pickRandDrumPattern << " - classic kick, hat, snare, hat \n";
 
-        for (int c = 0; c < internalAudioBuffer.length; c += songSettings.noteLenBytes)
+        for (int c = 0; c < drumBufLength; c += songSettings.noteLenBytes)
         {
             if (beatCount == 1)
-                SafeMemCopy(drumBuf, kick.buf, kick.length, c);
+                SafeMemCopy(drumBuf, kick.buf, kick.length, c, drumBufLength);
             else if (beatCount == 2)
-                SafeMemCopy(drumBuf, hihat.buf, hihat.length, c);
+                SafeMemCopy(drumBuf, hihat.buf, hihat.length, c, drumBufLength);
             else if (beatCount == 3)
-                SafeMemCopy(drumBuf, snare.buf, snare.length, c);
+                SafeMemCopy(drumBuf, snare.buf, snare.length, c, drumBufLength);
             else if (beatCount == 4)
             {
-                SafeMemCopy(drumBuf, hihat.buf, hihat.length, c);
+                SafeMemCopy(drumBuf, hihat.buf, hihat.length, c, drumBufLength);
                 beatCount = 0;
                 barCount++;
             }
@@ -346,7 +346,7 @@ void GenDrumBeat(Uint8 *drumBuf)
 #ifdef DEBUG_AUDIO
     std::cout << "Final barCount: " << barCount << "\n";
 	std::cout << "Final beatCount: " << beatCount << "\n";
-    DumpBuffer(drumBuf, internalAudioBuffer.length, "drumBuffer.txt");
+    DumpBuffer(drumBuf, drumBufLength, "drumBuffer.txt");
 #endif
 
 }
@@ -405,7 +405,7 @@ AudioData GiveKick()
 
     // SineWave
 #ifdef _WIN32 || _WIN64
-    Sine(60, kickLength, halfMag, sineBuffer);
+    Sine(60, kickLength, fullMag, sineBuffer);
 #else // Crappy speakers on laptops / mobile devices so need a higher freq kick
     Sine(105, kickLength, halfMag, sineBuffer);
 #endif
