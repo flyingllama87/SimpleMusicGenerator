@@ -235,7 +235,7 @@ void SafeSawtooth(float freq, int length, Uint16 magnitude, Uint8 *inBuf, int cu
     float stepVal = (float)magnitude / (float)cycleLength;
     Uint16 halfMagnitude = magnitude / 2;
 
-    for (int c = currPos; c < destBufferWaveEnd; c+=2)
+    for (int c = currPos; c < (destBufferWaveEnd - 2); c+=2)
     {
         int currentCyclePos = c % cycleLength;
         int16_t sawVal = ((float)stepVal * (float)currentCyclePos) - halfMagnitude;
@@ -327,16 +327,15 @@ void SafeSquare(float freq, int length, int magnitude, Uint8 *inBuf, int currPos
     Uint32 squareWaveLength = audioSettings.samplesPerMS * length * 2;
     Uint32 destBufferWaveEnd = currPos + squareWaveLength;
 
-    if (currPos + squareWaveLength > internalAudioBuffer.length)
+    if (currPos + squareWaveLength >= internalAudioBuffer.length)
         destBufferWaveEnd = internalAudioBuffer.length;
-
 
     // Change X twice as much as the frequency for complete square cycle
     int changeSignEveryXCycles = audioSettings.audSpecHave.freq / (freq * 2);
     bool writeHigh = false;
     Uint16 halfMagnitude = magnitude / 2;
 
-    for (int c = currPos; c < destBufferWaveEnd; c+=2)
+    for (int c = currPos; c < (destBufferWaveEnd - 1); c+=2)
     {
         if ((c/2) % changeSignEveryXCycles == 0)
             writeHigh = !writeHigh;
@@ -423,7 +422,7 @@ void SafeSine(float freq, int length, Uint16 magnitude, Uint8 *inBuf, int currPo
 
     // std::cout << "\nsamplesPerCycle: " << samplesPerCycle << "\n";
 
-    for (int c = currPos; c < destBufferWaveEnd; c+=2)
+    for (int c = currPos; c < (destBufferWaveEnd - 1); c+=2)
     {
         int16_t sineVal = (sin((float)c * radsPerStep)) * halfMagnitude;
         inBuf[c] = sineVal & 0xFF;
@@ -503,6 +502,7 @@ void SafeFadeOut(Uint8* buffer, int numOfBytes, int currPos)
 // Expects length in total number of bytes.
 void FadeIn(Uint8* buffer, int numOfBytes)
 {
+
     for (int c = 0; c < numOfBytes; c+=2)
     {
         float cycleLengthRatio = (float)c / (float)numOfBytes;
@@ -512,4 +512,31 @@ void FadeIn(Uint8* buffer, int numOfBytes)
         buffer[c] = bufCurVal16 & 0xFF;
         buffer[c + 1] = bufCurVal16 >> 8;
     }
+}
+
+// Expects length in total number of bytes.
+void SafeFadeIn(Uint8* buffer, int numOfBytes, int currPos)
+{
+    int destBufferFadeOutEndPos = numOfBytes + currPos;
+
+    if (destBufferFadeOutEndPos > internalAudioBuffer.length)
+        destBufferFadeOutEndPos = internalAudioBuffer.length;
+
+    for (int c = currPos; c < destBufferFadeOutEndPos; c += 2)
+    {
+        float cycleLengthRatio = (float)(c - currPos) / (float)numOfBytes;
+        // Convert the input buffer to 16 bit, apply the fade to the current value and convert back to 8 bit buffer
+        int16_t bufCurVal16 = (int16_t)(((buffer[c + 1] & 0xFF) << 8) | (buffer[c] & 0xFF));
+        bufCurVal16 = (int16_t)((float)bufCurVal16 * cycleLengthRatio);
+        buffer[c] = bufCurVal16 & 0xFF;
+        buffer[c + 1] = bufCurVal16 >> 8;
+    }
+}
+
+void SafeLead(float freq, int length, Uint16 magnitude, Uint8* inBuf, int currPos)
+{
+    if (songSettings.leadSine)
+        SafeSine(freq, length, magnitude, inBuf, currPos);
+    else
+        SafeSquare(freq, length, magnitude, inBuf, currPos);
 }

@@ -26,11 +26,10 @@
 
 // #define DEBUG_AUDIO 1
 // #define PRINT_PATHS 1
+// #define DEBUG_BUFFERS 1
 
-//#define samplesPerSec 48000
 #define numChannels 1
 #define sampleFmt AUDIO_S16LSB
-//#define samplesBufNum 32768 // Must be power of two.  Must be 4096 for LOADWAV. if samplesPerSec is 8000, use 4096.  if samplesPerSec is 48000 use 32768
 
 // Magnitude settings.  Relies on 16 bit ints at the moment.  Should switch to float vals?
 #define fullMag 65535
@@ -66,6 +65,7 @@ void GenAudioStream(void* userdata, Uint8* stream, int len);
 void GenMusicStream();
 void AudioPlayer(AudioData audioData);
 void SafeMemCopy(Uint8* destBuf, Uint8* srcBuf, Uint32 srcBufLen, int c);
+Key SwitchKey(Key key);
 
 
 // Wave & Sound Generators
@@ -82,6 +82,7 @@ void SafeSawtooth(float freq, int length, Uint16 magnitude, Uint8 *inBuf, int cu
 void Noise(float length, bool lowPitch, Uint8* inBuf, int magnitude = halfMag);
 void Sine(float freq, int length, Uint16 magnitude, Uint8* inBuf);
 void SafeSine(float freq, int length, Uint16 magnitude, Uint8 *inBuf, int currPos);
+void SafeLead(float freq, int length, Uint16 magnitude, Uint8* inBuf, int currPos);
 AudioData Silence(float length);
 
 // Effects
@@ -90,6 +91,7 @@ void FadeOut(int16_t* buffer, int numOfSamples);
 void FadeIn(Uint8* buffer, int numOfSamples);
 void FadeOut(Uint8* buffer, int numOfSamples);
 void SafeFadeOut(Uint8* buffer, int numOfBytes, int currPos);
+void SafeFadeIn(Uint8* buffer, int numOfBytes, int currPos);
 
 // Drums
 void GenDrumBeat(Uint8* drumBuf);
@@ -131,7 +133,7 @@ struct audioSettings
     void Init(bool callback)
     {
         //audioSettings.audSpecWant.freq = samplesPerSec;
-        audSpecWant.format = AUDIO_S16LSB;
+        audSpecWant.format = sampleFmt;
         audSpecWant.channels = 1;
         //audioSettings.audSpecWant.samples = samplesBufNum;
         if (callback) {
@@ -187,16 +189,22 @@ struct songSettings
 {
     int BPM;
     int beatsToBar;
-    float barsPerMin;
-    float barLenMS; // bar length in ms.
-    float noteLenMS; // Get noteLength in ms. 60000 = 1 min in milliseconds.
-    float halfNoteLenMS;
-    float qtrNoteLenMS;
-    float eighthNoteLenMS;
-	float noteLenBytes;
-	float halfNoteLenBytes;
-	float qtrNoteLenBytes;
-	float eighthNoteLenBytes;
+    int barsPerMin;
+    int barLenMS; // bar length in ms.
+    int dblNoteLenMS;
+    int noteLenMS; // Get noteLength in ms. 60000 = 1 min in milliseconds.
+    int halfNoteLenMS;
+    int qtrNoteLenMS;
+    int eighthNoteLenMS;
+    int barLenBytes;
+    int dblNoteLenBytes;
+    int noteLenBytes;
+    int halfNoteLenBytes;
+    int qtrNoteLenBytes;
+    int eighthNoteLenBytes;
+    int prevPatternDrums = 1;
+    int prevPatternBass = 0;
+    int prevPatternLead = 0;
     std::string keyNote;
     Key key;
     bool loFi;
@@ -204,17 +212,20 @@ struct songSettings
     bool genDrums;
     bool genBass;
     bool genLead;
+    bool leadSine = false;
     
     AudioData kickSound;
     AudioData snareSound;
     AudioData hihatSound;
+    AudioData kickHatSound;
+    AudioData snareHatSound;
 
     songSettings()
     {
-        this->BPM = 240;
+        this->BPM = 220;
         this->beatsToBar = 4;
-        this->keyNote = "C";
-        this->key = Major;
+        this->keyNote = "A";
+        this->key = Minor;
         this->loFi = false;
         this->inited = false;
         this->genDrums = true;
@@ -229,6 +240,8 @@ struct songSettings
             delete[] kickSound.buf;
             delete[] snareSound.buf;
             delete[] hihatSound.buf;
+            delete[] snareHatSound.buf;
+            delete[] kickHatSound.buf;
         }
         if (!audioSettings.inited)
             std::cout << "\n\nWARNING: audioSettings not initialised.  This will fail.\n\n";
@@ -236,9 +249,12 @@ struct songSettings
         this->barsPerMin = BPM / beatsToBar;
         this->barLenMS = 60000 / barsPerMin; // bar length in ms.
         this->noteLenMS = 60000 / BPM; // Get noteLength in ms. 60000 = 1 min in milliseconds.
+        this->dblNoteLenMS = noteLenMS * 2;
         this->halfNoteLenMS = noteLenMS / 2;
         this->qtrNoteLenMS = noteLenMS / 4;
         this->eighthNoteLenMS = noteLenMS / 8;
+        this->barLenBytes = barLenMS * audioSettings.bytesPerMS;
+        this->dblNoteLenBytes = dblNoteLenMS * audioSettings.bytesPerMS;
 		this->noteLenBytes = noteLenMS * audioSettings.bytesPerMS;
 		this->halfNoteLenBytes = halfNoteLenMS * audioSettings.bytesPerMS;
 		this->qtrNoteLenBytes = qtrNoteLenMS * audioSettings.bytesPerMS;
@@ -248,6 +264,16 @@ struct songSettings
         this->kickSound = GiveKick();
         this->snareSound = GiveSnare();
         this->hihatSound = GiveHihat();
+
+        kickHatSound.length = kickSound.length;
+        kickHatSound.buf = new Uint8[kickSound.length];
+        memcpy(kickHatSound.buf, kickSound.buf, kickSound.length);
+        SDL_MixAudioFormat(kickHatSound.buf, hihatSound.buf, sampleFmt, hihatSound.length, SDL_MIX_MAXVOLUME);
+
+        snareHatSound.length = snareSound.length;
+        snareHatSound.buf = new Uint8[snareSound.length];
+        memcpy(snareHatSound.buf, snareSound.buf, snareSound.length);
+        SDL_MixAudioFormat(snareHatSound.buf, hihatSound.buf, sampleFmt, hihatSound.length, SDL_MIX_MAXVOLUME);
         
         this->inited = true;
     }
@@ -258,8 +284,9 @@ struct songSettings
         delete[] kickSound.buf;
         delete[] snareSound.buf;
         delete[] hihatSound.buf;
+        delete[] snareHatSound.buf;
+        delete[] kickHatSound.buf;
     }
-    
 };
 extern songSettings songSettings;
 
@@ -268,6 +295,7 @@ struct internalAudioBuffer
     int pos;
     int length;
     Uint8* buf;
+    Uint8* bufferSwap;
     bool inited;
     
     internalAudioBuffer()
@@ -280,12 +308,15 @@ struct internalAudioBuffer
         if (this->inited == true)
         {
             delete[] this->buf;
+            delete[] bufferSwap;
         }
         if (!songSettings.inited || !audioSettings.inited)
             std::cout << "\n\nWARNING: songSettings or audioSettings not initialised.  This will fail.\n\n";
         length = songSettings.barLenMS * 4 * audioSettings.samplesPerMS * 2; // 4 bars, x2 for bytes
+        length = length + (length % 2); // Make length even if it wasn't.
         pos = -1;
         buf = new Uint8[length]();
+        bufferSwap = new Uint8[length]();
         inited = true;
     }
     
@@ -293,6 +324,8 @@ struct internalAudioBuffer
     {
         std::cout << "\nCalling internalAudioBuffer destructor\n";
         delete[] buf;
+        delete[] bufferSwap;
+
     }
     
 };
@@ -303,8 +336,6 @@ struct AudioData16
     Uint32 length = 0;
     int16_t* buf;
 };
-
-// enums
 
 static struct Notes
 {

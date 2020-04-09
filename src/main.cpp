@@ -1,12 +1,12 @@
 #include "MusicGen.h"
 
+#ifdef _WIN64
+#include "windows.h"
+#endif
 
 // main etc.
 int main(int argc, char* argv[])
 {
-
-    // Seed random number gen
-
     if (SDL_Init(SDL_INIT_AUDIO) < 0)
     {
         std::cout << "Could not initialise SDL";
@@ -15,6 +15,14 @@ int main(int argc, char* argv[])
     {
         std::cout << "SDL initialised!!\n";
     }
+
+    // Seed random number gen
+
+#ifdef _WIN64
+    LARGE_INTEGER cicles;
+    QueryPerformanceCounter(&cicles);
+    std::srand(cicles.QuadPart);
+#endif
 
     Menu();
 
@@ -42,7 +50,7 @@ void Menu()
             "Press c to change settings\n"
             "Press s to start music generator\n"
             "Press r to start music generator with random config\n"
-            "Press P to pause music generation\n"
+            "Press p to pause music generation\n"
             "Press o to test old wave/noise/effects generators\n"
             "Press d to test drums\n"
             "Press e to play a major scale\n"

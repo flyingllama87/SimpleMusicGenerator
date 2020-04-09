@@ -15,6 +15,13 @@ struct internalAudioBuffer internalAudioBuffer;
 // len is number of bytes not number of samples requested.
 void GenAudioStream(void* userdata, Uint8* stream, int len)
 {
+    // Seed random number gen in callback thread
+#ifdef _WIN64
+    LARGE_INTEGER cicles;
+    QueryPerformanceCounter(&cicles);
+    std::srand(cicles.QuadPart);
+#endif
+
     /*
     int noOfSamplesRequested = len / 2;
 
@@ -26,13 +33,12 @@ void GenAudioStream(void* userdata, Uint8* stream, int len)
     "No of samples requested: " << noOfSamplesRequested << ".\n"
     "Samples per ms: " << audioSettings.samplesPerMS << ".\n"
     "ms of audio requested: " << (float)noOfSamplesRequested / audioSettings.samplesPerMS << "\n";
-    std::cout << "internalAudioBuffer.pos: " << internalAudioBuffer.pos << "\n\n";
-	*/
+    */
 
     int bytesTillIntBufEnd = internalAudioBuffer.length - internalAudioBuffer.pos;
     if (!audioSettings.inited || !songSettings.inited || !internalAudioBuffer.inited)
     {
-        std::cout << "Skipping callback as music functionality is not set up";
+        std::cout << "Skipping callback as music functionality is not yet ready";
     }
     else if (internalAudioBuffer.pos == -1) // Fill audio buffer on first run.
     {
@@ -47,11 +53,47 @@ void GenAudioStream(void* userdata, Uint8* stream, int len)
         internalAudioBuffer.pos += bytesTillIntBufEnd;
         // Calculate how much extra data we need
         int extraBytesRequired = len - bytesTillIntBufEnd;
-        // Generate a new drum beat / music track
-        GenMusicStream();
-        // fill the stream buffer with whatever is required from the NEW drum buffer
+
+        int randTest = rand();
+
+        // switch keys?
+        if (randTest % 25 == 10)
+        {
+            char note = (rand() % 7) + 65;
+            songSettings.keyNote = note;
+            if (rand() % 2)
+                songSettings.key = Key::Major;
+            else
+                songSettings.key = Key::Minor;
+
+            std::cout << "   > RNJesus wants to change the key to: " << songSettings.keyNote << " " << (songSettings.key == Key::Major ? "Major" : "Minor") << "\n\n";
+            // reinit
+            songSettings.Init();
+        }
+
+        // switch bpm?
+        if (randTest % 20 == 5)
+        {
+            songSettings.BPM = ((rand() % 31) * 4) + 116;
+            std::cout << "   > RNJesus wants to change the BPM to:" << songSettings.BPM << "\n\n";
+            // reinit
+            songSettings.Init();
+            internalAudioBuffer.Init();
+        }
+
+        // Generate a new drum beat / music track or repeat the old one?
+        if (randTest < 5)
+        {
+            internalAudioBuffer.pos = 0;
+            std::cout << "   > RNJesus wants that bar to repeat... \n\n";
+        }
+        else
+            GenMusicStream();
+
+        // fill the stream buffer with whatever is required from the NEW music buffer
         memcpy(&stream[bytesTillIntBufEnd], &internalAudioBuffer.buf[internalAudioBuffer.pos], extraBytesRequired);
         internalAudioBuffer.pos += extraBytesRequired;
+        internalAudioBuffer.pos -= internalAudioBuffer.pos % 2; // Even up the position if it's odd for some reason (should always be even).
     }
     else // We still have data in the internal buffer to use
     {
@@ -59,8 +101,8 @@ void GenAudioStream(void* userdata, Uint8* stream, int len)
         internalAudioBuffer.pos += len;
     }
 
-#ifdef DEBUG_AUDIO
-    DumpBuffer(stream, len, "ReqBuf8.txt");
+#ifdef DEBUG_BUFFERS
+    DumpBuffer(stream, len, "ReqBuf.txt");
 #endif
 }
 
@@ -96,6 +138,14 @@ void GenMusicStream()
     if (songSettings.genLead)
         SDL_MixAudioFormat(internalAudioBuffer.buf, leadBuf, sampleFmt, internalAudioBuffer.length, SDL_MIX_MAXVOLUME);
     
+#ifdef DEBUG_BUFFERS
+    DumpBuffer(drumBuf, internalAudioBuffer.length, "DrumBuffer.txt");
+    DumpBuffer(bassBuf, internalAudioBuffer.length, "BassBuffer.txt");
+    DumpBuffer(leadBuf, internalAudioBuffer.length, "LeadBuffer.txt");
+    DumpBuffer(internalAudioBuffer.buf, internalAudioBuffer.length, "FullBuffer.txt");
+    std::cout << "Dumping Buffers!\n";
+#endif
+
     delete[] drumBuf;
     delete[] bassBuf;
     delete[] leadBuf;
@@ -275,3 +325,14 @@ userSettings GetSongSettings(){
     us.lofi = songSettings.loFi;
     return us;
 }
+
+
+
+Key SwitchKey(Key key)
+{
+    if (key == Key::Major) {
+        return Key::Minor;
+    }
+    return Key::Major;
+};
+

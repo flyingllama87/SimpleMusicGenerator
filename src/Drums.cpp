@@ -10,35 +10,36 @@
 
 void GenDrumBeat(Uint8 *drumBuf)
 {
-    LARGE_INTEGER cicles;
-    QueryPerformanceCounter(&cicles);
-    std::srand(cicles.QuadPart);
-
     AudioData kick = songSettings.kickSound;
     AudioData hihat = songSettings.hihatSound;
     AudioData snare = songSettings.snareSound;
-    AudioData kickHat;
-    AudioData snareHat;
+    AudioData kickHat = songSettings.kickHatSound;;
+    AudioData snareHat = songSettings.snareHatSound;;
     
-    kickHat.length = kick.length;
-    kickHat.buf = new Uint8[kick.length];
-    memcpy(kickHat.buf, kick.buf, kick.length);
-    SDL_MixAudioFormat(kickHat.buf, hihat.buf, sampleFmt, hihat.length, SDL_MIX_MAXVOLUME);
-    
-    snareHat.length = snare.length;
-    snareHat.buf = new Uint8[snare.length];
-    memcpy(snareHat.buf, snare.buf, snare.length);
-    SDL_MixAudioFormat(snareHat.buf, hihat.buf, sampleFmt, hihat.length, SDL_MIX_MAXVOLUME);
-    
+
     int beatCount = 1;
     int barCount = 1;
 
-    int pickRandDrumPattern = rand() % 9;
-    if (pickRandDrumPattern == 0 || pickRandDrumPattern == 2) // Discourage the use of these patterns by picking again.
+    // Select drum pattern
+    int pickRandDrumPattern;
+    if (rand() % 3 == 0)
+    {
+        std::cout << "   > RNJesus wants the drums to play the same pattern as last time... \n";
+        pickRandDrumPattern = songSettings.prevPatternDrums;
+    }
+    else
+    {
         pickRandDrumPattern = rand() % 9;
-    
-    if ((pickRandDrumPattern == 7 || pickRandDrumPattern == 5) && songSettings.BPM < 90)
-        pickRandDrumPattern = rand() % 9;
+
+        if (pickRandDrumPattern == 0 || pickRandDrumPattern == 2) // Discourage the use of these patterns by picking again.
+            pickRandDrumPattern = rand() % 9;
+
+        if ((pickRandDrumPattern == 7 || pickRandDrumPattern == 5) && songSettings.BPM < 90)
+            pickRandDrumPattern = rand() % 9;
+    }
+    songSettings.prevPatternDrums = pickRandDrumPattern;
+
+
     
 #ifdef DEBUG_AUDIO
     std::cout << "internalAudioBuffer.length: " << internalAudioBuffer.length << "\n";
