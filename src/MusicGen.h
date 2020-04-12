@@ -455,5 +455,6 @@ struct Scale
         {
             freqs.push_back(it->second);
         }
+
     }
 };

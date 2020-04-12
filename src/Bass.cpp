@@ -208,7 +208,7 @@ void GenLeadTrack(Uint8* leadBuf, int leadBufLength)
     }
     else
     {
-        pickRandLeadPattern = rand() % 14;
+        pickRandLeadPattern = rand() % 16;
 
         // discourage these
         if (pickRandLeadPattern == 2  ||
@@ -216,15 +216,19 @@ void GenLeadTrack(Uint8* leadBuf, int leadBufLength)
             pickRandLeadPattern == 10 ||
             pickRandLeadPattern == 11 || 
             pickRandLeadPattern == 12 )
-                pickRandLeadPattern = rand() % 14;
+                pickRandLeadPattern = rand() % 16;
 
         // really discourage these
         if (pickRandLeadPattern == 2 )
-                pickRandLeadPattern = rand() % 14;
+                pickRandLeadPattern = rand() % 16;
 
         if (songSettings.BPM > 121 && pickRandLeadPattern == 8)
             pickRandLeadPattern = 0;
     }
+
+    //DEBUG
+    //pickRandLeadPattern = 15;
+    //DEBUG
 
     songSettings.prevPatternLead = pickRandLeadPattern;
 
@@ -516,13 +520,12 @@ void GenLeadTrack(Uint8* leadBuf, int leadBufLength)
     }
     case 10: // random through out, 8 notes per bar, fadeout
     {
-        for (int c = 0; c < leadBufLength; c += songSettings.barLenBytes) // 1 beat per bar
+        for (int c = 0; c < leadBufLength; c += leadBufLength) // 1 beat per bar
         {
             int chooseNote = rand() % 8;
             float noteFreq = key.freqs[chooseNote];
-            SafeLead(noteFreq, songSettings.barLenBytes, qtrMag, leadBuf, c);
-            SafeFadeIn(leadBuf, songSettings.noteLenBytes, c);
-            SafeFadeOut(leadBuf, songSettings.noteLenBytes, songSettings.barLenBytes - songSettings.noteLenBytes);
+            SafeLead(noteFreq, leadBufLength / audioSettings.bytesPerMS, qtrMag, leadBuf, c);
+            SafeFadeIn(leadBuf, leadBufLength, c);
 
             if (beatCount == 1)
             {
@@ -720,6 +723,49 @@ void GenLeadTrack(Uint8* leadBuf, int leadBufLength)
             beatCount++;
         }
         break;
+    }
+    case 14: // play a qtr note, wait qtr note, play another qtr half note, etc.
+    {
+        for (int c = 0; c < leadBufLength; c += (songSettings.qtrNoteLenBytes))
+        {
+
+            if (beatCount % 2 == 1)
+            {
+                int chooseNote = rand() % 9;
+                if (chooseNote < 8)
+                {
+                    float noteFreq = key.freqs[chooseNote];
+                    SafeLead(noteFreq, songSettings.qtrNoteLenMS, qtrMag, leadBuf, c);
+                }
+        }
+
+            if (beatCount == 16)
+            {
+                beatCount = 0;
+                barCount++;
+            }
+            beatCount++;
+    }
+        break;
+    case 15: // play a qtr note, wait qtr note, play another qtr half note, etc.
+    {
+        for (int c = 0; c < leadBufLength; c += (songSettings.barLenBytes))
+        {
+
+            if (barCount == 4 || barCount == 3)
+            {
+                SlideSquare(key.freqs[7], key.freqs[0], songSettings.barLenMS, qtrMag, leadBuf, c);
+            }
+
+            if (beatCount == 1)
+            {
+                beatCount = 0;
+                barCount++;
+            }
+            beatCount++;
+        }
+        break;
+    }
     }
     default:
         break;
