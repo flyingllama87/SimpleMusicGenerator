@@ -8,6 +8,7 @@
 #include <Windows.h>
 #include "MusicGen.h"
 
+
 struct audioSettings audioSettings;
 struct songSettings songSettings;
 struct internalAudioBuffer internalAudioBuffer;
@@ -72,7 +73,7 @@ void GenAudioStream(void* userdata, Uint8* stream, int len)
         if (randTestChance < 20)
         {
             internalAudioBuffer.pos = 0;
-            std::cout << "   > RNJesus wants the previous bar to repeat first... \n";
+            std::cout << "\n   > RNJesus wants the previous section to repeat first... \n";
         }
         else
         {
@@ -202,7 +203,7 @@ void GenMusicStream()
 int WriteMusicBuffer(void* ptr)
 {
 
-    std::cout << "\nNext measure (4/4):\n";
+    std::cout << "\nComing up section in 4/4 timing:\n";
 
     // Seed random number gen in callback thread
 #ifdef _WIN64
@@ -255,6 +256,119 @@ int WriteMusicBuffer(void* ptr)
     return 1;
 }
 
+
+void TestArpeggios()
+{
+    SetupAudio();
+
+    std::string strInputNoteName;
+    float fInputFreq;
+    AudioData scale;
+
+    // Buffer for total scale (8 notes) in 8-bit format
+    int bufLen = 1500 * audioSettings.bytesPerMS;
+    Uint8* scaleBuf = new Uint8[bufLen];
+
+    for (auto note = Notes.KV.begin(); note != Notes.KV.end(); note++)
+    {
+        std::cout << note->first << "\n";
+    }
+
+    std::cout << "\n\nType in the base note name & press enter: ";
+    std::getline(std::cin, strInputNoteName);
+
+    fInputFreq = Notes.getNoteFreq(strInputNoteName);
+
+    auto key = Scale(Key::Major, fInputFreq);
+
+    int noteLen = songSettings.noteLenBytes;
+
+    scale.buf = scaleBuf;
+    scale.length = bufLen;
+
+    std::cout << "arpeggio with a note length of 64/sec, no slide. \n";
+    std::fill_n(scaleBuf, bufLen, 0);
+    GenArp(key.notes["1st"], 1000, 64, halfMag, scale.buf, 0, false);
+    AudioPlayer(scale);
+    Sleep(1500);
+
+    std::cout << "arpeggio with a note length of 64/sec, slide. \n";
+    std::fill_n(scaleBuf, bufLen, 0);
+    GenArp(key.notes["1st"], 1000, 64, halfMag, scale.buf, 0, true);
+    AudioPlayer(scale);
+    Sleep(1500);
+
+    std::cout << "arpeggio with a note length of 32/sec, no slide. \n";
+    std::fill_n(scaleBuf, bufLen, 0);
+    GenArp(key.notes["1st"], 1000, 32, halfMag, scale.buf, 0, false);
+    AudioPlayer(scale);
+    Sleep(1500);
+
+    std::cout << "arpeggio with a note length of 32/sec, slide. \n";
+    std::fill_n(scaleBuf, bufLen, 0);
+    GenArp(key.notes["1st"], 1000, 32, halfMag, scale.buf, 0, true);
+    AudioPlayer(scale);
+    Sleep(1500);
+
+    std::cout << "arpeggio with a note length of 16/sec, no slide. \n";
+    std::fill_n(scaleBuf, bufLen, 0);
+    GenArp(key.notes["1st"], 1000, 16, halfMag, scale.buf, 0, false);
+    AudioPlayer(scale);
+    Sleep(1500);
+
+    std::cout << "arpeggio with a note length of 16/sec, slide. \n";
+    std::fill_n(scaleBuf, bufLen, 0);
+    GenArp(key.notes["1st"], 1000, 16, halfMag, scale.buf, 0, true);
+    AudioPlayer(scale);
+    Sleep(1500);
+
+
+    scale.length = 500 * audioSettings.bytesPerMS;
+
+    std::cout << "little song";
+    std::fill_n(scaleBuf, bufLen, 0);
+    GenArp(key.notes["1st"], 500, 32, halfMag, scale.buf, 0, false);
+    AudioPlayer(scale);
+    Sleep(500);
+
+    std::fill_n(scaleBuf, bufLen, 0);
+    GenArp(key.notes["3rd"], 500, 32, halfMag, scale.buf, 0, false);
+    AudioPlayer(scale);
+    Sleep(500);
+
+    std::fill_n(scaleBuf, bufLen, 0);
+    GenArp(key.notes["1st"], 500, 32, halfMag, scale.buf, 0, false);
+    AudioPlayer(scale);
+    Sleep(500);
+
+    std::fill_n(scaleBuf, bufLen, 0);
+    GenArp(key.notes["3rd"], 500, 32, halfMag, scale.buf, 0, false);
+    AudioPlayer(scale);
+    Sleep(500);
+
+    std::fill_n(scaleBuf, bufLen, 0);
+    GenArp(key.notes["1st"], 500, 16, halfMag, scale.buf, 0, false);
+    AudioPlayer(scale);
+    Sleep(500);
+
+    std::fill_n(scaleBuf, bufLen, 0);
+    GenArp(key.notes["3rd"], 500, 16, halfMag, scale.buf, 0, false);
+    AudioPlayer(scale);
+    Sleep(500);
+
+    std::fill_n(scaleBuf, bufLen, 0);
+    GenArp(key.notes["1st"], 500, 16, halfMag, scale.buf, 0, false);
+    AudioPlayer(scale);
+    Sleep(500);
+
+    std::fill_n(scaleBuf, bufLen, 0);
+    GenArp(key.notes["3rd"], 500, 16, halfMag, scale.buf, 0, false);
+    AudioPlayer(scale);
+    Sleep(500);
+
+}
+
+
 void PlayScale()
 {
     SetupAudio();
@@ -263,10 +377,8 @@ void PlayScale()
     float fInputFreq;
     AudioData scale;
 
-    // Buffer for total scale (8 notes) in 16-bit format
-    int bufLen16 = songSettings.noteLenMS * audioSettings.samplesPerMS * 8;
     // Buffer for total scale (8 notes) in 8-bit format
-    int bufLen = bufLen16 * 2;
+    int bufLen = internalAudioBuffer.length;
     Uint8* scaleBuf = new Uint8[bufLen];
   
     for (auto note = Notes.KV.begin(); note != Notes.KV.end(); note++)
@@ -296,7 +408,7 @@ void PlayScale()
     Sine(key.notes["6th"], songSettings.noteLenMS, halfMag, &scaleBuf[noteLen * 5]);
     Sine(key.notes["7th"], songSettings.noteLenMS, halfMag, &scaleBuf[noteLen * 6]);
     Sine(key.notes["8th"], songSettings.noteLenMS, halfMag, &scaleBuf[noteLen * 7]);
-    
+
 #ifdef DEBUG_AUDIO
     DumpBuffer(scaleBuf, bufLen, "ScaleSine.txt");
 #endif
@@ -305,7 +417,8 @@ void PlayScale()
     scale.length = bufLen;
 
     AudioPlayer(scale);
-    
+
+
     std::map<std::string, float>::iterator note = key.notes.begin();
     while (note != key.notes.end())
     {
@@ -316,6 +429,53 @@ void PlayScale()
     delete[] scaleBuf;
 }
 
+// Arpeggio generation
+void GenArp(float freq, int arpLengthMS, int NoteLength, int magnitude, Uint8* inBuf, int currPo, bool slide)
+{
+    Scale key = Scale(songSettings.key, freq);
+    Scale key2 = Scale(songSettings.key, key.notes["8th"]);
+
+    int arpNoteLenMS = 1000 / NoteLength; // noteLength is either 64th of a second, 32nd of a second, etc.
+    int arpNoteLenBytes = arpNoteLenMS * audioSettings.bytesPerMS;
+
+    int noteCounter = 1;
+    //arpLengthMs is total length
+    for (int c = 0; c < arpLengthMS * audioSettings.bytesPerMS; c += (arpNoteLenBytes * noteCounter))
+    {
+        SafeLead(key.notes["1st"], arpNoteLenMS, magnitude, inBuf, currPo + (arpNoteLenBytes * noteCounter));
+        noteCounter++;
+        if (slide) {
+            SlideSquare(key.notes["1st"], key.notes["3rd"], arpNoteLenMS, magnitude, inBuf, currPo + (arpNoteLenBytes * noteCounter));
+            noteCounter++;
+        }
+        SafeLead(key.notes["3rd"], arpNoteLenMS, magnitude, inBuf, currPo + (arpNoteLenBytes * noteCounter));
+        noteCounter++;
+        if (slide) {
+            SlideSquare(key.notes["3rd"], key.notes["5th"], arpNoteLenMS, magnitude, inBuf, currPo + (arpNoteLenBytes * noteCounter));
+            noteCounter++;
+        }
+        SafeLead(key.notes["5th"], arpNoteLenMS, magnitude, inBuf, currPo + (arpNoteLenBytes * noteCounter));
+        noteCounter++;
+        if (slide) {
+            SlideSquare(key.notes["3rd"], key2.notes["1st"], arpNoteLenMS, magnitude, inBuf, currPo + (arpNoteLenBytes * noteCounter));
+            noteCounter++;
+        }
+        SafeLead(key2.notes["1st"], arpNoteLenMS, magnitude, inBuf, currPo + (arpNoteLenBytes * noteCounter));
+        noteCounter++;
+        if (slide) {
+            SlideSquare(key2.notes["1st"], key2.notes["3rd"], arpNoteLenMS, magnitude, inBuf, currPo + (arpNoteLenBytes * noteCounter));
+            noteCounter++;
+        }
+        SafeLead(key2.notes["3rd"], arpNoteLenMS, magnitude, inBuf, currPo + (arpNoteLenBytes * noteCounter));
+        noteCounter++;
+        if (slide) {
+            SlideSquare(key2.notes["3rd"], key2.notes["5th"], arpNoteLenMS, magnitude, inBuf, currPo + (arpNoteLenBytes * noteCounter));
+            noteCounter++;
+        }
+        SafeLead(key2.notes["5th"], arpNoteLenMS, magnitude, inBuf, currPo + (arpNoteLenBytes * noteCounter));
+        noteCounter++;
+    }
+}
 
 // Playas
 
@@ -430,7 +590,7 @@ userSettings GetSongSettings(){
 
 
 
-Key SwitchKey(Key key)
+Key SwitchKeyMode(Key key)
 {
     if (key == Key::Major) {
         return Key::Minor;

@@ -70,13 +70,13 @@ int WriteMusicBuffer(void* ptr);
 
 // Wave & Sound Generators
 void DebugGenerators();
-void DebugGeneratorsNew();
 int16_t* Square(float freq, float length, int magnitude);
 int16_t* Sawtooth(float freq, float length, Uint16 magnitude);
 int16_t* Noise(float length, bool lowPitch, int magnitude = halfMag);
 int16_t* SineWave(float freq, float length, Uint16 magnitude);
 void Square(float freq, int length, int magnitude, Uint8* inBuf);
 void SafeSquare(float freq, int length, int magnitude, Uint8 *inBuf, int currPos);
+void SlideSquare(float startFreq, float endFreq, int length, int magnitude, Uint8* inBuf, int currPos);
 void Sawtooth(float freq, int length, Uint16 magnitude, Uint8* inBuf);
 void SafeSawtooth(float freq, int length, Uint16 magnitude, Uint8 *inBuf, int currPos);
 void Noise(float length, bool lowPitch, Uint8* inBuf, int magnitude = halfMag);
@@ -94,8 +94,11 @@ void SafeFadeOut(Uint8* buffer, int numOfBytes, int currPos);
 void SafeFadeIn(Uint8* buffer, int numOfBytes, int currPos);
 
 // Music
+void TestArpeggios();
+void GenArp(float freq, int arpLengthMS, int NoteLength, int magnitude, Uint8* inBuf, int currPo, bool slide);
 void PlayScale();
-Key SwitchKey(Key key);
+Key SwitchKeyMode(Key key);
+
 
 // Drums
 void GenDrumBeat(Uint8* drumBuf, int drumBufLength);

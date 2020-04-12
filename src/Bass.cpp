@@ -172,10 +172,12 @@ void GenLeadTrack(Uint8* leadBuf, int leadBufLength)
     // Should we switch lead instruments?
     if (rand() % 15 == 6)
     {
-        std::cout << "   > RNJesus wants to switch lead instruments\n";
         int instrument = rand() % 3;
+        std::cout << "   > RNJesus wants to switch lead instruments to ";
+
         if (instrument == 0) // saw
         {
+            std::cout << "sawtooth\n";
             songSettings.leadSine = false;
             songSettings.leadSquare = false;
             songSettings.leadSawtooth = true;
@@ -183,12 +185,14 @@ void GenLeadTrack(Uint8* leadBuf, int leadBufLength)
         }
         else if (instrument == 1) // sine
         {
+            std::cout << "sine\n";
             songSettings.leadSine = true;
             songSettings.leadSquare = false;
             songSettings.leadSawtooth = false;
         }
         else // square
         {
+            std::cout << "square\n";
             songSettings.leadSine = false;
             songSettings.leadSquare = true;
             songSettings.leadSawtooth = false;
@@ -204,30 +208,26 @@ void GenLeadTrack(Uint8* leadBuf, int leadBufLength)
     }
     else
     {
-        pickRandLeadPattern = rand() % 12;
+        pickRandLeadPattern = rand() % 14;
 
         // discourage these
-        if (pickRandLeadPattern == 2 ||
-            pickRandLeadPattern == 7 ||
-            pickRandLeadPattern == 10
-            )
-            pickRandLeadPattern = rand() % 12;
+        if (pickRandLeadPattern == 2  ||
+            pickRandLeadPattern == 7  ||
+            pickRandLeadPattern == 10 ||
+            pickRandLeadPattern == 11 || 
+            pickRandLeadPattern == 12 )
+                pickRandLeadPattern = rand() % 14;
 
         // really discourage these
-        if (pickRandLeadPattern == 2 ||
-            pickRandLeadPattern == 7
-            )
-            pickRandLeadPattern = rand() % 12;
+        if (pickRandLeadPattern == 2 )
+                pickRandLeadPattern = rand() % 14;
 
         if (songSettings.BPM > 121 && pickRandLeadPattern == 8)
-        {
             pickRandLeadPattern = 0;
-        }
     }
 
     songSettings.prevPatternLead = pickRandLeadPattern;
 
-   
     std::cout << "Playing lead pattern: " << pickRandLeadPattern << "\n";
 
     // Here we go!
@@ -258,7 +258,7 @@ void GenLeadTrack(Uint8* leadBuf, int leadBufLength)
         {
             int chooseNote = rand() % 8;
             float noteFreq = key.freqs[chooseNote];
-            
+
             if (beatCount % 2 == 1)
             {
                 SafeLead(noteFreq, songSettings.halfNoteLenMS, qtrMag, leadBuf, c);
@@ -291,7 +291,7 @@ void GenLeadTrack(Uint8* leadBuf, int leadBufLength)
             {
                 SafeLead(noteFreq, songSettings.halfNoteLenMS, qtrMag, leadBuf, c);
             } // else / 'skip a beat' is implied.
-   
+
             if (beatCount == songSettings.barLenMS / songSettings.halfNoteLenMS)
             {
                 beatCount = 0;
@@ -397,7 +397,7 @@ void GenLeadTrack(Uint8* leadBuf, int leadBufLength)
             }
             else if (noteCount % 6 == 0 && (arpCount % 7 == 2) && !randMode)
             {
-                Scale tempKey(SwitchKey(songSettings.key), key.freqs[5]);
+                Scale tempKey(SwitchKeyMode(songSettings.key), key.freqs[5]);
                 firstInterval = tempKey.freqs[0];
                 thirdInterval = tempKey.freqs[2];
                 fifthInterval = tempKey.freqs[4];
@@ -483,7 +483,7 @@ void GenLeadTrack(Uint8* leadBuf, int leadBufLength)
                 float noteFreq = key.freqs[chooseNote];
                 SafeLead(noteFreq, songSettings.qtrNoteLenMS, qtrMag, leadBuf, c);
             }
- 
+
             if (beatCount == 16)
             {
                 beatCount = 0;
@@ -522,7 +522,7 @@ void GenLeadTrack(Uint8* leadBuf, int leadBufLength)
             float noteFreq = key.freqs[chooseNote];
             SafeLead(noteFreq, songSettings.barLenBytes, qtrMag, leadBuf, c);
             SafeFadeIn(leadBuf, songSettings.noteLenBytes, c);
-            SafeFadeOut(leadBuf, songSettings.noteLenBytes,  songSettings.barLenBytes - songSettings.noteLenBytes);
+            SafeFadeOut(leadBuf, songSettings.noteLenBytes, songSettings.barLenBytes - songSettings.noteLenBytes);
 
             if (beatCount == 1)
             {
@@ -560,7 +560,7 @@ void GenLeadTrack(Uint8* leadBuf, int leadBufLength)
             }
             else if (noteCount % 6 == 0 && (arpCount % 7 == 2) && !randMode)
             {
-                Scale tempKey(SwitchKey(songSettings.key), key.freqs[5]);
+                Scale tempKey(SwitchKeyMode(songSettings.key), key.freqs[5]);
                 firstInterval = tempKey.freqs[0];
                 thirdInterval = tempKey.freqs[2];
                 fifthInterval = tempKey.freqs[4];
@@ -635,6 +635,92 @@ void GenLeadTrack(Uint8* leadBuf, int leadBufLength)
         }
         break;
     }
+    case 12: // 8th notes arps!
+    {
+        int arpCount = 1;
+
+
+        for (int c = 0; c < leadBufLength; c += songSettings.dblNoteLenBytes)
+        {
+
+            /*if (arpCount == 1)
+            {
+                Scale tempKey = key;
+                GenArp(tempKey.notes["1st"], songSettings.dblNoteLenMS, 8, halfMag, leadBuf, c, false);
+
+            }
+            else if (arpCount == 2)
+            {
+                Scale tempKey(songSettings.key, key.freqs[4]);
+                GenArp(tempKey.notes["1st"], songSettings.dblNoteLenMS, 16, halfMag, leadBuf, c, false);
+            }
+            else if (arpCount == 3)
+            {
+                Scale tempKey(SwitchKeyMode(songSettings.key), key.freqs[5]);
+                GenArp(tempKey.notes["1st"], songSettings.dblNoteLenMS, 32, halfMag, leadBuf, c, false);
+            }
+            else if (arpCount == 4)
+            {
+                Scale tempKey(songSettings.key, key.freqs[3]);
+                GenArp(tempKey.notes["1st"], songSettings.dblNoteLenMS, 16, halfMag, leadBuf, c, false);
+            }*/
+            int speed = rand() % 3;
+            if (speed == 0)
+                speed = 8;
+            else if (speed == 1)
+                speed = 16;
+            else
+                speed = 32;
+
+
+            Scale tempKey(songSettings.key, key.freqs[rand() % 8]);
+            GenArp(tempKey.notes["1st"], songSettings.dblNoteLenMS, speed, halfMag, leadBuf, c, false);
+            
+
+
+            arpCount++;
+
+            if (beatCount == 4)
+            {
+                beatCount = 0;
+                //std::cout << "bar Count: " << barCount << "\n";
+                barCount++;
+            }
+            beatCount++;
+        }
+        break;
+    }
+    case 13: // 8th notes arps!
+    {
+        float Note1 = key.freqs[rand() % 8];
+        float Note2 = key.freqs[rand() % 8];
+        float Note3 = key.freqs[rand() % 8];
+        float Note4 = key.freqs[rand() % 8];
+
+
+        for (int c = 0; c < leadBufLength; c += songSettings.halfNoteLenBytes)
+        {
+
+            if (barCount == 1)
+                SafeLead(Note1, songSettings.halfNoteLenMS, qtrMag, leadBuf, c);
+            if (barCount == 2)
+                SafeLead(Note2, songSettings.halfNoteLenMS, qtrMag, leadBuf, c);
+            if (barCount == 3)
+                SafeLead(Note3, songSettings.halfNoteLenMS, qtrMag, leadBuf, c);
+            if (barCount == 4)
+                SafeLead(Note4, songSettings.halfNoteLenMS, qtrMag, leadBuf, c);
+            
+
+            if (beatCount == 8)
+            {
+                beatCount = 0;
+                //std::cout << "bar Count: " << barCount << "\n";
+                barCount++;
+            }
+            beatCount++;
+        }
+        break;
+    }
     default:
         break;
     }
@@ -643,3 +729,4 @@ void GenLeadTrack(Uint8* leadBuf, int leadBufLength)
     DumpBuffer(leadBuf, drumBufLength, "LeadBuffer.txt");
 #endif
 }
+

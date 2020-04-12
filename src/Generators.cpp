@@ -14,69 +14,6 @@ void DebugGenerators()
 {
     SetupAudio();
 
-    Uint32 waveLength = 1000 * audioSettings.samplesPerMS;
-    int16_t* waveBuffer = new int16_t[waveLength]();
-
-    AudioData tempAD;
-    tempAD.length = 1000 * audioSettings.samplesPerMS * 2; // Dbl for 8 bit
-    tempAD.buf = new Uint8[tempAD.length];
-
-    // Noise
-    waveBuffer = Noise(1000, false);
-    DumpBuffer(waveBuffer, waveLength, "NoiseOld.txt");
-    c16to8(waveBuffer, waveLength, tempAD.buf);
-    AudioPlayer(tempAD);
-
-    // Sawtooth
-    waveBuffer = Sawtooth(440, 1000, halfMag);
-    DumpBuffer(waveBuffer, waveLength, "SawtoothOld.txt");
-    c16to8(waveBuffer, waveLength, tempAD.buf);
-    AudioPlayer(tempAD);
-
-    // Square
-    waveBuffer = Square(440, 1000, halfMag);
-    DumpBuffer(waveBuffer, waveLength, "SquareOld.txt");
-    c16to8(waveBuffer, waveLength, tempAD.buf);
-    AudioPlayer(tempAD);
-
-    // Sine fade in
-    waveBuffer = SineWave(440, 1000, halfMag);
-    FadeIn(waveBuffer, waveLength);
-    DumpBuffer(waveBuffer, waveLength, "SineWaveFadeInOld.txt");
-    c16to8(waveBuffer, waveLength, tempAD.buf);
-    AudioPlayer(tempAD);
-
-    // Sine
-    waveBuffer = SineWave(440.0F, 1000, halfMag);
-    DumpBuffer(waveBuffer, waveLength, "SineWaveOld.txt");
-    c16to8(waveBuffer, waveLength, tempAD.buf);
-    AudioPlayer(tempAD);
-
-    // Sine + FadeOut
-    waveBuffer = SineWave(440, 1000, halfMag);
-    FadeOut(waveBuffer, waveLength);
-    DumpBuffer(waveBuffer, waveLength, "SineWaveFadeOutOld.txt");
-    c16to8(waveBuffer, waveLength, tempAD.buf);
-    AudioPlayer(tempAD);
-
-    // Sine + FadeIn
-    waveBuffer = SineWave(440, 1000, halfMag);
-    FadeIn(waveBuffer, waveLength);
-    DumpBuffer(waveBuffer, waveLength, "SineWaveFadeInOld.txt");
-    c16to8(waveBuffer, waveLength, tempAD.buf);
-    AudioPlayer(tempAD);
-
-    waveBuffer = SineWave(440, 1000, halfMag);
-    FadeOut(waveBuffer, waveLength);
-    c16to8(waveBuffer, waveLength, tempAD.buf);
-    AudioPlayer(tempAD);
-}
-
-
-void DebugGeneratorsNew()
-{
-    SetupAudio();
-
     Uint32 waveLength = 1000 * audioSettings.samplesPerMS * 2;
     Uint8* waveBuffer = new Uint8[waveLength]();
 
@@ -118,16 +55,6 @@ void DebugGeneratorsNew()
     DumpBuffer(waveBuffer, waveLength, "SineWaveFadeOut.txt");
     AudioPlayer(tempAD);
 
-    // Sine + FadeIn
-    Sine(440, 1000, halfMag, &waveBuffer[0]);
-    FadeIn(&waveBuffer[0], waveLength);
-    AudioPlayer(tempAD);
-
-    // Sine + FadeOut
-    Sine(440, 1000, halfMag, &waveBuffer[0]);
-    FadeOut(&waveBuffer[0], waveLength);
-    AudioPlayer(tempAD);
-
     std::cout << "Testing 'safe' generators\n";
     
     // Sawtooth
@@ -140,7 +67,21 @@ void DebugGeneratorsNew()
     SafeFadeOut(waveBuffer, waveLength, 0);
     DumpBuffer(waveBuffer, waveLength, "SafeSawtoothFadeOut.txt");
     AudioPlayer(tempAD);
-    
+
+    std::cout << "Testing 'slide' generators\n";
+
+    SlideSquare(440.0F, 220.0F, 1000, halfMag, waveBuffer, 0);
+    DumpBuffer(waveBuffer, waveLength, "SlideSquare.txt");
+    AudioPlayer(tempAD);
+
+    SlideSquare(440.0F, 400.0F, 1000, halfMag, waveBuffer, 0);
+    AudioPlayer(tempAD);
+
+    SlideSquare(440.0F, 440.0F, 1000, halfMag, waveBuffer, 0);
+    DumpBuffer(waveBuffer, waveLength, "SlideSquareSameFreq.txt");
+
+    AudioPlayer(tempAD);
+
     delete[] waveBuffer;
 }
 
@@ -338,6 +279,83 @@ void SafeSquare(float freq, int length, int magnitude, Uint8 *inBuf, int currPos
     for (int c = currPos; c < (destBufferWaveEnd - 1); c+=2)
     {
         if ((c/2) % changeSignEveryXCycles == 0)
+            writeHigh = !writeHigh;
+
+        if (writeHigh)
+        {
+            int16_t squareVal = halfMagnitude;
+            inBuf[c] = squareVal & 0xFF;
+            inBuf[c + 1] = squareVal >> 8;
+        }
+        else
+        {
+            int16_t squareVal = halfMagnitude * -1;
+            inBuf[c] = squareVal & 0xFF;
+            inBuf[c + 1] = squareVal >> 8;
+        }
+    }
+}
+
+void SlideSquare(float startFreq, float endFreq, int length, int magnitude, Uint8* inBuf, int currPos)
+{
+
+    float freqDiff = startFreq - endFreq;
+
+    Uint32 squareWaveLength = audioSettings.samplesPerMS * length * 2;
+    Uint32 destBufferWaveEnd = currPos + squareWaveLength;
+
+    if (currPos + squareWaveLength >= internalAudioBuffer.backBufferLength)
+        destBufferWaveEnd = internalAudioBuffer.backBufferLength;
+
+
+    bool writeHigh = false;
+    Uint16 halfMagnitude = magnitude / 2;
+
+    for (int c = currPos; c < (destBufferWaveEnd - 1); c += 2)
+    {
+        float playedRatio = (float)(squareWaveLength - (c - currPos)) / (float)squareWaveLength;
+
+        float currFreq = startFreq + (freqDiff * playedRatio);
+
+        // Change X twice as much as the frequency for complete square cycle
+        int changeSignEveryXCycles = audioSettings.audSpecHave.freq / (currFreq * 2);
+
+        if ((c / 2) % changeSignEveryXCycles == 0)
+            writeHigh = !writeHigh;
+
+        if (writeHigh)
+        {
+            int16_t squareVal = halfMagnitude;
+            inBuf[c] = squareVal & 0xFF;
+            inBuf[c + 1] = squareVal >> 8;
+        }
+        else
+        {
+            int16_t squareVal = halfMagnitude * -1;
+            inBuf[c] = squareVal & 0xFF;
+            inBuf[c + 1] = squareVal >> 8;
+        }
+    }
+}
+
+// Not implemented
+void VibratoSquare(float freq, int length, int magnitude, Uint8* inBuf, int currPos)
+{
+
+    Uint32 squareWaveLength = audioSettings.samplesPerMS * length * 2;
+    Uint32 destBufferWaveEnd = currPos + squareWaveLength;
+
+    if (currPos + squareWaveLength >= internalAudioBuffer.backBufferLength)
+        destBufferWaveEnd = internalAudioBuffer.backBufferLength;
+
+    // Change X twice as much as the frequency for complete square cycle
+    int changeSignEveryXCycles = audioSettings.audSpecHave.freq / (freq * 2);
+    bool writeHigh = false;
+    Uint16 halfMagnitude = magnitude / 2;
+
+    for (int c = currPos; c < (destBufferWaveEnd - 1); c += 2)
+    {
+        if ((c / 2) % changeSignEveryXCycles == 0)
             writeHigh = !writeHigh;
 
         if (writeHigh)

@@ -51,17 +51,18 @@ void Menu()
             "Press s to start music generator\n"
             "Press r to start music generator with random config\n"
             "Press p to pause music generation\n"
-            "Press o to test old wave/noise/effects generators\n"
+            "Press t to test wave/noise/effects generators\n"
             "Press d to test drums\n"
             "Press e to play a major scale\n"
-            "Press t to test wave/noise/effect generators with new method\n"
+            "Press a to test arpeggios\n"
             "Press q to quit\n\nAnswer: ";
 
         std::string menuStr;
         std::getline(std::cin, menuStr);
         char menuInput = menuStr[0];
-
-        if (menuInput == 'c')
+        if (menuInput == 'a')
+            TestArpeggios();
+        else if (menuInput == 'c')
             ChangeSongSettingsCLI();
         else if (menuInput == 's')
             SetupAudio(true);
@@ -77,14 +78,12 @@ void Menu()
         }
         else if (menuInput == 'p')
             audioSettings.StopAudio();
-        else if (menuInput == 'o')
-            DebugGenerators();
         else if (menuInput == 'd')
             TestDrums();
         else if (menuInput == 'e')
             PlayScale();
         else if (menuInput == 't')
-            DebugGeneratorsNew();
+            DebugGenerators();
         else if (menuInput == 'q')
         {
             SDL_Quit();
