@@ -24,5 +24,8 @@ Unimplemented:
 - Maybe try building some lead patterns with some slide effects.
 - WebAssembly support
 - Updated iOS GUI
+- Move lead src into it's own file
+- Vibrato
+- More patterns! 'fligagoos', alternate between, etc.
 
 

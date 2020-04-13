@@ -215,11 +215,13 @@ void GenLeadTrack(Uint8* leadBuf, int leadBufLength)
             pickRandLeadPattern == 7  ||
             pickRandLeadPattern == 10 ||
             pickRandLeadPattern == 11 || 
-            pickRandLeadPattern == 12 )
+            pickRandLeadPattern == 12 ||
+            pickRandLeadPattern == 15 )
                 pickRandLeadPattern = rand() % 16;
 
         // really discourage these
-        if (pickRandLeadPattern == 2 )
+        if (pickRandLeadPattern == 2  ||
+            pickRandLeadPattern == 12 )
                 pickRandLeadPattern = rand() % 16;
 
         if (songSettings.BPM > 121 && pickRandLeadPattern == 8)
