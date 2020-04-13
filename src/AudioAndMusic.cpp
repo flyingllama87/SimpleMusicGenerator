@@ -5,8 +5,12 @@
 //  Created by Morgan on 28/2/20.
 //  Copyright © 2020 Morgan. All rights reserved.
 //
+#ifdef _win64
 #include <Windows.h>
+#endif
 #include "MusicGen.h"
+#include <unistd.h>
+
 
 
 struct audioSettings audioSettings;
@@ -88,7 +92,7 @@ void GenAudioStream(void* userdata, Uint8* stream, int len)
                 internalAudioBuffer.InitBuffer();
                 if (retVal != NULL)
                 {
-                    memmove(internalAudioBuffer.buf, internalAudioBuffer.backBuf, min(internalAudioBuffer.length, internalAudioBuffer.backBufferLength));
+                    memmove(internalAudioBuffer.buf, internalAudioBuffer.backBuf, std::min(internalAudioBuffer.length, internalAudioBuffer.backBufferLength));
                     internalAudioBuffer.pos = 0;
                 }
                 else {
@@ -290,37 +294,37 @@ void TestArpeggios()
     std::fill_n(scaleBuf, bufLen, 0);
     GenArp(key.notes["1st"], 1000, 64, halfMag, scale.buf, 0, false);
     AudioPlayer(scale);
-    Sleep(1500);
+    usleep(1500);
 
     std::cout << "arpeggio with a note length of 64/sec, slide. \n";
     std::fill_n(scaleBuf, bufLen, 0);
     GenArp(key.notes["1st"], 1000, 64, halfMag, scale.buf, 0, true);
     AudioPlayer(scale);
-    Sleep(1500);
+    usleep(1500);
 
     std::cout << "arpeggio with a note length of 32/sec, no slide. \n";
     std::fill_n(scaleBuf, bufLen, 0);
     GenArp(key.notes["1st"], 1000, 32, halfMag, scale.buf, 0, false);
     AudioPlayer(scale);
-    Sleep(1500);
+    usleep(1500);
 
     std::cout << "arpeggio with a note length of 32/sec, slide. \n";
     std::fill_n(scaleBuf, bufLen, 0);
     GenArp(key.notes["1st"], 1000, 32, halfMag, scale.buf, 0, true);
     AudioPlayer(scale);
-    Sleep(1500);
+    usleep(1500);
 
     std::cout << "arpeggio with a note length of 16/sec, no slide. \n";
     std::fill_n(scaleBuf, bufLen, 0);
     GenArp(key.notes["1st"], 1000, 16, halfMag, scale.buf, 0, false);
     AudioPlayer(scale);
-    Sleep(1500);
+    usleep(1500);
 
     std::cout << "arpeggio with a note length of 16/sec, slide. \n";
     std::fill_n(scaleBuf, bufLen, 0);
     GenArp(key.notes["1st"], 1000, 16, halfMag, scale.buf, 0, true);
     AudioPlayer(scale);
-    Sleep(1500);
+    usleep(1500);
 
 
     scale.length = 500 * audioSettings.bytesPerMS;
@@ -329,42 +333,42 @@ void TestArpeggios()
     std::fill_n(scaleBuf, bufLen, 0);
     GenArp(key.notes["1st"], 500, 32, halfMag, scale.buf, 0, false);
     AudioPlayer(scale);
-    Sleep(500);
+    usleep(500);
 
     std::fill_n(scaleBuf, bufLen, 0);
     GenArp(key.notes["3rd"], 500, 32, halfMag, scale.buf, 0, false);
     AudioPlayer(scale);
-    Sleep(500);
+    usleep(500);
 
     std::fill_n(scaleBuf, bufLen, 0);
     GenArp(key.notes["1st"], 500, 32, halfMag, scale.buf, 0, false);
     AudioPlayer(scale);
-    Sleep(500);
+    usleep(500);
 
     std::fill_n(scaleBuf, bufLen, 0);
     GenArp(key.notes["3rd"], 500, 32, halfMag, scale.buf, 0, false);
     AudioPlayer(scale);
-    Sleep(500);
+    usleep(500);
 
     std::fill_n(scaleBuf, bufLen, 0);
     GenArp(key.notes["1st"], 500, 16, halfMag, scale.buf, 0, false);
     AudioPlayer(scale);
-    Sleep(500);
+    usleep(500);
 
     std::fill_n(scaleBuf, bufLen, 0);
     GenArp(key.notes["3rd"], 500, 16, halfMag, scale.buf, 0, false);
     AudioPlayer(scale);
-    Sleep(500);
+    usleep(500);
 
     std::fill_n(scaleBuf, bufLen, 0);
     GenArp(key.notes["1st"], 500, 16, halfMag, scale.buf, 0, false);
     AudioPlayer(scale);
-    Sleep(500);
+    usleep(500);
 
     std::fill_n(scaleBuf, bufLen, 0);
     GenArp(key.notes["3rd"], 500, 16, halfMag, scale.buf, 0, false);
     AudioPlayer(scale);
-    Sleep(500);
+    usleep(500);
 
 }
 
@@ -457,11 +461,12 @@ void GenArp(float freq, int arpLengthMS, int NoteLength, int magnitude, Uint8* i
         SafeLead(key.notes["5th"], arpNoteLenMS, magnitude, inBuf, currPo + (arpNoteLenBytes * noteCounter));
         noteCounter++;
         if (slide) {
-            SlideSquare(key.notes["3rd"], key2.notes["1st"], arpNoteLenMS, magnitude, inBuf, currPo + (arpNoteLenBytes * noteCounter));
+            SlideSquare(key.notes["5th"], key.notes["7th"], arpNoteLenMS, magnitude, inBuf, currPo + (arpNoteLenBytes * noteCounter));
             noteCounter++;
         }
-        SafeLead(key2.notes["1st"], arpNoteLenMS, magnitude, inBuf, currPo + (arpNoteLenBytes * noteCounter));
+        SafeLead(key.notes["7th"], arpNoteLenMS, magnitude, inBuf, currPo + (arpNoteLenBytes * noteCounter));
         noteCounter++;
+        /*
         if (slide) {
             SlideSquare(key2.notes["1st"], key2.notes["3rd"], arpNoteLenMS, magnitude, inBuf, currPo + (arpNoteLenBytes * noteCounter));
             noteCounter++;
@@ -473,7 +478,7 @@ void GenArp(float freq, int arpLengthMS, int NoteLength, int magnitude, Uint8* i
             noteCounter++;
         }
         SafeLead(key2.notes["5th"], arpNoteLenMS, magnitude, inBuf, currPo + (arpNoteLenBytes * noteCounter));
-        noteCounter++;
+        noteCounter++;*/
     }
 }
 

@@ -208,28 +208,28 @@ void GenLeadTrack(Uint8* leadBuf, int leadBufLength)
     }
     else
     {
-        pickRandLeadPattern = rand() % 16;
+        pickRandLeadPattern = rand() % 20;
 
         // discourage these
         if (pickRandLeadPattern == 2  ||
             pickRandLeadPattern == 7  ||
             pickRandLeadPattern == 10 ||
-            pickRandLeadPattern == 11 || 
+            pickRandLeadPattern == 11 ||
             pickRandLeadPattern == 12 ||
             pickRandLeadPattern == 15 )
-                pickRandLeadPattern = rand() % 16;
+                pickRandLeadPattern = rand() % 20;
 
         // really discourage these
         if (pickRandLeadPattern == 2  ||
             pickRandLeadPattern == 12 )
-                pickRandLeadPattern = rand() % 16;
+                pickRandLeadPattern = rand() % 20;
 
         if (songSettings.BPM > 121 && pickRandLeadPattern == 8)
             pickRandLeadPattern = 0;
     }
 
     //DEBUG
-    //pickRandLeadPattern = 15;
+     //pickRandLeadPattern = 18;
     //DEBUG
 
     songSettings.prevPatternLead = pickRandLeadPattern;
@@ -279,7 +279,7 @@ void GenLeadTrack(Uint8* leadBuf, int leadBufLength)
         }
         break;
     }
-    case 2: // generate & play note, skip a beat, play old note.  Repeat.  Makes a cool effect for lead.
+    case 2: // generate & play note, skip a beat, play old note.  Repeat.  meh.
     {
         int chooseNote;
         float noteFreq = 0;
@@ -527,7 +527,11 @@ void GenLeadTrack(Uint8* leadBuf, int leadBufLength)
             int chooseNote = rand() % 8;
             float noteFreq = key.freqs[chooseNote];
             SafeLead(noteFreq, leadBufLength / audioSettings.bytesPerMS, qtrMag, leadBuf, c);
-            SafeFadeIn(leadBuf, leadBufLength, c);
+            if (songSettings.prevPatternLead == 6)
+                SafeFadeIn(leadBuf, leadBufLength, c);
+            else
+                SafeFadeOut(leadBuf, leadBufLength, c);
+
 
             if (beatCount == 1)
             {
@@ -668,7 +672,7 @@ void GenLeadTrack(Uint8* leadBuf, int leadBufLength)
             {
                 Scale tempKey(songSettings.key, key.freqs[3]);
                 GenArp(tempKey.notes["1st"], songSettings.dblNoteLenMS, 16, halfMag, leadBuf, c, false);
-            }*/
+            }
             int speed = rand() % 3;
             if (speed == 0)
                 speed = 8;
@@ -676,7 +680,9 @@ void GenLeadTrack(Uint8* leadBuf, int leadBufLength)
                 speed = 16;
             else
                 speed = 32;
-
+            */
+            
+            int speed = 16;
 
             Scale tempKey(songSettings.key, key.freqs[rand() % 8]);
             GenArp(tempKey.notes["1st"], songSettings.dblNoteLenMS, speed, halfMag, leadBuf, c, false);
@@ -768,6 +774,135 @@ void GenLeadTrack(Uint8* leadBuf, int leadBufLength)
         }
         break;
     }
+        case 16: // random through out, 4 notes per bar
+        {
+            float lastNoteFreq = 0.0f;
+            float noteFreq = 0.0f;
+            
+            for (int c = 0; c < leadBufLength; c += (songSettings.noteLenBytes)) // 4 beats
+            {
+                
+                if (barCount == 1 && beatCount == 1)
+                {
+                    int chooseNote = rand() % 8;
+                    noteFreq = key.freqs[chooseNote];
+                    SafeSquare(noteFreq, songSettings.noteLenMS, qtrMag, leadBuf, c);
+                    lastNoteFreq = noteFreq;
+                }
+                else if (beatCount % 2 == 1 && !(beatCount == 1))
+                {
+                    SafeSquare(noteFreq, songSettings.noteLenMS, qtrMag, leadBuf, c);
+                    lastNoteFreq = noteFreq;
+
+                }
+                else
+                {
+                    int chooseNote = rand() % 8;
+                    noteFreq = key.freqs[chooseNote];
+                    SlideSquare(lastNoteFreq, noteFreq, songSettings.noteLenMS, qtrMag, leadBuf, c);
+                }
+
+                
+                if (beatCount == 4)
+                {
+                    beatCount = 0;
+                    barCount++;
+                }
+                beatCount++;
+            }
+            break;
+        }
+        case 17: // random through out, 4 notes per bar
+        {
+            float lastNoteFreq = 0.0f;
+            float noteFreq = 0.0f;
+
+            for (int c = 0; c < leadBufLength; c += (songSettings.dblNoteLenBytes)) // 4 beats
+            {
+                
+                if (barCount == 1 && beatCount == 1)
+                {
+                    int chooseNote = rand() % 8;
+                    noteFreq = key.freqs[chooseNote];
+                    SafeSquare(noteFreq, songSettings.dblNoteLenMS, qtrMag, leadBuf, c);
+                    lastNoteFreq = noteFreq;
+                }
+                else if (beatCount % 2 == 1 && !(beatCount == 1))
+                {
+                    SafeSquare(noteFreq, songSettings.dblNoteLenMS, qtrMag, leadBuf, c);
+                    lastNoteFreq = noteFreq;
+
+                }
+                else
+                {
+                    int chooseNote = rand() % 8;
+                    noteFreq = key.freqs[chooseNote];
+                    SlideSquare(lastNoteFreq, noteFreq, songSettings.dblNoteLenMS, qtrMag, leadBuf, c);
+                }
+                
+                if (beatCount == 2)
+                {
+                    beatCount = 0;
+                    barCount++;
+                }
+                beatCount++;
+            }
+            break;
+        }
+        case 18: // random through out, 4 notes per bar
+        {
+            int chooseNote = rand() % 8;
+            float freq1 = key.freqs[chooseNote];
+            chooseNote = rand() % 8;
+            float freq2 = key.freqs[chooseNote];
+            chooseNote = rand() % 8;
+            float freq3 = key.freqs[chooseNote];
+
+            for (int c = 0; c < leadBufLength; c += (songSettings.noteLenBytes)) // 4 beats
+            {
+                chooseNote = rand() % 4;
+                if (chooseNote == 0)
+                    SafeLead(freq1, songSettings.noteLenBytes, qtrMag, leadBuf, c);
+                else if (chooseNote == 1)
+                    SafeLead(freq2, songSettings.noteLenBytes, qtrMag, leadBuf, c);
+                else if (chooseNote == 2)
+                    SafeLead(freq3, songSettings.noteLenBytes, qtrMag, leadBuf, c);
+
+                if (beatCount == 4)
+                {
+                    beatCount = 0;
+                    barCount++;
+                }
+                beatCount++;
+            }
+            break;
+        }
+        case 19: // random through out, 4 notes per bar
+        {
+            int chooseNote = rand() % 8;
+            float freq1 = key.freqs[chooseNote];
+            chooseNote = rand() % 8;
+            float freq2 = key.freqs[chooseNote];
+
+            for (int c = 0; c < leadBufLength; c += (songSettings.halfNoteLenBytes)) // 4 beats
+            {
+                
+                if (rand() % 2 == 1)
+                    SafeLead(freq1, songSettings.halfNoteLenBytes, qtrMag, leadBuf, c);
+                else
+                    SafeLead(freq2, songSettings.halfNoteLenBytes, qtrMag, leadBuf, c);
+
+
+                if (beatCount == 4)
+                {
+                    beatCount = 0;
+                    barCount++;
+                }
+                beatCount++;
+            }
+            break;
+        }
+
     }
     default:
         break;

@@ -299,6 +299,8 @@ void SafeSquare(float freq, int length, int magnitude, Uint8 *inBuf, int currPos
 void SlideSquare(float startFreq, float endFreq, int length, int magnitude, Uint8* inBuf, int currPos)
 {
 
+    // std::cout << "Freq from: " << startFreq << " End freq: " << endFreq << "\n";
+
     float freqDiff = startFreq - endFreq;
 
     Uint32 squareWaveLength = audioSettings.samplesPerMS * length * 2;
@@ -315,7 +317,7 @@ void SlideSquare(float startFreq, float endFreq, int length, int magnitude, Uint
     {
         float playedRatio = (float)(squareWaveLength - (c - currPos)) / (float)squareWaveLength;
 
-        float currFreq = startFreq + (freqDiff * playedRatio);
+        float currFreq = endFreq + (freqDiff * playedRatio);
 
         // Change X twice as much as the frequency for complete square cycle
         int changeSignEveryXCycles = audioSettings.audSpecHave.freq / (currFreq * 2);
@@ -335,6 +337,10 @@ void SlideSquare(float startFreq, float endFreq, int length, int magnitude, Uint
             inBuf[c] = squareVal & 0xFF;
             inBuf[c + 1] = squareVal >> 8;
         }
+        
+        /*if (c == destBufferWaveEnd - 2)
+            std::cout << "Current Freq: " << currFreq << "\n";
+            */
     }
 }
 

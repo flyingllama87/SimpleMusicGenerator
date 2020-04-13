@@ -80,6 +80,16 @@ void Menu()
             audioSettings.StopAudio();
         else if (menuInput == 'd')
             TestDrums();
+        else if (menuInput == 'f')
+        {
+            SetupAudio();
+            Uint8 *tempBuf = new Uint8[songSettings.barLenBytes];
+            SlideSquare(440.0f, 880.0f, songSettings.barLenMS, qtrMag, tempBuf, 0);
+            SlideSquare(880.0f, 440.0f, songSettings.barLenMS, qtrMag, tempBuf, 0);
+
+            
+            
+        }
         else if (menuInput == 'e')
             PlayScale();
         else if (menuInput == 't')

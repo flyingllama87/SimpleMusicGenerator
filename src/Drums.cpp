@@ -6,7 +6,10 @@
 //
 
 #include "MusicGen.h"
+
+#ifdef _win64
 #include <Windows.h>
+#endif
 
 void GenDrumBeat(Uint8 *drumBuf, int drumBufLength)
 {
