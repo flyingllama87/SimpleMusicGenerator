@@ -23,6 +23,7 @@
     <ClCompile Include="..\..\src\Bass.cpp" />
     <ClCompile Include="..\..\src\Drums.cpp" />
     <ClCompile Include="..\..\src\Generators.cpp" />
+    <ClCompile Include="..\..\src\Lead.cpp" />
     <ClCompile Include="..\..\src\main.cpp" />
     <ClCompile Include="..\..\src\UtilFunctions.cpp" />
   </ItemGroup>

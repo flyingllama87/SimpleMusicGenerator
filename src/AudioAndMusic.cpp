@@ -108,29 +108,37 @@ void GenAudioStream(void* userdata, Uint8* stream, int len)
                     GenMusicStream();
                 }
 
-                // Evaluate switching musical keys or BPM between thread generations
-                // switch keys?
+                // Evaluate switching musical scales (within key) or BPM between thread generations
+                // switch scales?
                 if (randTestChance > 90 && internalAudioBuffer.backBufferLength == internalAudioBuffer.length)
                 {
-                    // TO DO: Use some music theory, pick the IV, V or vi
-                    char note = (rand() % 7) + 65;
-                    songSettings.keyNote = note;
-                    if (rand() % 2)
-                        songSettings.key = Key::Major;
-                    else
-                        songSettings.key = Key::Minor;
+                    SwitchScale();
 
-                    std::cout << "\n   > RNJesus wants to change the key to: " << songSettings.keyNote << " " << (songSettings.key == Key::Major ? "Major" : "Minor") << "\n";
+                    /* // Old:
+                    char note = (rand() % 7) + 65;
+                    songSettings.scaleNote = note;
+                    if (rand() % 2)
+                        songSettings.scaleType = ScaleType::Major;
+                    else
+                        songSettings.scaleType = ScaleType::Minor;
+
+                    std::cout << "\n   > RNJesus wants to change the key to: " << songSettings.scaleNote << " " << (songSettings.scaleType == ScaleType::Major ? "Major" : "Minor") << "\n";
+                    */
+
                     // reinit
                     songSettings.Init();
                 }
 
                 // switch bpm?
-                if (((randTestChance > 80 && randTestChance < 95) ||
-                    (songSettings.BPM < 110 && randTestChance % 5 == 0)) &&
+                if (((randTestChance > 85 && randTestChance < 95) ||
+                    (songSettings.BPM <= 116 && randTestChance % 4 == 0)) && // Encourage slower songs to speed up
                     internalAudioBuffer.backBufferLength == internalAudioBuffer.length)
                 {
-                    songSettings.BPM = ((rand() % 31) * 4) + 116;
+                    songSettings.BPM = ((rand() % 55) * 4) + 60; // range of 60 - 260 BPM
+
+                    if (songSettings.BPM < 100) // bias for faster BPM
+                        songSettings.BPM = ((rand() % 55) * 4) + 60; // range of 60 - 260 BPM
+
                     std::cout << "\n   > RNJesus wants to change the BPM to: " << songSettings.BPM << "\n";
                     // reinit
                     songSettings.Init();
@@ -293,7 +301,7 @@ void TestArpeggios()
 
     fInputFreq = Notes.getNoteFreq(strInputNoteName);
 
-    auto key = Scale(Key::Major, fInputFreq);
+    auto key = Scale(ScaleType::Major, fInputFreq);
 
     int noteLen = songSettings.noteLenBytes;
 
@@ -466,7 +474,7 @@ void PlayScale()
         std::cout << "\nReceived default note.  Was your input correct?\n";
      */
     
-    auto key = Scale(Key::Major, fInputFreq);
+    auto key = Scale(ScaleType::Major, fInputFreq);
    
     int noteLen = songSettings.noteLenBytes;
 
@@ -502,8 +510,8 @@ void PlayScale()
 // Arpeggio generation
 void GenArp(float freq, int arpLengthMS, int NoteLength, int magnitude, Uint8* inBuf, int currPo, bool slide)
 {
-    Scale key = Scale(songSettings.key, freq);
-    Scale key2 = Scale(songSettings.key, key.notes["8th"]);
+    Scale key = Scale(songSettings.scaleType, freq);
+    Scale key2 = Scale(songSettings.scaleType, key.notes["8th"]);
 
     int arpNoteLenMS = 1000 / NoteLength; // noteLength is either 64th of a second, 32nd of a second, etc.
     int arpNoteLenBytes = arpNoteLenMS * audioSettings.bytesPerMS;
@@ -605,9 +613,9 @@ void ConfigSong(int bpm, char note, int scale, bool lofi)
     songSettings.BPM = bpm;
     songSettings.keyNote = note;
     if (scale > 0)
-        songSettings.key = Key::Major;
+        songSettings.scaleType = ScaleType::Major;
     else
-        songSettings.key = Key::Minor;
+        songSettings.scaleType = ScaleType::Minor;
     
     if (lofi)
     {
@@ -627,11 +635,20 @@ void RandomConfig()
 {
     songSettings.BPM = ((rand() % 45) * 4) + 60;
     char note = (rand() % 7) + 65;
+    // songSettings.scaleNote = note;
     songSettings.keyNote = note;
-    if (rand() % 2)
-        songSettings.key = Key::Major;
-    else
-        songSettings.key = Key::Minor;
+    songSettings.bassBaseScaleFreq = Notes.getNoteFreq(std::string(1, note) + "1");
+    songSettings.leadBaseScaleFreq = Notes.getNoteFreq(std::string(1, note) + "4");
+
+    if (rand() % 2) {
+        songSettings.scaleType = ScaleType::Major;
+        songSettings.keyType = ScaleType::Major;
+    }
+    else {
+        songSettings.scaleType = ScaleType::Minor;
+        songSettings.keyType = ScaleType::Minor;
+
+    }
     
     if (rand() % 2)
     {
@@ -651,7 +668,7 @@ userSettings GetSongSettings(){
     userSettings us;
     us.BPM = songSettings.BPM;
     us.note = songSettings.keyNote[0];
-    if (songSettings.key == Key::Major)
+    if (songSettings.scaleType == ScaleType::Major)
         us.scale = 1;
     else
         us.scale = 0;
@@ -661,12 +678,94 @@ userSettings GetSongSettings(){
 
 
 
-Key OppositeKeyMode(Key key)
+ScaleType OppositeKeyMode(ScaleType key)
 {
-    if (key == Key::Major) {
-        return Key::Minor;
+    if (key == ScaleType::Major) {
+        return ScaleType::Minor;
     }
-    return Key::Major;
+    return ScaleType::Major;
 };
 
 
+// Pick a new scale in existing key with bias towards the I, IV, V & vi keys/chords/scales/whatever terminology. 
+void SwitchScale()
+{
+
+    int newKeyDegree = rand() % 7 + 1;
+
+    // Prefer the 1st, 4th or 5th degree scales of the key.
+    if (newKeyDegree == 2 || newKeyDegree == 3 || newKeyDegree == 7)
+    {
+        std::cout << "Selected discouraged scale degree: " << newKeyDegree << ". Rerolling...\n";
+        newKeyDegree = rand() % 7 + 1;
+    }
+
+    std::pair<float, ScaleType> newBassFreqTypePair = GiveKeyScale(Notes.getNoteFreq(songSettings.keyNote + "1"), songSettings.keyType, newKeyDegree);
+    songSettings.scaleType = newBassFreqTypePair.second;
+    songSettings.bassBaseScaleFreq = newBassFreqTypePair.first;
+
+    std::pair<float, ScaleType> newLeadFreqTypePair = GiveKeyScale(Notes.getNoteFreq(songSettings.keyNote + "4"), songSettings.keyType, newKeyDegree);
+    songSettings.leadBaseScaleFreq = newLeadFreqTypePair.first;
+
+    std::cout << "\n   > RNJesus wants to change the scale to this degree of the song's key: " << newKeyDegree << " which has a frequency of " << newLeadFreqTypePair.first << "f for the lead instrument\n";
+
+    /*
+    char note = (rand() % 7) + 65;
+
+    songSettings.scaleNote = note;
+
+    if (rand() % 2)
+        songSettings.scaleType = ScaleType::Major;
+    else
+        songSettings.scaleType = ScaleType::Minor;
+    */
+}
+
+
+void TestGiveScaleKey()
+{
+
+    Scale CMaj(ScaleType::Major, Notes.getNoteFreq("C4"));
+    std::pair<float, ScaleType> GMajMaybe = GiveKeyScale(CMaj.keyFreq, ScaleType::Major, 5);
+    std::pair<float, ScaleType> GMajDef(Notes.getNoteFreq("G4"), ScaleType::Major);
+
+    std::cout << "GMajMaybe Freq: " << GMajMaybe.first << " GMajDef Freq: " << GMajDef.first << "\n";
+    std::cout << "GMajMaybe Type: " << GMajMaybe.second << " GMajDef Type: " << GMajDef.second << "\n";
+    SDL_assert(GMajDef.first == round(GMajMaybe.first));
+    SDL_assert(GMajDef.second == GMajMaybe.second);
+
+    std::pair<float, ScaleType> EminMaybe = GiveKeyScale(CMaj.keyFreq, ScaleType::Major, 3);
+    std::pair<float, ScaleType> EminDef(Notes.getNoteFreq("E4"), ScaleType::Minor);
+
+    std::cout << "EminMaybe Freq: " << EminMaybe.first << " EminDef Freq: " << EminDef.first << "\n";
+    std::cout << "EminMaybe Type: " << EminMaybe.second << " EminDef Type: " << EminDef.second << "\n";
+    SDL_assert(EminDef.first == round(EminMaybe.first));
+    SDL_assert(EminDef.second == EminMaybe.second);
+
+    std::cout << "Test passed! \n";
+}
+
+// Returns the frequency & scale type of a particular degree in an existing scale.
+std::pair<float, ScaleType> GiveKeyScale(float baseFreq, ScaleType keyType, int newDegree)
+{
+    // Return the input note and key type if the input doesn't make sense.
+    if (newDegree == 1 || newDegree >= 8)
+    {
+        return std::pair<float, ScaleType>(baseFreq, keyType);
+    }
+    
+    // Construct key scale
+    Scale key(keyType, baseFreq); 
+
+    ScaleType newKeyType;
+
+    if (newDegree == 4 || newDegree == 5) // If It's a IV or V use the same key type.
+        newKeyType = keyType;
+    else
+        newKeyType = OppositeKeyMode(keyType);
+
+    newDegree = newDegree - 1;
+    float freqOfScaleDegree = key.freqs[newDegree];
+
+    return std::pair<float, ScaleType>(freqOfScaleDegree, newKeyType);
+}

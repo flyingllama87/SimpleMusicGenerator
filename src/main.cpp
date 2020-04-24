@@ -34,7 +34,7 @@ void Menu()
 {
     while (true) {
 		std::cout << "\nBPM: " << songSettings.BPM << "\n";
-        std::cout << "Key/Scale: " << songSettings.keyNote << " " << (songSettings.key == Key::Major ? "Major" : "Minor") << "\n";
+        std::cout << "Key/Scale: " << songSettings.keyNote << " " << (songSettings.scaleType == ScaleType::Major ? "Major" : "Minor") << "\n";
         std::cout << "LoFi: " << (songSettings.loFi == true ? "Yep" : "Nup") << "\n";
 #ifdef DEBUG_AUDIO
         std::cout << "noteLength(ms): " << songSettings.noteLenMS << "\n";
@@ -53,8 +53,10 @@ void Menu()
             "Press p to pause music generation\n"
             "Press t to test wave/noise/effects generators\n"
             "Press d to test drums\n"
+            "Press f to test sliding square waves\n"
             "Press e to play a major scale\n"
             "Press a to test arpeggios\n"
+            "Press k to test scale/chord progression\n"
             "Press q to quit\n\nAnswer: ";
 
         std::string menuStr;
@@ -71,7 +73,7 @@ void Menu()
             RandomConfig();
 
             std::cout << "\n\nBPM: " << songSettings.BPM << "\n"
-            "Key/Scale: " << songSettings.keyNote << " " << (songSettings.key == Key::Major ? "Major" : "Minor") << "\n"
+            "Key/Scale: " << songSettings.keyNote << " " << (songSettings.scaleType == ScaleType::Major ? "Major" : "Minor") << "\n"
             "LoFi: " << (songSettings.loFi == true ? "Yep" : "Nup") << "\n\n";
             
             SetupAudio(true);
@@ -86,14 +88,13 @@ void Menu()
             Uint8 *tempBuf = new Uint8[songSettings.barLenBytes];
             SlideSquare(440.0f, 880.0f, songSettings.barLenMS, qtrMag, tempBuf, 0);
             SlideSquare(880.0f, 440.0f, songSettings.barLenMS, qtrMag, tempBuf, 0);
-
-            
-            
         }
         else if (menuInput == 'e')
             PlayScale();
         else if (menuInput == 't')
             DebugGenerators();
+        else if (menuInput == 'k')
+            TestGiveScaleKey();
         else if (menuInput == 'q')
         {
             SDL_Quit();
@@ -109,7 +110,7 @@ void ChangeSongSettingsCLI()
     while (!goBack)
     {
         std::cout << "BPM: " << songSettings.BPM << "\n"
-        "Key/Scale: " << songSettings.keyNote << " " << (songSettings.key == Key::Major ? "Major" : "Minor") << "\n"
+        "Key/Scale: " << songSettings.keyNote << " " << (songSettings.scaleType == ScaleType::Major ? "Major" : "Minor") << "\n"
         "LoFi: " << (songSettings.loFi == true ? "Yep" : "Nup") << "\n\n";
         
         std::cout << "What do you want to change?\n"
@@ -141,7 +142,7 @@ void ChangeSongSettingsCLI()
                         std::cout << "Not divisible by 4!\n";
                         continue;
                     }
-                    if (inputBPM > 240 || inputBPM == 0)
+                    if (inputBPM > 300 || inputBPM == 0)
                     {
                         std::cout << "Too fast!\n";
                         continue;
@@ -170,10 +171,10 @@ void ChangeSongSettingsCLI()
             }
             case '3':
             {
-                if (songSettings.key == Key::Major)
-                    songSettings.key = Key::Minor;
+                if (songSettings.scaleType == ScaleType::Major)
+                    songSettings.scaleType = ScaleType::Minor;
                 else
-                    songSettings.key = Key::Major;
+                    songSettings.scaleType = ScaleType::Major;
                 break;
             }
             case '4':

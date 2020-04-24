@@ -44,7 +44,7 @@ struct AudioData
     Uint8* buf;
 };
 
-enum Key { Major, Minor };
+enum ScaleType { Major, Minor };
 
 
 // Functions prototypes
@@ -97,7 +97,11 @@ void SafeFadeIn(Uint8* buffer, int numOfBytes, int currPos);
 void TestArpeggios();
 void GenArp(float freq, int arpLengthMS, int NoteLength, int magnitude, Uint8* inBuf, int currPo, bool slide);
 void PlayScale();
-Key OppositeKeyMode(Key key);
+ScaleType OppositeKeyMode(ScaleType key);
+void TestGiveScaleKey();
+std::pair<float, ScaleType> GiveKeyScale(float baseFreq, ScaleType keyType, int newDegree);
+void SwitchScale();
+
 
 
 // Drums
@@ -210,15 +214,18 @@ struct songSettings
     int prevPatternBass = 0;
     int prevPatternLead = 0;
     std::string keyNote;
-    Key key;
+    ScaleType keyType;
+    float bassBaseScaleFreq;
+    float leadBaseScaleFreq;
+    ScaleType scaleType;
     bool loFi;
     bool inited;
     bool genDrums;
     bool genBass;
     bool genLead;
     bool leadSine = false;
-    bool leadSawtooth = false;
-    bool leadSquare = true;
+    bool leadSawtooth = true;
+    bool leadSquare = false;
     
     AudioData kickSound;
     AudioData snareSound;
@@ -231,7 +238,11 @@ struct songSettings
         this->BPM = 220;
         this->beatsToBar = 4;
         this->keyNote = "A";
-        this->key = Minor;
+        this->keyType = Minor;
+        // Hacky but 'Notes' class isn't available yet.
+        this->bassBaseScaleFreq = 55.0f; // A1 freq
+        this->leadBaseScaleFreq = 440.0f; // A4 freq
+        this->scaleType = Minor;
         this->loFi = false;
         this->inited = false;
         this->genDrums = true;
@@ -371,7 +382,7 @@ static struct Notes
         std::make_pair("F4", 349.23f),
         std::make_pair("E4", 329.60f),
         std::make_pair("D4", 293.67f),
-        std::make_pair("C4", 261.62f),
+        std::make_pair("C4", 261.63f),
         std::make_pair("B2", 123.47f),
         std::make_pair("A2", 110.00f),
         std::make_pair("G2", 98.00f),
@@ -408,9 +419,9 @@ struct Scale
     std::map<std::string, float> notes;
     std::vector<float> freqs;
     
-    Scale(Key key, float freq)
+    Scale(ScaleType key, float freq)
     {
-        if (key == Key::Major)
+        if (key == ScaleType::Major)
             Major(freq);
         else
             Minor(freq);
