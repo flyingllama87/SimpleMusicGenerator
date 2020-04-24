@@ -97,7 +97,7 @@ void SafeFadeIn(Uint8* buffer, int numOfBytes, int currPos);
 void TestArpeggios();
 void GenArp(float freq, int arpLengthMS, int NoteLength, int magnitude, Uint8* inBuf, int currPo, bool slide);
 void PlayScale();
-Key SwitchKeyMode(Key key);
+Key OppositeKeyMode(Key key);
 
 
 // Drums

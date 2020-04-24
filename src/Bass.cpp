@@ -201,7 +201,7 @@ void GenLeadTrack(Uint8* leadBuf, int leadBufLength)
 
     // Select lead pattern
     int pickRandLeadPattern;
-    if (rand() % 5 == 0)
+    if (rand() % 4 == 0)
     {
         pickRandLeadPattern = songSettings.prevPatternLead;
         std::cout << "   > RNJesus wants the lead to play the same pattern as last time... \n";
@@ -403,7 +403,7 @@ void GenLeadTrack(Uint8* leadBuf, int leadBufLength)
             }
             else if (noteCount % 6 == 0 && (arpCount % 7 == 2) && !randMode)
             {
-                Scale tempKey(SwitchKeyMode(songSettings.key), key.freqs[5]);
+                Scale tempKey(OppositeKeyMode(songSettings.key), key.freqs[5]);
                 firstInterval = tempKey.freqs[0];
                 thirdInterval = tempKey.freqs[2];
                 fifthInterval = tempKey.freqs[4];
@@ -569,7 +569,7 @@ void GenLeadTrack(Uint8* leadBuf, int leadBufLength)
             }
             else if (noteCount % 6 == 0 && (arpCount % 7 == 2) && !randMode)
             {
-                Scale tempKey(SwitchKeyMode(songSettings.key), key.freqs[5]);
+                Scale tempKey(OppositeKeyMode(songSettings.key), key.freqs[5]);
                 firstInterval = tempKey.freqs[0];
                 thirdInterval = tempKey.freqs[2];
                 fifthInterval = tempKey.freqs[4];
@@ -910,7 +910,7 @@ void GenLeadTrack(Uint8* leadBuf, int leadBufLength)
     }
 
 #ifdef DEBUG_AUDIO
-    DumpBuffer(leadBuf, drumBufLength, "LeadBuffer.txt");
+    DumpBuffer(leadBuf, leadBufLength, "LeadBuffer.txt");
 #endif
 }
 

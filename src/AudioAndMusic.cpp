@@ -5,12 +5,15 @@
 //  Created by Morgan on 28/2/20.
 //  Copyright © 2020 Morgan. All rights reserved.
 //
-#ifdef _win64
+#ifdef _WIN64
 #include <Windows.h>
 #endif
-#include "MusicGen.h"
-#include <unistd.h>
 
+#include "MusicGen.h"
+
+#ifndef _WIN64
+#include <unistd.h>
+#endif
 
 
 struct audioSettings audioSettings;
@@ -92,7 +95,12 @@ void GenAudioStream(void* userdata, Uint8* stream, int len)
                 internalAudioBuffer.InitBuffer();
                 if (retVal != NULL)
                 {
+#ifndef _WIN64
                     memmove(internalAudioBuffer.buf, internalAudioBuffer.backBuf, std::min(internalAudioBuffer.length, internalAudioBuffer.backBufferLength));
+#else
+                    memmove(internalAudioBuffer.buf, internalAudioBuffer.backBuf, min(internalAudioBuffer.length, internalAudioBuffer.backBufferLength));
+#endif
+
                     internalAudioBuffer.pos = 0;
                 }
                 else {
@@ -118,7 +126,9 @@ void GenAudioStream(void* userdata, Uint8* stream, int len)
                 }
 
                 // switch bpm?
-                if ((randTestChance > 80 || (songSettings.BPM < 110 && randTestChance % 5 == 0)) && internalAudioBuffer.backBufferLength == internalAudioBuffer.length)
+                if (((randTestChance > 80 && randTestChance < 95) ||
+                    (songSettings.BPM < 110 && randTestChance % 5 == 0)) &&
+                    internalAudioBuffer.backBufferLength == internalAudioBuffer.length)
                 {
                     songSettings.BPM = ((rand() % 31) * 4) + 116;
                     std::cout << "\n   > RNJesus wants to change the BPM to: " << songSettings.BPM << "\n";
@@ -294,37 +304,61 @@ void TestArpeggios()
     std::fill_n(scaleBuf, bufLen, 0);
     GenArp(key.notes["1st"], 1000, 64, halfMag, scale.buf, 0, false);
     AudioPlayer(scale);
+#ifndef _WIN64
     usleep(1500);
+#else
+    Sleep(1500);
+#endif
 
     std::cout << "arpeggio with a note length of 64/sec, slide. \n";
     std::fill_n(scaleBuf, bufLen, 0);
     GenArp(key.notes["1st"], 1000, 64, halfMag, scale.buf, 0, true);
     AudioPlayer(scale);
+#ifndef _WIN64
     usleep(1500);
+#else
+    Sleep(1500);
+#endif
 
     std::cout << "arpeggio with a note length of 32/sec, no slide. \n";
     std::fill_n(scaleBuf, bufLen, 0);
     GenArp(key.notes["1st"], 1000, 32, halfMag, scale.buf, 0, false);
     AudioPlayer(scale);
+#ifndef _WIN64
     usleep(1500);
+#else
+    Sleep(1500);
+#endif
 
     std::cout << "arpeggio with a note length of 32/sec, slide. \n";
     std::fill_n(scaleBuf, bufLen, 0);
     GenArp(key.notes["1st"], 1000, 32, halfMag, scale.buf, 0, true);
     AudioPlayer(scale);
+#ifndef _WIN64
     usleep(1500);
+#else
+    Sleep(1500);
+#endif
 
     std::cout << "arpeggio with a note length of 16/sec, no slide. \n";
     std::fill_n(scaleBuf, bufLen, 0);
     GenArp(key.notes["1st"], 1000, 16, halfMag, scale.buf, 0, false);
     AudioPlayer(scale);
+#ifndef _WIN64
     usleep(1500);
+#else
+    Sleep(1500);
+#endif
 
     std::cout << "arpeggio with a note length of 16/sec, slide. \n";
     std::fill_n(scaleBuf, bufLen, 0);
     GenArp(key.notes["1st"], 1000, 16, halfMag, scale.buf, 0, true);
     AudioPlayer(scale);
+#ifndef _WIN64
     usleep(1500);
+#else
+    Sleep(1500);
+#endif
 
 
     scale.length = 500 * audioSettings.bytesPerMS;
@@ -333,42 +367,74 @@ void TestArpeggios()
     std::fill_n(scaleBuf, bufLen, 0);
     GenArp(key.notes["1st"], 500, 32, halfMag, scale.buf, 0, false);
     AudioPlayer(scale);
+#ifndef _WIN64
     usleep(500);
+#else
+    Sleep(500);
+#endif
 
     std::fill_n(scaleBuf, bufLen, 0);
     GenArp(key.notes["3rd"], 500, 32, halfMag, scale.buf, 0, false);
     AudioPlayer(scale);
+#ifndef _WIN64
     usleep(500);
+#else
+    Sleep(500);
+#endif
 
     std::fill_n(scaleBuf, bufLen, 0);
     GenArp(key.notes["1st"], 500, 32, halfMag, scale.buf, 0, false);
     AudioPlayer(scale);
+#ifndef _WIN64
     usleep(500);
+#else
+    Sleep(500);
+#endif
 
     std::fill_n(scaleBuf, bufLen, 0);
     GenArp(key.notes["3rd"], 500, 32, halfMag, scale.buf, 0, false);
     AudioPlayer(scale);
+#ifndef _WIN64
     usleep(500);
+#else
+    Sleep(500);
+#endif
 
     std::fill_n(scaleBuf, bufLen, 0);
     GenArp(key.notes["1st"], 500, 16, halfMag, scale.buf, 0, false);
     AudioPlayer(scale);
+#ifndef _WIN64
     usleep(500);
+#else
+    Sleep(500);
+#endif
 
     std::fill_n(scaleBuf, bufLen, 0);
     GenArp(key.notes["3rd"], 500, 16, halfMag, scale.buf, 0, false);
     AudioPlayer(scale);
+#ifndef _WIN64
     usleep(500);
+#else
+    Sleep(500);
+#endif
 
     std::fill_n(scaleBuf, bufLen, 0);
     GenArp(key.notes["1st"], 500, 16, halfMag, scale.buf, 0, false);
     AudioPlayer(scale);
+#ifndef _WIN64
     usleep(500);
+#else
+    Sleep(500);
+#endif
 
     std::fill_n(scaleBuf, bufLen, 0);
     GenArp(key.notes["3rd"], 500, 16, halfMag, scale.buf, 0, false);
     AudioPlayer(scale);
+#ifndef _WIN64
     usleep(500);
+#else
+    Sleep(500);
+#endif
 
 }
 
@@ -595,11 +661,12 @@ userSettings GetSongSettings(){
 
 
 
-Key SwitchKeyMode(Key key)
+Key OppositeKeyMode(Key key)
 {
     if (key == Key::Major) {
         return Key::Minor;
     }
     return Key::Major;
 };
+
 
