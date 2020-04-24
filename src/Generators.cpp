@@ -562,7 +562,7 @@ void SafeLead(float freq, int length, Uint16 magnitude, Uint8* inBuf, int currPo
     if (songSettings.leadSawtooth)
         SafeSawtooth(freq, length, magnitude, inBuf, currPos);
     else if (songSettings.leadSine)
-        SafeSine(freq, length, magnitude, inBuf, currPos);
+        SafeSine(freq, length, magnitude * 2, inBuf, currPos);
     else
         SafeSquare(freq, length, magnitude, inBuf, currPos);
 

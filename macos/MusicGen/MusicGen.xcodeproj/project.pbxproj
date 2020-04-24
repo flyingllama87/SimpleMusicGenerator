@@ -21,22 +21,11 @@
 		90616CDD240E85E600FCE620 /* libSDL2-2.0.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 90F77FC6240932C700C3DF21 /* libSDL2-2.0.0.dylib */; };
 		909A0269241A3104007E2590 /* SDL.h in Headers */ = {isa = PBXBuildFile; fileRef = 909A0268241A3103007E2590 /* SDL.h */; };
 		909A026A241A3104007E2590 /* SDL.h in Headers */ = {isa = PBXBuildFile; fileRef = 909A0268241A3103007E2590 /* SDL.h */; };
-		90A9DC4B241B823500F077EF /* libMusicGen.a in CopyFiles */ = {isa = PBXBuildFile; fileRef = 90A9DC4A241B823500F077EF /* libMusicGen.a */; };
 		90FCA4862438433400EA41C8 /* Bass.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 90FCA4852438433400EA41C8 /* Bass.cpp */; };
 		90FCA4872438433400EA41C8 /* Bass.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 90FCA4852438433400EA41C8 /* Bass.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
-		900282E724178AE500574BF2 /* CopyFiles */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = /Users/morgan/Desktop/code/PersonalCode/SimpleMusicGenerator/iOS/SimpleMusicGen/libs;
-			dstSubfolderSpec = 0;
-			files = (
-				90A9DC4B241B823500F077EF /* libMusicGen.a in CopyFiles */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		90F77FAD240931C800C3DF21 /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -67,6 +56,7 @@
 		905F7D5B240C7549001B4099 /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = main.cpp; path = ../../src/main.cpp; sourceTree = "<group>"; };
 		905F7D5C240C7549001B4099 /* AudioAndMusic.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = AudioAndMusic.cpp; path = ../../src/AudioAndMusic.cpp; sourceTree = "<group>"; };
 		905F7D5D240C7549001B4099 /* MusicGen.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MusicGen.h; path = ../../src/MusicGen.h; sourceTree = "<group>"; };
+		906FBC292451345200CDD068 /* MusicGen.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = MusicGen.xcodeproj; sourceTree = "<group>"; };
 		909A0268241A3103007E2590 /* SDL.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SDL.h; path = ../../SDL2_src/include/SDL.h; sourceTree = "<group>"; };
 		90A9DC4A241B823500F077EF /* libMusicGen.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libMusicGen.a; path = DerivedData/MusicGen/Build/Products/libMusicGen.a; sourceTree = "<group>"; };
 		90F77FAF240931C800C3DF21 /* MusicGen */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = MusicGen; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -115,9 +105,15 @@
 			name = MusicGenerator;
 			sourceTree = "<group>";
 		};
+		906FBC2A2451345200CDD068 /* Products */ = {
+			isa = PBXGroup;
+			name = Products;
+			sourceTree = "<group>";
+		};
 		90F77FA6240931C700C3DF21 = {
 			isa = PBXGroup;
 			children = (
+				906FBC292451345200CDD068 /* MusicGen.xcodeproj */,
 				90A9DC4A241B823500F077EF /* libMusicGen.a */,
 				909A0268241A3103007E2590 /* SDL.h */,
 				905F7D57240C751D001B4099 /* MusicGenerator */,
@@ -178,7 +174,6 @@
 				900282E524178AE500574BF2 /* Sources */,
 				900282E624178AE500574BF2 /* Frameworks */,
 				90A9DC45241B7F7000F077EF /* Run Script */,
-				900282E724178AE500574BF2 /* CopyFiles */,
 			);
 			buildRules = (
 			);
@@ -237,6 +232,12 @@
 			mainGroup = 90F77FA6240931C700C3DF21;
 			productRefGroup = 90F77FB0240931C800C3DF21 /* Products */;
 			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = 906FBC2A2451345200CDD068 /* Products */;
+					ProjectRef = 906FBC292451345200CDD068 /* MusicGen.xcodeproj */;
+				},
+			);
 			projectRoot = "";
 			targets = (
 				90F77FAE240931C800C3DF21 /* MusicGen */,
@@ -311,7 +312,7 @@
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				VALID_ARCHS = "arm64 arm64e armv7 armv7s x86_64";
+				VALID_ARCHS = "arm64 arm64e x86_64";
 			};
 			name = Debug;
 		};
@@ -331,7 +332,7 @@
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VALIDATE_PRODUCT = YES;
-				VALID_ARCHS = "arm64 arm64e armv7 armv7s x86_64";
+				VALID_ARCHS = "arm64 arm64e x86_64";
 			};
 			name = Release;
 		};
