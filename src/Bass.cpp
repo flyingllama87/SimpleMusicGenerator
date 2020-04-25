@@ -34,8 +34,8 @@ void GenBassTrack(Uint8* bassBuf, int bassBufLength)
         pickRandBassPattern = rand() % 11;
 
     // discourage these
-    if (pickRandBassPattern == 1) {
-        std::cout << "Selected discouraged bass pattern: " << pickRandBassPattern << ". Rerolling...\n";
+    if (pickRandBassPattern == 1 || pickRandBassPattern == 4) {
+        //std::cout << "Selected discouraged bass pattern: " << pickRandBassPattern << ". Rerolling...\n";
         pickRandBassPattern = rand() % 11;
     }
 

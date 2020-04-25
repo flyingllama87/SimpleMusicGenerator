@@ -225,7 +225,7 @@ void GenMusicStream()
 int WriteMusicBuffer(void* ptr)
 {
 
-    std::cout << "\nComing up section in 4/4 timing:\n";
+    std::cout << "\n** Upcoming section: **\n";
 
     // Seed random number gen in callback thread
 #ifdef _WIN64
@@ -638,7 +638,7 @@ void RandomConfig()
     // songSettings.scaleNote = note;
     songSettings.keyNote = note;
     songSettings.bassBaseScaleFreq = Notes.getNoteFreq(std::string(1, note) + "1");
-    songSettings.leadBaseScaleFreq = Notes.getNoteFreq(std::string(1, note) + "4");
+    songSettings.leadBaseScaleFreq = Notes.getNoteFreq(std::string(1, note) + "3");
 
     if (rand() % 2) {
         songSettings.scaleType = ScaleType::Major;
@@ -704,10 +704,10 @@ void SwitchScale()
     songSettings.scaleType = newBassFreqTypePair.second;
     songSettings.bassBaseScaleFreq = newBassFreqTypePair.first;
 
-    std::pair<float, ScaleType> newLeadFreqTypePair = GiveKeyScale(Notes.getNoteFreq(songSettings.keyNote + "4"), songSettings.keyType, newKeyDegree);
+    std::pair<float, ScaleType> newLeadFreqTypePair = GiveKeyScale(Notes.getNoteFreq(songSettings.keyNote + "3"), songSettings.keyType, newKeyDegree);
     songSettings.leadBaseScaleFreq = newLeadFreqTypePair.first;
 
-    std::cout << "\n   > RNJesus wants to change the scale to this degree of the song's key: " << newKeyDegree << " which has a frequency of " << newLeadFreqTypePair.first << "f for the lead instrument\n";
+    std::cout << "\n   > RNJesus wants to change the scale to this degree of the song's key: " << newKeyDegree << " which has a frequency of " << newLeadFreqTypePair.first << "hz for the lead instrument\n";
 
     /*
     char note = (rand() % 7) + 65;
