@@ -113,25 +113,27 @@ void GenAudioStream(void* userdata, Uint8* stream, int len)
                 if (randTestChance > 90 && internalAudioBuffer.backBufferLength == internalAudioBuffer.length)
                 {
                     SwitchScale();
+                }
 
-                    /* // Old:
+                // switch keys?
+                if (randTestChance > 20 && randTestChance < 25 && internalAudioBuffer.backBufferLength == internalAudioBuffer.length)
+                {
                     char note = (rand() % 7) + 65;
-                    songSettings.scaleNote = note;
+                    songSettings.keyNote = note;
                     if (rand() % 2)
                         songSettings.scaleType = ScaleType::Major;
                     else
                         songSettings.scaleType = ScaleType::Minor;
 
-                    std::cout << "\n   > RNJesus wants to change the key to: " << songSettings.scaleNote << " " << (songSettings.scaleType == ScaleType::Major ? "Major" : "Minor") << "\n";
-                    */
+                    songSettings.bassBaseScaleFreq = Notes.getNoteFreq(songSettings.keyNote + "1");
+                    songSettings.leadBaseScaleFreq = Notes.getNoteFreq(songSettings.keyNote + "3");
 
-                    // reinit
-                    songSettings.Init();
+                    std::cout << "\n   > RNJesus wants to change the key to: " << songSettings.keyNote << " " << (songSettings.scaleType == ScaleType::Major ? "Major" : "Minor") << "\n";
                 }
 
                 // switch bpm?
                 if (((randTestChance > 85 && randTestChance < 95) ||
-                    (songSettings.BPM <= 116 && randTestChance % 4 == 0)) && // Encourage slower songs to speed up
+                    (songSettings.BPM <= 140 && randTestChance % 4 == 0)) && // Encourage slower songs to speed up
                     internalAudioBuffer.backBufferLength == internalAudioBuffer.length)
                 {
                     songSettings.BPM = ((rand() % 55) * 4) + 60; // range of 60 - 260 BPM

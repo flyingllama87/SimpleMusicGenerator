@@ -397,14 +397,14 @@ void GenDrumBeat(Uint8 *drumBuf, int drumBufLength)
     }
     case 12:
     {
-        std::cout << "Playing drum pattern: " << pickRandDrumPattern << " - Random 8/8 \n";
+        std::cout << "Playing drum pattern: " << pickRandDrumPattern << " - Random 8 drum notes \n";
 
         int const beatsPerBar = 8;
         int beats[beatsPerBar];
 
         for (int c = 0; c < beatsPerBar; c++)
         {
-            beats[c] = rand() % 4;
+            beats[c] = rand() % 5;
         }
 
         AudioData randDrum;
