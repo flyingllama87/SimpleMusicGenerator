@@ -130,7 +130,7 @@ void GenAudioStream(void* userdata, Uint8* stream, int len)
 
                     std::cout << "\n   > RNJesus wants to change the key to: " << songSettings.keyNote << " " << (songSettings.scaleType == ScaleType::Major ? "Major" : "Minor") << "\n";
                 }
-
+                    
                 // switch bpm?
                 if (((randTestChance > 85 && randTestChance < 95) ||
                     (songSettings.BPM <= 140 && randTestChance % 4 == 0)) && // Encourage slower songs to speed up
@@ -542,7 +542,7 @@ void GenArp(float freq, int arpLengthMS, int NoteLength, int magnitude, Uint8* i
         }
         SafeLead(key.notes["7th"], arpNoteLenMS, magnitude, inBuf, currPo + (arpNoteLenBytes * noteCounter));
         noteCounter++;
-        /*
+        
         if (slide) {
             SlideSquare(key2.notes["1st"], key2.notes["3rd"], arpNoteLenMS, magnitude, inBuf, currPo + (arpNoteLenBytes * noteCounter));
             noteCounter++;
@@ -554,7 +554,7 @@ void GenArp(float freq, int arpLengthMS, int NoteLength, int magnitude, Uint8* i
             noteCounter++;
         }
         SafeLead(key2.notes["5th"], arpNoteLenMS, magnitude, inBuf, currPo + (arpNoteLenBytes * noteCounter));
-        noteCounter++;*/
+        noteCounter++;
     }
 }
 

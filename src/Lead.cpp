@@ -54,6 +54,23 @@ void GenLeadTrack(Uint8* leadBuf, int leadBufLength)
         }
     }
 
+    std::cout << "songSettings.leadBaseScaleFreq: " << songSettings.leadBaseScaleFreq << "\n";
+    // switch lead between 3rd and 4th octave? 250f is threshold of B3/C4
+    if ((songSettings.leadBaseScaleFreq < 300.0f && rand() % 10 == 4) &&
+        internalAudioBuffer.backBufferLength == internalAudioBuffer.length)
+    {
+        const float twelthRootOf2 = powf(2.0f, 1.0f / 12.0f);
+        songSettings.leadBaseScaleFreq = songSettings.leadBaseScaleFreq * powf(twelthRootOf2, 12.0f);
+        std::cout << "   > RNJesus wants to switch the lead up an octave \n";
+    }
+    else if ((songSettings.leadBaseScaleFreq > 300.0f && rand() % 6 == 1) &&
+        internalAudioBuffer.backBufferLength == internalAudioBuffer.length)
+    {
+        const float twelthRootOf2 = powf(2.0f, 1.0f / 12.0f);
+        songSettings.leadBaseScaleFreq = songSettings.leadBaseScaleFreq * powf(twelthRootOf2, -12.0f);
+        std::cout << "   > RNJesus wants to switch the lead down an octave \n";
+    }
+
     // Select lead pattern
     int pickRandLeadPattern;
     // The following patterns don't sound great when repeated back to back
@@ -362,7 +379,7 @@ void GenLeadTrack(Uint8* leadBuf, int leadBufLength)
     {
         for (int c = 0; c < leadBufLength; c += (songSettings.qtrNoteLenBytes)) // 16 notes to bar
         {
-            int chooseNote = rand() % 9;
+            int chooseNote = rand() % 10;
 
             if (chooseNote < 8)
             {
@@ -538,7 +555,7 @@ void GenLeadTrack(Uint8* leadBuf, int leadBufLength)
             if (newKeyDegree == 2 || newKeyDegree == 3 || newKeyDegree == 7)
                 newKeyDegree = rand() % 7 + 1;
 
-            std::pair<float, ScaleType> newArpFreqTypePair = GiveKeyScale(Notes.getNoteFreq(songSettings.keyNote + "2"), songSettings.keyType, newKeyDegree);
+            std::pair<float, ScaleType> newArpFreqTypePair = GiveKeyScale(Notes.getNoteFreq(songSettings.keyNote + "3"), songSettings.keyType, newKeyDegree);
 
             Scale tempKey(newArpFreqTypePair.second, newArpFreqTypePair.first);
 

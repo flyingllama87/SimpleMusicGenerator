@@ -241,7 +241,7 @@ struct songSettings
         this->keyType = Minor;
         // Hacky but 'Notes' class isn't available yet.
         this->bassBaseScaleFreq = 55.0f; // A1 freq
-        this->leadBaseScaleFreq = 440.0f; // A4 freq
+        this->leadBaseScaleFreq = 220.0f; // A3 freq
         this->scaleType = Minor;
         this->loFi = false;
         this->inited = false;
