@@ -7,7 +7,11 @@
 //
 
 #include "MusicGen.h"
+#include <fstream>
 
+#ifdef _WIN64
+#include <Windows.h>
+#endif
 
 // Helper functions
 
@@ -82,3 +86,37 @@ void SafeMemCopy(Uint8* destBuf, Uint8* srcBuf, Uint32 srcBufLen, int c, int des
 
 }
 
+
+// This generates a number by summing together the numeric values of all characters in a word.
+unsigned WordToNumber(std::string word)
+{
+    unsigned num = 0;
+
+    for (int c = 0; c < word.length(); c++)
+    {
+        num += (int)word[c];
+    }
+    return num * word.length();
+}
+
+// This selects a random word from the word list.
+std::string RandomWordFromWordList()
+{
+#ifdef _WIN64
+    LARGE_INTEGER cicles;
+    QueryPerformanceCounter(&cicles);
+    std::srand(cicles.QuadPart);
+#endif
+
+    int linesInFile = 7776;
+    int randLineNum = rand() % linesInFile;
+    std::string word = "";
+    std::ifstream wordList("wordlist.txt");
+    // Seed random number gen in background thread
+    for (int c = 0; c < randLineNum; c++)
+    {
+        getline(wordList, word);
+
+    }
+    return word;
+}

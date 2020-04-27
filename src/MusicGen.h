@@ -120,6 +120,11 @@ bool stringIsFloat (const std::string& s);
 bool stringIsInt (const std::string& s);
 bool IsANote(std::string str);
 
+// RNG functions
+unsigned WordToNumber(std::string word);
+std::string RandomWordFromWordList();
+
+
 // Structs
 
 struct audioSettings
@@ -226,6 +231,9 @@ struct songSettings
     bool leadSine = false;
     bool leadSawtooth = true;
     bool leadSquare = false;
+    std::string rngSeedString = "unselfish";
+    int rngSeed;
+
     
     AudioData kickSound;
     AudioData snareSound;

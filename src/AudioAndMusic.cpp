@@ -26,11 +26,10 @@ void GenAudioStream(void* userdata, Uint8* stream, int len)
     static SDL_Thread* backBufferThread;
 
     // Seed random number gen in callback thread
-#ifdef _WIN64
-    LARGE_INTEGER cicles;
-    QueryPerformanceCounter(&cicles);
-    std::srand(cicles.QuadPart);
-#endif
+    songSettings.rngSeed += 1;
+    std::srand(songSettings.rngSeed);
+
+
 
     /*
     int noOfSamplesRequested = len / 2;
@@ -229,12 +228,9 @@ int WriteMusicBuffer(void* ptr)
 
     std::cout << "\n** Upcoming section: **\n";
 
-    // Seed random number gen in callback thread
-#ifdef _WIN64
-    LARGE_INTEGER cicles;
-    QueryPerformanceCounter(&cicles);
-    std::srand(cicles.QuadPart);
-#endif
+    // Seed random number gen in background thread
+    songSettings.rngSeed += 1;
+    std::srand(songSettings.rngSeed);
 
     Uint8* inBuf = (Uint8*)ptr;
 
@@ -589,6 +585,8 @@ void PlayWAV(std::string fileName)
 
 void SetupAudio(bool callback)
 {
+    songSettings.rngSeed = WordToNumber(songSettings.rngSeedString);
+    std::cout << "Seed word: " << songSettings.rngSeedString << "\n";
     audioSettings.Init(callback);
     songSettings.Init();
     internalAudioBuffer.Init();
@@ -635,6 +633,8 @@ void ConfigSong(int bpm, char note, int scale, bool lofi)
 
 void RandomConfig()
 {
+    songSettings.rngSeedString = RandomWordFromWordList();
+
     songSettings.BPM = ((rand() % 45) * 4) + 60;
     char note = (rand() % 7) + 65;
     // songSettings.scaleNote = note;

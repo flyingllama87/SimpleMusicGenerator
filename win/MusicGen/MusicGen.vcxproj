@@ -30,6 +30,9 @@
   <ItemGroup>
     <ClInclude Include="..\..\src\MusicGen.h" />
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="wordlist.txt" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <ProjectGuid>{A40CB9AB-7BA1-46FF-9A08-33AD483C6B66}</ProjectGuid>

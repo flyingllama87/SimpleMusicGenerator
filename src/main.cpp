@@ -16,13 +16,9 @@ int main(int argc, char* argv[])
         std::cout << "SDL initialised!!\n";
     }
 
-    // Seed random number gen
-
-#ifdef _WIN64
-    LARGE_INTEGER cicles;
-    QueryPerformanceCounter(&cicles);
-    std::srand(cicles.QuadPart);
-#endif
+    // Seed random number gen in main thread
+    songSettings.rngSeed += 1;
+    std::srand(songSettings.rngSeed);
 
     Menu();
 
@@ -91,6 +87,12 @@ void Menu()
         }
         else if (menuInput == 'e')
             PlayScale();
+        else if (menuInput == 'm')
+        {
+            std::string word = RandomWordFromWordList();
+            unsigned int numRep = WordToNumber(word);
+            std::cout << "The word is " << word << " and in numeric form that is " << std::to_string(numRep) << "\n";
+        }
         else if (menuInput == 't')
             DebugGenerators();
         else if (menuInput == 'k')

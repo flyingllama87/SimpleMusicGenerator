@@ -54,7 +54,6 @@ void GenLeadTrack(Uint8* leadBuf, int leadBufLength)
         }
     }
 
-    std::cout << "songSettings.leadBaseScaleFreq: " << songSettings.leadBaseScaleFreq << "\n";
     // switch lead between 3rd and 4th octave? 250f is threshold of B3/C4
     if ((songSettings.leadBaseScaleFreq < 300.0f && rand() % 10 == 4) &&
         internalAudioBuffer.backBufferLength == internalAudioBuffer.length)
