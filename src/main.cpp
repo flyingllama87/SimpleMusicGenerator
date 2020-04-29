@@ -69,9 +69,9 @@ void Menu()
             RandomConfig();
 
             std::cout << "\n\nBPM: " << songSettings.BPM << "\n"
-            "Key/Scale: " << songSettings.keyNote << " " << (songSettings.scaleType == ScaleType::Major ? "Major" : "Minor") << "\n"
-            "LoFi: " << (songSettings.loFi == true ? "Yep" : "Nup") << "\n\n";
-            
+                "Key/Scale: " << songSettings.keyNote << " " << (songSettings.scaleType == ScaleType::Major ? "Major" : "Minor") << "\n"
+                "LoFi: " << (songSettings.loFi == true ? "Yep" : "Nup") << "\n\n";
+
             SetupAudio(true);
         }
         else if (menuInput == 'p')

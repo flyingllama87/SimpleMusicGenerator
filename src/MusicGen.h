@@ -34,7 +34,7 @@
 // Magnitude settings.  Relies on 16 bit ints at the moment.  Should switch to float vals?
 #define fullMag 65535
 #define halfMag 32767
-#define qtrMag 16383
+#define qtrMag 12000 // 16383
 
 // This struct needs to be at the top for reasons
 
@@ -92,6 +92,8 @@ void FadeIn(Uint8* buffer, int numOfSamples);
 void FadeOut(Uint8* buffer, int numOfSamples);
 void SafeFadeOut(Uint8* buffer, int numOfBytes, int currPos);
 void SafeFadeIn(Uint8* buffer, int numOfBytes, int currPos);
+void Reverb(short* inL, short* outL, int bufLen);
+void DebugReverb();
 
 // Music
 void TestArpeggios();
@@ -102,7 +104,8 @@ void TestGiveScaleKey();
 std::pair<float, ScaleType> GiveKeyScale(float baseFreq, ScaleType keyType, int newDegree);
 void SwitchScale();
 
-
+// Temp
+void InitReverb();
 
 // Drums
 void GenDrumBeat(Uint8* drumBuf, int drumBufLength);
@@ -157,6 +160,7 @@ struct audioSettings
         }
 
         device = SDL_OpenAudioDevice(NULL, 0, &audSpecWant, &audSpecHave, 0);
+        InitReverb();
         
 #ifdef DEBUG_AUDIO
         std::cout << "\n\nBit Size: " << SDL_AUDIO_BITSIZE(audSpecHave.format) << "\n";

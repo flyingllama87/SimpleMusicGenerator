@@ -25,7 +25,7 @@ void GenDrumBeat(Uint8 *drumBuf, int drumBufLength)
 
     // Select drum pattern
     int pickRandDrumPattern;
-    if (rand() % 3 == 0)
+    if (rand() % 2 == 0)
     {
         std::cout << "   > RNJesus wants the drums to play the same pattern as last time... \n";
         pickRandDrumPattern = songSettings.prevPatternDrums;

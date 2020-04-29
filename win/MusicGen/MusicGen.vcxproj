@@ -25,10 +25,12 @@
     <ClCompile Include="..\..\src\Generators.cpp" />
     <ClCompile Include="..\..\src\Lead.cpp" />
     <ClCompile Include="..\..\src\main.cpp" />
+    <ClCompile Include="..\..\src\reverb.cpp" />
     <ClCompile Include="..\..\src\UtilFunctions.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\MusicGen.h" />
+    <ClInclude Include="..\..\src\reverb.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="wordlist.txt" />

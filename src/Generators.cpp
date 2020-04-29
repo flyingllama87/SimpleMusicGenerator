@@ -85,6 +85,36 @@ void DebugGenerators()
     delete[] waveBuffer;
 }
 
+void DebugReverb()
+{
+    SetupAudio();
+
+    Uint32 waveLength = 2000 * audioSettings.samplesPerMS * 2;
+    Uint8* waveBuffer = new Uint8[waveLength]();
+    short* waveBuffer16 = new short[waveLength / 2]();
+    short* waveBuffer16ReverbOut = new short[waveLength / 2]();
+
+
+    AudioData tempAD;
+
+    tempAD.length = waveLength;
+    //tempAD.buf = new Uint8[tempAD.length];
+    tempAD.buf = waveBuffer;
+
+    // Sawtooth
+    waveBuffer16 = Sawtooth(440, 2000, halfMag);
+    c16to8(waveBuffer16, waveLength / 4, waveBuffer);
+    DumpBuffer(waveBuffer, waveLength, "Sawtooth16.txt");
+    AudioPlayer(tempAD);
+
+    Reverb(waveBuffer16, waveBuffer16ReverbOut, waveLength);
+    c16to8(waveBuffer16ReverbOut, waveLength / 4, waveBuffer);
+    DumpBuffer(waveBuffer, waveLength, "SawtoothR16.txt");
+    AudioPlayer(tempAD);
+
+
+}
+
 void Noise(float length, bool lowPitch, Uint8 *inBuf, int magnitude) // expects length in MS
 {
     Uint32 waveLength = audioSettings.samplesPerMS * length * 2;

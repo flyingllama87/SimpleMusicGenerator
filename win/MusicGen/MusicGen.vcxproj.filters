@@ -13,6 +13,9 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Source Files\Reverb">
+      <UniqueIdentifier>{2f9f4eb8-1612-436b-9937-c07439f45061}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\AudioAndMusic.cpp">
@@ -36,10 +39,16 @@
     <ClCompile Include="..\..\src\Lead.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\reverb.cpp">
+      <Filter>Source Files\Reverb</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\MusicGen.h">
       <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\reverb.h">
+      <Filter>Source Files\Reverb</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

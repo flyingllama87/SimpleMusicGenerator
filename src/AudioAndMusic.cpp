@@ -252,14 +252,30 @@ int WriteMusicBuffer(void* ptr)
     if (songSettings.genLead)
         GenLeadTrack(leadBuf, internalAudioBuffer.backBufferLength);
 
+
     if (songSettings.genDrums)
         SDL_MixAudioFormat(inBuf, drumBuf, sampleFmt, internalAudioBuffer.backBufferLength, SDL_MIX_MAXVOLUME);
 
     if (songSettings.genBass)
         SDL_MixAudioFormat(inBuf, bassBuf, sampleFmt, internalAudioBuffer.backBufferLength, SDL_MIX_MAXVOLUME);
 
+    Uint8* leadOutBuf = new Uint8[internalAudioBuffer.backBufferLength]();
+    short* leadOutBuf16 = new short[internalAudioBuffer.backBufferLength]();
+    short* leadBuf16 = new short[internalAudioBuffer.backBufferLength]();
+
     if (songSettings.genLead)
+    {
+        
+        // Mix in reverb
+        // convert to 16 bit buf
+        memcpy(&leadBuf16[0], &leadBuf[0], internalAudioBuffer.backBufferLength);
+        //Apply reverb and fill out 16 bit buf
+        Reverb(leadBuf16, leadOutBuf16, internalAudioBuffer.backBufferLength);
+        c16to8(leadOutBuf16, internalAudioBuffer.backBufferLength / 2, leadOutBuf);
+        SDL_MixAudioFormat(leadBuf, leadOutBuf, sampleFmt, internalAudioBuffer.backBufferLength, SDL_MIX_MAXVOLUME);
+        
         SDL_MixAudioFormat(inBuf, leadBuf, sampleFmt, internalAudioBuffer.backBufferLength, SDL_MIX_MAXVOLUME);
+    }
 
 #ifdef DEBUG_BUFFERS
     DumpBuffer(drumBuf, internalAudioBuffer.length, "DrumBuffer.txt");
@@ -272,6 +288,9 @@ int WriteMusicBuffer(void* ptr)
     delete[] drumBuf;
     delete[] bassBuf;
     delete[] leadBuf;
+    delete[] leadOutBuf;
+    delete[] leadOutBuf16;
+    delete[] leadBuf16;
 
     return 1;
 }
@@ -652,7 +671,7 @@ void RandomConfig()
 
     }
     
-    if (rand() % 2)
+    /*if (rand() % 2)
     {
         songSettings.loFi = true;
         audioSettings.audSpecWant.freq = 8000;
@@ -662,7 +681,7 @@ void RandomConfig()
         songSettings.loFi = false;
         audioSettings.audSpecWant.freq = 48000;
         audioSettings.audSpecWant.samples = 32768;
-    }
+    }*/
 }
 
 
