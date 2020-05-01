@@ -1,4 +1,10 @@
-﻿#define META 128 // 44
+﻿
+// Taken from https://github.com/SergeiGorskiy/IFMO_Reverb.git
+// Modified for Single Channel
+// Cruft Removed
+// Comments translated by Google Translate
+
+#define META 128 // 44
 
 #define _CRT_SECURE_NO_WARNINGS
 

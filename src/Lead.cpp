@@ -1,5 +1,5 @@
 //
-//  Drums.cpp
+//  Lead.cpp
 //
 //  Created by Morgan on 28/2/20.
 //  Copyright © 2020 Morgan. All rights reserved.
@@ -10,17 +10,6 @@
 
 void GenLeadTrack(Uint8* leadBuf, int leadBufLength)
 {
-    // Get base note for lead
-
-    /*std::string leadScaleNote;
-    leadScaleNote.append(songSettings.scaleNote);
-    leadScaleNote.append("4"); // octave for lead
-
-#ifdef DEBUG_AUDIO
-    std::cout << "Lead base scale note: " << leadScaleNote << "\n";
-#endif
-    */
-
     // Construct key scale
     Scale key(songSettings.scaleType, songSettings.leadBaseScaleFreq);
 
@@ -32,7 +21,7 @@ void GenLeadTrack(Uint8* leadBuf, int leadBufLength)
 
         if (instrument == 0) // saw
         {
-            std::cout << "sawtooth\n";
+            std::cout << "sawtooth wave\n";
             songSettings.leadSine = false;
             songSettings.leadSquare = false;
             songSettings.leadSawtooth = true;
@@ -40,14 +29,14 @@ void GenLeadTrack(Uint8* leadBuf, int leadBufLength)
         }
         else if (instrument == 1) // sine
         {
-            std::cout << "sine\n";
+            std::cout << "sine wave\n";
             songSettings.leadSine = true;
             songSettings.leadSquare = false;
             songSettings.leadSawtooth = false;
         }
         else // square
         {
-            std::cout << "square\n";
+            std::cout << "square wave\n";
             songSettings.leadSine = false;
             songSettings.leadSquare = true;
             songSettings.leadSawtooth = false;
@@ -842,9 +831,5 @@ void GenLeadTrack(Uint8* leadBuf, int leadBufLength)
 
     songSettings.prevPatternLead = pickRandLeadPattern;
 
-
-#ifdef DEBUG_AUDIO
-    DumpBuffer(leadBuf, leadBufLength, "LeadBuffer.txt");
-#endif
 }
 

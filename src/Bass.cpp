@@ -1,5 +1,5 @@
 //
-//  Drums.cpp
+//  Bass.cpp
 //
 //  Created by Morgan on 28/2/20.
 //  Copyright © 2020 Morgan. All rights reserved.
@@ -10,16 +10,6 @@
 
 void GenBassTrack(Uint8* bassBuf, int bassBufLength)
 {
-    // Get base note for bass
-    /* std::string bassScaleNote;
-    bassScaleNote.append(songSettings.scaleNote);
-    bassScaleNote.append("1"); // octave for bass
-    
-#ifdef DEBUG_AUDIO
-    std::cout << "Bass base scale note: " << bassScaleNote << "\n";
-#endif
-    */
-    
     // Construct key scale
     Scale key(songSettings.scaleType, songSettings.bassBaseScaleFreq);
     
@@ -41,10 +31,9 @@ void GenBassTrack(Uint8* bassBuf, int bassBufLength)
 
     songSettings.prevPatternBass = pickRandBassPattern;
 
-    //DEBUG
+    //TESTING
     //pickRandBassPattern = 5;
-    //DEBUG
-
+    //TESTING
 
     std::cout << "Playing bass pattern: " << pickRandBassPattern << "\n";
 
@@ -158,7 +147,6 @@ void GenBassTrack(Uint8* bassBuf, int bassBufLength)
         float Note2 = key.freqs[mtRNG() % 8];
         float Note3 = key.freqs[mtRNG() % 8];
         float Note4 = key.freqs[mtRNG() % 8];
-
 
         for (int c = 0; c < bassBufLength; c += songSettings.halfNoteLenBytes)
         {
@@ -318,12 +306,5 @@ void GenBassTrack(Uint8* bassBuf, int bassBufLength)
         break;
     }
 
-#ifdef DEBUG_AUDIO
-    DumpBuffer(bassBuf, bassBufLength, "BassBuffer.txt");
-#endif
 }
-
-
-
-
 

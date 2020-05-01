@@ -45,13 +45,13 @@ void GenAudioStream(void* userdata, Uint8* stream, int len)
     {
         //Generate the music stream on the main thread the first time only.
         internalAudioBuffer.pos = 0;
-        GenMusicToBuf(internalAudioBuffer.buf);
+        GenMusic(internalAudioBuffer.buf);
 
         memcpy(stream, &internalAudioBuffer.buf[internalAudioBuffer.pos], len);
         internalAudioBuffer.pos += len;
 
         // Fill back buffer
-        backBufferThread = SDL_CreateThread(GenMusicToBuf, "backBuffer", internalAudioBuffer.backBuf);
+        backBufferThread = SDL_CreateThread(GenMusic, "backBuffer", internalAudioBuffer.backBuf);
         if (NULL == backBufferThread)
             printf("SDL_CreateThread failed: %s\n", SDL_GetError());
 
@@ -104,48 +104,11 @@ void GenAudioStream(void* userdata, Uint8* stream, int len)
                     std::cout << "***ERROR*** Something happened with the BG thread!!! \n";
                 }
 
-                // Evaluate switching musical scales (within key) or BPM between thread generations
-                // switch scales?
-                if (randTestChance > 90 && internalAudioBuffer.backBufferLength == internalAudioBuffer.length)
-                {
-                    SwitchScale();
-                }
-
-                // switch keys?
-                if (randTestChance > 20 && randTestChance < 25 && internalAudioBuffer.backBufferLength == internalAudioBuffer.length)
-                {
-                    char note = (mtRNG() % 7) + 65;
-                    songSettings.keyNote = note;
-                    if (mtRNG() % 2)
-                        songSettings.scaleType = ScaleType::Major;
-                    else
-                        songSettings.scaleType = ScaleType::Minor;
-
-                    songSettings.bassBaseScaleFreq = Notes.getNoteFreq(songSettings.keyNote + "1");
-                    songSettings.leadBaseScaleFreq = Notes.getNoteFreq(songSettings.keyNote + "3");
-
-                    std::cout << "\n   > RNJesus wants to change the key to: " << songSettings.keyNote << " " << (songSettings.scaleType == ScaleType::Major ? "Major" : "Minor") << "\n";
-                }
-                    
-                // switch bpm?
-                if (((randTestChance > 85 && randTestChance < 95) ||
-                    (songSettings.BPM <= 140 && randTestChance % 4 == 0)) && // Encourage slower songs to speed up
-                    internalAudioBuffer.backBufferLength == internalAudioBuffer.length)
-                {
-                    songSettings.BPM = ((mtRNG() % 55) * 4) + 60; // range of 60 - 260 BPM
-
-                    if (songSettings.BPM < 100) // bias for faster BPM
-                        songSettings.BPM = ((mtRNG() % 55) * 4) + 60; // range of 60 - 260 BPM
-
-                    std::cout << "\n   > RNJesus wants to change the BPM to: " << songSettings.BPM << "\n";
-                    // reinit
-                    songSettings.Init();
-                    internalAudioBuffer.InitBackBuffer();
-                }
+                void RNJesusSongSettings(int randTestChance);
 
                 // Launch new thread to generate music to backBuffer
                 // std::cout << "Launching new BG thread to generate next section. \n";
-                backBufferThread = SDL_CreateThread(GenMusicToBuf, "backBuffer", internalAudioBuffer.backBuf);
+                backBufferThread = SDL_CreateThread(GenMusic, "backBuffer", internalAudioBuffer.backBuf);
                 if (NULL == backBufferThread)
                     printf("SDL_CreateThread failed: %s\n", SDL_GetError());
             }
@@ -171,8 +134,51 @@ void GenAudioStream(void* userdata, Uint8* stream, int len)
 #endif
 }
 
+void RNJesusSongSettings(int randTestChance)
+{
 
-int GenMusicToBuf(void* ptr)
+    // Evaluate switching musical scales (within key) or BPM between thread generations
+    // switch scales?
+    if (randTestChance > 90 && internalAudioBuffer.backBufferLength == internalAudioBuffer.length)
+    {
+        SwitchScale();
+    }
+
+    // switch keys?
+    if (randTestChance > 20 && randTestChance < 25 && internalAudioBuffer.backBufferLength == internalAudioBuffer.length)
+    {
+        char note = (mtRNG() % 7) + 65;
+        songSettings.keyNote = note;
+        if (mtRNG() % 2)
+            songSettings.scaleType = ScaleType::Major;
+        else
+            songSettings.scaleType = ScaleType::Minor;
+
+        songSettings.bassBaseScaleFreq = Notes.getNoteFreq(songSettings.keyNote + "1");
+        songSettings.leadBaseScaleFreq = Notes.getNoteFreq(songSettings.keyNote + "3");
+
+        std::cout << "\n   > RNJesus wants to change the key to: " << songSettings.keyNote << " " << (songSettings.scaleType == ScaleType::Major ? "Major" : "Minor") << "\n";
+    }
+
+    // switch bpm?
+    if (((randTestChance > 85 && randTestChance < 95) ||
+        (songSettings.BPM <= 140 && randTestChance % 4 == 0)) && // Encourage slower songs to speed up
+        internalAudioBuffer.backBufferLength == internalAudioBuffer.length)
+    {
+        songSettings.BPM = ((mtRNG() % 55) * 4) + 60; // range of 60 - 260 BPM
+
+        if (songSettings.BPM < 100) // bias for faster BPM
+            songSettings.BPM = ((mtRNG() % 55) * 4) + 60; // range of 60 - 260 BPM
+
+        std::cout << "\n   > RNJesus wants to change the BPM to: " << songSettings.BPM << "\n";
+        // reinit
+        songSettings.Init();
+        internalAudioBuffer.InitBackBuffer();
+    }
+}
+
+
+int GenMusic(void* ptr)
 {
     std::cout << "\n                                              *** Upcoming section: " << songSettings.sectionCount <<" *** \n\n"; // Should probably use printf() but BOO!
     songSettings.sectionCount++;
@@ -225,7 +231,7 @@ int GenMusicToBuf(void* ptr)
         SDL_MixAudioFormat(inBuf, leadBuf, sampleFmt, internalAudioBuffer.backBufferLength, SDL_MIX_MAXVOLUME);
     }
 
-#ifdef DEBUG_BUFFERS_PRIMARY
+#ifdef DUMP_PRIMARY_BUFFERS
     DumpBuffer(drumBuf, internalAudioBuffer.length, "DrumBuffer" + std::to_string(songSettings.sectionCount) + ".txt");
     DumpBuffer(bassBuf, internalAudioBuffer.length, "BassBuffer" + std::to_string(songSettings.sectionCount) + ".txt");
     DumpBuffer(leadBuf, internalAudioBuffer.length, "LeadBuffer" + std::to_string(songSettings.sectionCount) + ".txt");
@@ -246,85 +252,6 @@ int GenMusicToBuf(void* ptr)
     return 1;
 }
 
-
-
-// Arpeggio generation
-void GenArp(float freq, int arpLengthMS, int NoteLength, int magnitude, Uint8* inBuf, int currPo, bool slide)
-{
-    Scale key = Scale(songSettings.scaleType, freq);
-    Scale key2 = Scale(songSettings.scaleType, key.notes["8th"]);
-
-    int arpNoteLenMS = 1000 / NoteLength; // noteLength is either 64th of a second, 32nd of a second, etc.
-    int arpNoteLenBytes = arpNoteLenMS * audioSettings.bytesPerMS;
-
-    int noteCounter = 1;
-    //arpLengthMs is total length
-    for (int c = 0; c < arpLengthMS * audioSettings.bytesPerMS; c += (arpNoteLenBytes * noteCounter))
-    {
-        SafeLead(key.notes["1st"], arpNoteLenMS, magnitude, inBuf, currPo + (arpNoteLenBytes * noteCounter));
-        noteCounter++;
-        if (slide) {
-            SlideSquare(key.notes["1st"], key.notes["3rd"], arpNoteLenMS, magnitude, inBuf, currPo + (arpNoteLenBytes * noteCounter));
-            noteCounter++;
-        }
-        SafeLead(key.notes["3rd"], arpNoteLenMS, magnitude, inBuf, currPo + (arpNoteLenBytes * noteCounter));
-        noteCounter++;
-        if (slide) {
-            SlideSquare(key.notes["3rd"], key.notes["5th"], arpNoteLenMS, magnitude, inBuf, currPo + (arpNoteLenBytes * noteCounter));
-            noteCounter++;
-        }
-        SafeLead(key.notes["5th"], arpNoteLenMS, magnitude, inBuf, currPo + (arpNoteLenBytes * noteCounter));
-        noteCounter++;
-        if (slide) {
-            SlideSquare(key.notes["5th"], key.notes["7th"], arpNoteLenMS, magnitude, inBuf, currPo + (arpNoteLenBytes * noteCounter));
-            noteCounter++;
-        }
-        SafeLead(key.notes["7th"], arpNoteLenMS, magnitude, inBuf, currPo + (arpNoteLenBytes * noteCounter));
-        noteCounter++;
-        
-        if (slide) {
-            SlideSquare(key2.notes["1st"], key2.notes["3rd"], arpNoteLenMS, magnitude, inBuf, currPo + (arpNoteLenBytes * noteCounter));
-            noteCounter++;
-        }
-        SafeLead(key2.notes["3rd"], arpNoteLenMS, magnitude, inBuf, currPo + (arpNoteLenBytes * noteCounter));
-        noteCounter++;
-        if (slide) {
-            SlideSquare(key2.notes["3rd"], key2.notes["5th"], arpNoteLenMS, magnitude, inBuf, currPo + (arpNoteLenBytes * noteCounter));
-            noteCounter++;
-        }
-        SafeLead(key2.notes["5th"], arpNoteLenMS, magnitude, inBuf, currPo + (arpNoteLenBytes * noteCounter));
-        noteCounter++;
-    }
-}
-
-// Play music from a AudioData obj (buffer + length)
-void AudioPlayer(AudioData audioData)
-{
-    //std::cout << "Playing...\n";
-
-    int success = SDL_QueueAudio(audioSettings.device, audioData.buf, audioData.length);
-
-    if (success != 0)
-        std::cout << "\nError outputting to device!!\n";
-}
-
-// Unused function at this point in time
-void PlayWAV(std::string fileName)
-{
-    Uint32 wavLength;
-    Uint8* wavBuffer;
-
-    std::cout << "Playing WAV";
-
-    SDL_LoadWAV(fileName.c_str(), &audioSettings.audSpecWant, &wavBuffer, &wavLength);
-
-    int success = SDL_QueueAudio(audioSettings.device, wavBuffer, wavLength);
-
-    if (success != 0)
-        std::cout << "\nError outputting to device!!\n";
-
-    SDL_PauseAudioDevice(audioSettings.device, 0);
-}
 
 // Key function.  Must be called before any audio is played.  callback determines whether music is streamed.
 void SetupAudio(bool callback)
@@ -488,6 +415,121 @@ std::pair<float, ScaleType> GiveKeyScale(float baseFreq, ScaleType keyType, int 
     return std::pair<float, ScaleType>(freqOfScaleDegree, newKeyType);
 }
 
+// Arpeggio generation
+void GenArp(float freq, int arpLengthMS, int NoteLength, int magnitude, Uint8* inBuf, int currPo, bool slide)
+{
+    Scale key = Scale(songSettings.scaleType, freq);
+    Scale key2 = Scale(songSettings.scaleType, key.notes["8th"]);
+
+    int arpNoteLenMS = 1000 / NoteLength; // noteLength is either 64th of a second, 32nd of a second, etc.
+    int arpNoteLenBytes = arpNoteLenMS * audioSettings.bytesPerMS;
+
+    int noteCounter = 1;
+    //arpLengthMs is total length
+    for (int c = 0; c < arpLengthMS * audioSettings.bytesPerMS; c += (arpNoteLenBytes * noteCounter))
+    {
+        SafeLead(key.notes["1st"], arpNoteLenMS, magnitude, inBuf, currPo + (arpNoteLenBytes * noteCounter));
+        noteCounter++;
+        if (slide) {
+            SlideSquare(key.notes["1st"], key.notes["3rd"], arpNoteLenMS, magnitude, inBuf, currPo + (arpNoteLenBytes * noteCounter));
+            noteCounter++;
+        }
+        SafeLead(key.notes["3rd"], arpNoteLenMS, magnitude, inBuf, currPo + (arpNoteLenBytes * noteCounter));
+        noteCounter++;
+        if (slide) {
+            SlideSquare(key.notes["3rd"], key.notes["5th"], arpNoteLenMS, magnitude, inBuf, currPo + (arpNoteLenBytes * noteCounter));
+            noteCounter++;
+        }
+        SafeLead(key.notes["5th"], arpNoteLenMS, magnitude, inBuf, currPo + (arpNoteLenBytes * noteCounter));
+        noteCounter++;
+        if (slide) {
+            SlideSquare(key.notes["5th"], key.notes["7th"], arpNoteLenMS, magnitude, inBuf, currPo + (arpNoteLenBytes * noteCounter));
+            noteCounter++;
+        }
+        SafeLead(key.notes["7th"], arpNoteLenMS, magnitude, inBuf, currPo + (arpNoteLenBytes * noteCounter));
+        noteCounter++;
+
+        if (slide) {
+            SlideSquare(key2.notes["1st"], key2.notes["3rd"], arpNoteLenMS, magnitude, inBuf, currPo + (arpNoteLenBytes * noteCounter));
+            noteCounter++;
+        }
+        SafeLead(key2.notes["3rd"], arpNoteLenMS, magnitude, inBuf, currPo + (arpNoteLenBytes * noteCounter));
+        noteCounter++;
+        if (slide) {
+            SlideSquare(key2.notes["3rd"], key2.notes["5th"], arpNoteLenMS, magnitude, inBuf, currPo + (arpNoteLenBytes * noteCounter));
+            noteCounter++;
+        }
+        SafeLead(key2.notes["5th"], arpNoteLenMS, magnitude, inBuf, currPo + (arpNoteLenBytes * noteCounter));
+        noteCounter++;
+    }
+}
+
+// Play music from a AudioData obj (buffer + length)
+void AudioPlayer(AudioData audioData)
+{
+    //std::cout << "Playing...\n";
+
+    int success = SDL_QueueAudio(audioSettings.device, audioData.buf, audioData.length);
+
+    if (success != 0)
+        std::cout << "\nError outputting to device!!\n";
+}
+
+// Unused function at this point in time
+void PlayWAV(std::string fileName)
+{
+    Uint32 wavLength;
+    Uint8* wavBuffer;
+
+    std::cout << "Playing WAV";
+
+    SDL_LoadWAV(fileName.c_str(), &audioSettings.audSpecWant, &wavBuffer, &wavLength);
+
+    int success = SDL_QueueAudio(audioSettings.device, wavBuffer, wavLength);
+
+    if (success != 0)
+        std::cout << "\nError outputting to device!!\n";
+
+    SDL_PauseAudioDevice(audioSettings.device, 0);
+}
+
+
+// Used when built as lib
+userSettings GetSongSettings() {
+    userSettings us;
+    us.BPM = songSettings.BPM;
+    us.note = songSettings.keyNote[0];
+    if (songSettings.scaleType == ScaleType::Major)
+        us.scale = 1;
+    else
+        us.scale = 0;
+    us.lofi = songSettings.loFi;
+    return us;
+}
+
+void ConfigSong(int bpm, char note, int scale, bool lofi)
+{
+    // scale == 1 then major; scale == 0 then minor
+    songSettings.BPM = bpm;
+    songSettings.keyNote = note;
+    if (scale > 0)
+        songSettings.scaleType = ScaleType::Major;
+    else
+        songSettings.scaleType = ScaleType::Minor;
+
+    if (lofi)
+    {
+        songSettings.loFi = true;
+        audioSettings.audSpecWant.freq = 8000;
+        //audioSettings.audSpecWant.samples = 4096;
+
+    }
+    else {
+        songSettings.loFi = false;
+        audioSettings.audSpecWant.freq = 48000;
+        //audioSettings.audSpecWant.samples = 32768;
+    }
+}
 
 
 void TestGiveScaleKey()
@@ -704,11 +746,6 @@ void PlayMajorScale()
 
     fInputFreq = Notes.getNoteFreq(strInputNoteName);
 
-    // TODO: Fix this
-    /*if (fInputFreq == Notes.KV.end()->second)
-        std::cout << "\nReceived default note.  Was your input correct?\n";
-     */
-
     auto key = Scale(ScaleType::Major, fInputFreq);
 
     int noteLen = songSettings.noteLenBytes;
@@ -766,11 +803,6 @@ void PlayMinorScale()
 
     fInputFreq = Notes.getNoteFreq(strInputNoteName);
 
-    // TODO: Fix this
-    /*if (fInputFreq == Notes.KV.end()->second)
-        std::cout << "\nReceived default note.  Was your input correct?\n";
-     */
-
     auto key = Scale(ScaleType::Minor, fInputFreq);
 
     int noteLen = songSettings.noteLenBytes;
@@ -804,40 +836,3 @@ void PlayMinorScale()
     delete[] scaleBuf;
 }
 
-
-// Used when built as lib
-userSettings GetSongSettings() {
-    userSettings us;
-    us.BPM = songSettings.BPM;
-    us.note = songSettings.keyNote[0];
-    if (songSettings.scaleType == ScaleType::Major)
-        us.scale = 1;
-    else
-        us.scale = 0;
-    us.lofi = songSettings.loFi;
-    return us;
-}
-
-void ConfigSong(int bpm, char note, int scale, bool lofi)
-{
-    // scale == 1 then major; scale == 0 then minor
-    songSettings.BPM = bpm;
-    songSettings.keyNote = note;
-    if (scale > 0)
-        songSettings.scaleType = ScaleType::Major;
-    else
-        songSettings.scaleType = ScaleType::Minor;
-
-    if (lofi)
-    {
-        songSettings.loFi = true;
-        audioSettings.audSpecWant.freq = 8000;
-        //audioSettings.audSpecWant.samples = 4096;
-
-    }
-    else {
-        songSettings.loFi = false;
-        audioSettings.audSpecWant.freq = 48000;
-        //audioSettings.audSpecWant.samples = 32768;
-    }
-}

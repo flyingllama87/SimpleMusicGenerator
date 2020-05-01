@@ -18,7 +18,6 @@ void GenDrumBeat(Uint8 *drumBuf, int drumBufLength)
     AudioData snare = songSettings.snareSound;
     AudioData kickHat = songSettings.kickHatSound;;
     AudioData snareHat = songSettings.snareHatSound;;
-    
 
     int beatCount = 1;
     int barCount = 1;
@@ -49,7 +48,7 @@ void GenDrumBeat(Uint8 *drumBuf, int drumBufLength)
         pickRandDrumPattern = 3;*/
     //Testing Code
     
-#ifdef DEBUG_AUDIO
+#ifdef DEBUG_DRUMS
     std::cout << "drumBufLength: " << drumBufLength << "\n";
 	std::cout << "songSettings.qtrNoteLenBytes: " << songSettings.qtrNoteLenBytes << "\n";
 	std::cout << "songSettings.qtrNoteLenMS: " << songSettings.qtrNoteLenMS << "\n";
@@ -77,8 +76,8 @@ void GenDrumBeat(Uint8 *drumBuf, int drumBufLength)
             beatCount++;
         }
         break;
-    case 1: //
-        std::cout << "Playing drum pattern: " << pickRandDrumPattern << " - classic kick, hat, snare, hat \n";
+    case 1: 
+        std::cout << "Playing drum pattern: " << pickRandDrumPattern << " - Classic kick, hat, snare, hat \n";
 
         for (int c = 0; c < drumBufLength; c += songSettings.noteLenBytes)
         {
@@ -159,7 +158,7 @@ void GenDrumBeat(Uint8 *drumBuf, int drumBufLength)
         break;
     case 3:
     {
-        std::cout << "Playing drum pattern: " << pickRandDrumPattern << " - Kick & snare with hi-hat every half beat \n";
+        std::cout << "Playing drum pattern: " << pickRandDrumPattern << " - Kick x2 & snare with hi-hat every half beat \n";
 
         for (int c = 0; c < drumBufLength; c += (songSettings.halfNoteLenBytes))
         {
@@ -327,7 +326,7 @@ void GenDrumBeat(Uint8 *drumBuf, int drumBufLength)
         }
     }
     break;
-    case 9: //
+    case 9: 
         std::cout << "Playing drum pattern: " << pickRandDrumPattern << " - Kick Snare (slow) w/ dbl kick on 3rd bar \n";
 
         for (int c = 0; c < drumBufLength; c += songSettings.noteLenBytes)
@@ -350,8 +349,8 @@ void GenDrumBeat(Uint8 *drumBuf, int drumBufLength)
             beatCount++;
         }
         break;
-    case 10: //
-        std::cout << "Playing drum pattern: " << pickRandDrumPattern << " - classic kick + hat, hat, snare + hat, hat \n";
+    case 10: 
+        std::cout << "Playing drum pattern: " << pickRandDrumPattern << " - Classic kick + hat, hat, snare + hat, hat \n";
 
         for (int c = 0; c < drumBufLength; c += songSettings.noteLenBytes)
         {
@@ -439,7 +438,6 @@ void GenDrumBeat(Uint8 *drumBuf, int drumBufLength)
 #ifdef DEBUG_DRUMS
     std::cout << "Final barCount: " << barCount << "\n";
 	std::cout << "Final beatCount: " << beatCount << "\n";
-    DumpBuffer(drumBuf, drumBufLength, "drumBuffer.txt");
 #endif
 
 }
@@ -474,7 +472,6 @@ AudioData GiveKick()
     // Mix tracks
     SDL_MixAudioFormat(waveBuffer, sineBuffer, sampleFmt, waveLength, SDL_MIX_MAXVOLUME);
 
-    
     returnAD.buf = waveBuffer;
     returnAD.length = waveLength;
 
@@ -487,7 +484,6 @@ AudioData GiveHihat()
 
     // 100ms hihat
     Uint16 hatLength = 100;
-
 
     Uint32 waveLength = audioSettings.samplesPerMS * hatLength * 2;
     Uint8* waveBuffer = new Uint8[waveLength];
@@ -533,7 +529,6 @@ AudioData GiveSnare()
 }
 
 
-
 void TestDrums()
 {
     SetupAudio();
@@ -541,7 +536,7 @@ void TestDrums()
     AudioData jiffy = Silence(100);
 
     AudioData kick = GiveKick();
-#ifdef DEBUG_AUDIO
+#ifdef DEBUG_DRUMS
     DumpBuffer(kick.buf, kick.length, "kick.txt");
 #endif
     AudioPlayer(kick);
@@ -554,7 +549,7 @@ void TestDrums()
     AudioPlayer(hihat);
     AudioPlayer(jiffy);
     AudioPlayer(hihat);
-#ifdef DEBUG_AUDIO
+#ifdef DEBUG_DRUMS
     DumpBuffer(hihat.buf, hihat.length, "hihat.txt");
 #endif
 
@@ -577,7 +572,6 @@ void TestDrums()
         AudioPlayer(jiffy);
         AudioPlayer(kickHat);
     }
-
 
 #ifdef DEBUG_DRUMS
     DumpBuffer(snare.buf, snare.length, "snare.txt");

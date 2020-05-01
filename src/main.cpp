@@ -15,13 +15,9 @@ void ChangeSongSettingsCLI(); // CLI for changing song & audio settings.
 int main(int argc, char* argv[])
 {
     if (SDL_Init(SDL_INIT_AUDIO) < 0)
-    {
         std::cout << "Could not initialise SDL";
-    }
     else
-    {
         std::cout << "SDL initialised!!\n";
-    }
 
     // Seed random number gen in main thread
     srand(std::chrono::system_clock::now().time_since_epoch().count());
@@ -131,11 +127,11 @@ void ChangeSongSettingsCLI()
         "LoFi: " << (songSettings.loFi == true ? "Yep" : "Nup") << "\n\n";
         
         std::cout << "What do you want to change?\n"
-            "Press 1 to change BPM\n"
-            "Press 2 to change key base note\n"
-            "Press 3 to switch key tonality to major / minor\n"
-            "Press 4 to change fidelity\n"
-            "Press 5 to go back\n";
+            " 1 to change BPM\n"
+            " 2 to change key base note\n"
+            " 3 to switch key tonality to major / minor\n"
+            " 4 to change fidelity\n"
+            " 5 to go back\n";
         
         std::string selection;
         std::getline(std::cin, selection);
@@ -148,7 +144,7 @@ void ChangeSongSettingsCLI()
                     std::string strInputBPM;
                     std::cout << "\nWhat do you want to set the BPM to? Needs to be divisible by 4. \n Answer: ";
                     std::getline(std::cin, strInputBPM);
-                    if (!stringIsInt(strInputBPM))
+                    if (!StringIsInt(strInputBPM))
                     {
                         std::cout << "Invalid input\n";
                         continue;

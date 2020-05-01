@@ -1,6 +1,5 @@
 //
 //  Generators.cpp
-//  test
 //
 //  Created by Morgan on 28/2/20.
 //  Copyright © 2020 Morgan. All rights reserved.

@@ -1,6 +1,5 @@
 //
 //  MusicGen.h
-//  test
 //
 //  Created by Morgan on 28/2/20.
 //  Copyright © 2020 Morgan. All rights reserved.
@@ -27,20 +26,20 @@
 // #define DEBUG_AUDIO 1
 // #define PRINT_PATHS 1
 // #define DEBUG_BUFFERS 1
-// #define DEBUG_BUFFERS_PRIMARY 1
 // #define DISABLE_REVERB 1
 // #define DEBUG_DRUMS 1
+// #define DUMP_PRIMARY_BUFFERS 1
+// #define DUMP_BUFFERS
 
 #define numChannels 1
 #define sampleFmt AUDIO_S16LSB
 
-// Magnitude settings.  Relies on 16 bit ints at the moment.  Should switch to float vals?
+// Magnitude settings. 16-bit int.
 #define fullMag 65535
 #define halfMag 32767
 #define qtrMag 12000 // 16383
 
 // This struct needs to be at the top for reasons
-
 struct AudioData
 {
     Uint32 length = 0;
@@ -49,23 +48,26 @@ struct AudioData
 
 enum ScaleType { Major, Minor };
 
-
-// Functions prototypes
+// FUNCTION PROTOTYPES
 
 // Audio specific
 int InitSDL();
-void ConfigSong(int bpm, char note, int scale, bool lofi);
 void RandomConfig();
 void SetupAudio(bool callback = false);
+void GenAudioStream(void* userdata, Uint8* stream, int len);
+void AudioPlayer(AudioData audioData);
+int GenMusic(void* ptr);
+
+// Functions for linked bins
+void ConfigSong(int bpm, char note, int scale, bool lofi);
+
+// Utility
+void c16to8(int16_t* inBuf, int len, Uint8* outBuf);
+void SafeMemCopy(Uint8* destBuf, Uint8* srcBuf, Uint32 srcBufLen, int c, int destBufLen);
+
+// Debug functions
 void DumpBuffer(int16_t* wavBuffer, int length, std::string fileName);
 void DumpBuffer(Uint8* wavBuffer, int length, std::string fileName);
-void c16to8(int16_t* inBuf, int len, Uint8* outBuf);
-void GenAudioStream(void* userdata, Uint8* stream, int len);
-void GenMusicStream();
-void AudioPlayer(AudioData audioData);
-void SafeMemCopy(Uint8* destBuf, Uint8* srcBuf, Uint32 srcBufLen, int c, int destBufLen);
-int GenMusicToBuf(void* ptr);
-
 
 // Wave & Sound Generators
 void DebugGenerators();
@@ -111,14 +113,14 @@ void TestDrums();
 AudioData GiveKick();
 AudioData GiveHihat();
 AudioData GiveSnare();
-
 // Bass
 void GenBassTrack(Uint8* bassBuf, int bassBufLength);
+// Lead
 void GenLeadTrack(Uint8* leadBuf, int leadBufLength);
 
 // Validation functions.
-bool stringIsFloat (const std::string& s);
-bool stringIsInt (const std::string& s);
+bool StringIsFloat (const std::string& s);
+bool StringIsInt (const std::string& s);
 bool IsANote(std::string str);
 
 // RNG functions
@@ -127,7 +129,7 @@ std::string RandomWordFromWordList();
 void SeedConfig();
 extern std::mt19937 mtRNG;
 
-// Structs
+//  *** STRUCTS ***
 
 struct AudioSettings
 {
@@ -305,7 +307,6 @@ struct SongSettings
         SDL_MixAudioFormat(snareHatSound.buf, hihatSound.buf, sampleFmt, hihatSound.length, SDL_MIX_MAXVOLUME);
         
         this->inited = true;
-
     }
     
     ~SongSettings()

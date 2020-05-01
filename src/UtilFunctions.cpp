@@ -1,6 +1,5 @@
 //
-//  TestFunctions.cpp
-//  test
+//  UtilFunctions.cpp
 //
 //  Created by Morgan on 28/2/20.
 //  Copyright © 2020 Morgan. All rights reserved.
@@ -54,14 +53,14 @@ void DumpBuffer(int16_t* wavBuffer, int length, std::string fileName)
 }
 
 
-bool stringIsFloat (const std::string& s)
+bool StringIsFloat (const std::string& s)
 {
     std::string::const_iterator it = s.begin();
     while (it != s.end() && (std::isdigit(*it) || *it == '.' )) ++it;
     return !s.empty() && it == s.end();
 }
 
-bool stringIsInt (const std::string& s)
+bool StringIsInt (const std::string& s)
 {
     std::string::const_iterator it = s.begin();
     while (it != s.end() && std::isdigit(*it)) ++it;
@@ -102,13 +101,6 @@ unsigned WordToNumber(std::string word)
 // This selects a random word from the word list.
 std::string RandomWordFromWordList()
 {
-    /*
-#ifdef _WIN64
-    LARGE_INTEGER cicles;
-    QueryPerformanceCounter(&cicles);
-    std::smtRNG(cicles.QuadPart);
-#endif
-*/
     int linesInFile = 7776;
     int randLineNum = rand() % linesInFile;
     std::string word = "";
