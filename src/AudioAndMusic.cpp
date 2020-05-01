@@ -7,30 +7,23 @@
 //
 #ifdef _WIN64
 #include <Windows.h>
+#else
+#include <unistd.h>
 #endif
 
 #include "MusicGen.h"
 
-#ifndef _WIN64
-#include <unistd.h>
-#endif
-
 //#define DISABLE_REVERB 0
 
-struct audioSettings audioSettings;
-struct songSettings songSettings;
-struct internalAudioBuffer internalAudioBuffer;
+struct AudioSettings audioSettings;
+struct SongSettings songSettings;
+struct InternalAudioBuffer internalAudioBuffer;
+std::mt19937 mtRNG;
 
 // len is number of bytes not number of samples requested.
 void GenAudioStream(void* userdata, Uint8* stream, int len)
 {
     static SDL_Thread* backBufferThread;
-
-    // Seed random number gen in callback thread
-    songSettings.rngSeed += 1;
-    std::srand(songSettings.rngSeed);
-
-
 
     /*
     int noOfSamplesRequested = len / 2;
@@ -56,15 +49,17 @@ void GenAudioStream(void* userdata, Uint8* stream, int len)
     }
     else if (internalAudioBuffer.pos == -1) // Fill audio buffer on first run.
     {
-        // Fill back buffer
-        backBufferThread = SDL_CreateThread(WriteMusicBuffer, "backBuffer", internalAudioBuffer.backBuf);
-        if (NULL == backBufferThread)
-            printf("SDL_CreateThread failed: %s\n", SDL_GetError());
-        //Generate the music stream manually.
+        //Generate the music stream on the main thread the first time only.
         GenMusicStream();
 
         memcpy(stream, &internalAudioBuffer.buf[internalAudioBuffer.pos], len);
         internalAudioBuffer.pos += len;
+
+        // Fill back buffer
+        backBufferThread = SDL_CreateThread(WriteMusicBuffer, "backBuffer", internalAudioBuffer.backBuf);
+        if (NULL == backBufferThread)
+            printf("SDL_CreateThread failed: %s\n", SDL_GetError());
+
     }
     else if (bytesTillIntBufEnd < len) // We are near the end of the internal buffer
     {
@@ -74,7 +69,7 @@ void GenAudioStream(void* userdata, Uint8* stream, int len)
         // Calculate how much extra data we need
         int extraBytesRequired = len - bytesTillIntBufEnd;
 
-        int randTestChance = rand() % 100;
+        int randTestChance = mtRNG() % 100;
 
         // Generate a new drum beat / music track or repeat the old one?
         if (randTestChance < 20)
@@ -84,6 +79,7 @@ void GenAudioStream(void* userdata, Uint8* stream, int len)
         }
         else
         {
+            std::cout << "\n                                                *** Song Settings: *** \n"; // Should probably use printf() but BOO!
             std::cout << "\nBPM: " << songSettings.BPM << "\n";
             std::cout << "Base key: " << songSettings.keyNote << " " << (songSettings.scaleType == ScaleType::Major ? "Major" : "Minor") << "\n";
             std::cout << "Scale in Key: " << songSettings.keyDeg << "\n";
@@ -94,7 +90,7 @@ void GenAudioStream(void* userdata, Uint8* stream, int len)
             {
                 // Yield thread
                 int retVal = NULL;
-                std::cout << "\nWaiting for BG thread...\n"; //DEBUG
+                // std::cout << "\nWaiting for BG thread...\n"; //DEBUG
                 SDL_WaitThread(backBufferThread, &retVal);
                 backBufferThread = NULL;
 
@@ -125,9 +121,9 @@ void GenAudioStream(void* userdata, Uint8* stream, int len)
                 // switch keys?
                 if (randTestChance > 20 && randTestChance < 25 && internalAudioBuffer.backBufferLength == internalAudioBuffer.length)
                 {
-                    char note = (rand() % 7) + 65;
+                    char note = (mtRNG() % 7) + 65;
                     songSettings.keyNote = note;
-                    if (rand() % 2)
+                    if (mtRNG() % 2)
                         songSettings.scaleType = ScaleType::Major;
                     else
                         songSettings.scaleType = ScaleType::Minor;
@@ -143,10 +139,10 @@ void GenAudioStream(void* userdata, Uint8* stream, int len)
                     (songSettings.BPM <= 140 && randTestChance % 4 == 0)) && // Encourage slower songs to speed up
                     internalAudioBuffer.backBufferLength == internalAudioBuffer.length)
                 {
-                    songSettings.BPM = ((rand() % 55) * 4) + 60; // range of 60 - 260 BPM
+                    songSettings.BPM = ((mtRNG() % 55) * 4) + 60; // range of 60 - 260 BPM
 
                     if (songSettings.BPM < 100) // bias for faster BPM
-                        songSettings.BPM = ((rand() % 55) * 4) + 60; // range of 60 - 260 BPM
+                        songSettings.BPM = ((mtRNG() % 55) * 4) + 60; // range of 60 - 260 BPM
 
                     std::cout << "\n   > RNJesus wants to change the BPM to: " << songSettings.BPM << "\n";
                     // reinit
@@ -155,10 +151,10 @@ void GenAudioStream(void* userdata, Uint8* stream, int len)
                 }
 
                 // Launch new thread to generate music to backBuffer
+                // std::cout << "Launching new BG thread to generate next section. \n";
                 backBufferThread = SDL_CreateThread(WriteMusicBuffer, "backBuffer", internalAudioBuffer.backBuf);
                 if (NULL == backBufferThread)
                     printf("SDL_CreateThread failed: %s\n", SDL_GetError());
-                
             }
             else
             {
@@ -233,12 +229,8 @@ void GenMusicStream()
 
 int WriteMusicBuffer(void* ptr)
 {
-
-    std::cout << "\n** Upcoming section: **\n";
-
-    // Seed random number gen in background thread
-    songSettings.rngSeed += 1;
-    std::srand(songSettings.rngSeed);
+    songSettings.sectionCount++;
+    std::cout << "\n                                              *** Upcoming section: " << songSettings.sectionCount <<" *** \n\n"; // Should probably use printf() but BOO!
 
     Uint8* inBuf = (Uint8*)ptr;
 
@@ -299,7 +291,7 @@ int WriteMusicBuffer(void* ptr)
     delete[] drumBuf;
     delete[] bassBuf;
     delete[] leadBuf;
-    std::cout << "\nThread finished processing!\n";
+    // std::cout << "\nThread finished processing!\n";
 
 #ifndef DISABLE_REVERB
     delete[] leadOutBuf;
@@ -686,6 +678,7 @@ void SetupAudio(bool callback)
     audioSettings.Init(callback);
     songSettings.Init();
     internalAudioBuffer.Init();
+    SDL_PauseAudioDevice(audioSettings.device, 0);
 }
 
 int InitSDL()
@@ -731,16 +724,16 @@ void RandomConfig()
 {
     songSettings.rngSeedString = RandomWordFromWordList();
     songSettings.rngSeed = WordToNumber(songSettings.rngSeedString);
-    srand(songSettings.rngSeed);
+    mtRNG.seed(songSettings.rngSeed);
 
-    songSettings.BPM = ((rand() % 45) * 4) + 60;
-    char note = (rand() % 7) + 65;
+    songSettings.BPM = ((mtRNG() % 45) * 4) + 60;
+    char note = (mtRNG() % 7) + 65;
     // songSettings.scaleNote = note;
     songSettings.keyNote = note;
     songSettings.bassBaseScaleFreq = Notes.getNoteFreq(std::string(1, note) + "1");
     songSettings.leadBaseScaleFreq = Notes.getNoteFreq(std::string(1, note) + "3");
 
-    if (rand() % 2) {
+    if (mtRNG() % 2) {
         songSettings.scaleType = ScaleType::Major;
         songSettings.keyType = ScaleType::Major;
     }
@@ -750,7 +743,7 @@ void RandomConfig()
 
     }
     
-    /*if (rand() % 2)
+    /*if (mtRNG() % 2)
     {
         songSettings.loFi = true;
         audioSettings.audSpecWant.freq = 8000;
@@ -766,16 +759,16 @@ void RandomConfig()
 void SeedConfig()
 {
     songSettings.rngSeed = WordToNumber(songSettings.rngSeedString);
-    srand(songSettings.rngSeed);
+    mtRNG.seed(songSettings.rngSeed);
 
-    songSettings.BPM = ((rand() % 45) * 4) + 60;
-    char note = (rand() % 7) + 65;
+    songSettings.BPM = ((mtRNG() % 45) * 4) + 60;
+    char note = (mtRNG() % 7) + 65;
     // songSettings.scaleNote = note;
     songSettings.keyNote = note;
     songSettings.bassBaseScaleFreq = Notes.getNoteFreq(std::string(1, note) + "1");
     songSettings.leadBaseScaleFreq = Notes.getNoteFreq(std::string(1, note) + "3");
 
-    if (rand() % 2) {
+    if (mtRNG() % 2) {
         songSettings.scaleType = ScaleType::Major;
         songSettings.keyType = ScaleType::Major;
     }
@@ -785,7 +778,7 @@ void SeedConfig()
 
     }
 
-    /*if (rand() % 2)
+    /*if (mtRNG() % 2)
     {
         songSettings.loFi = true;
         audioSettings.audSpecWant.freq = 8000;
@@ -826,26 +819,26 @@ ScaleType OppositeKeyMode(ScaleType key)
 void SwitchScale()
 {
 
-    int newKeyDegree = rand() % 7 + 1;
+    int newKeyDegree = mtRNG() % 7 + 1;
 
     /*
     // Prefer the 1st, 4th or 5th degree scales of the key.
     if (songSettings.keyType == ScaleType::Major)
         if (newKeyDegree == 2 || newKeyDegree == 3 || newKeyDegree == 7)
         {
-            newKeyDegree = rand() % 7 + 1;
+            newKeyDegree = mtRNG() % 7 + 1;
             // Really discourage the use of the 7th diminished scale in a major key
             if (newKeyDegree == 7)
-                newKeyDegree = rand() % 7 + 1;
+                newKeyDegree = mtRNG() % 7 + 1;
         }
     else
     {
         if (newKeyDegree == 2 || newKeyDegree == 5)
         {
-            newKeyDegree = rand() % 7 + 1;
+            newKeyDegree = mtRNG() % 7 + 1;
             // Really discourage the use of the 2nd diminished scale in a minor key
             if (newKeyDegree == 2)
-                newKeyDegree = rand() % 7 + 1;
+                newKeyDegree = mtRNG() % 7 + 1;
         }
     }*/
 
@@ -860,11 +853,11 @@ void SwitchScale()
     std::cout << "\n   > RNJesus wants to change the scale to this degree of the song's key: " << newKeyDegree << "\n"; // " << which has a frequency of " << newLeadFreqTypePair.first << "hz for the lead instrument\n";
 
     /*
-    char note = (rand() % 7) + 65;
+    char note = (mtRNG() % 7) + 65;
 
     songSettings.scaleNote = note;
 
-    if (rand() % 2)
+    if (mtRNG() % 2)
         songSettings.scaleType = ScaleType::Major;
     else
         songSettings.scaleType = ScaleType::Minor;

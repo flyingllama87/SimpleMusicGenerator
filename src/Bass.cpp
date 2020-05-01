@@ -25,18 +25,18 @@ void GenBassTrack(Uint8* bassBuf, int bassBufLength)
     
     // Select bass pattern
     int pickRandBassPattern;
-    if (rand() % 3 == 0)
+    if (mtRNG() % 3 == 0)
     {
         std::cout << "   > RNJesus wants the bass to play the same pattern as last time... \n";
         pickRandBassPattern = songSettings.prevPatternBass;
     }
     else
-        pickRandBassPattern = rand() % 11;
+        pickRandBassPattern = mtRNG() % 11;
 
     // discourage these
     if (pickRandBassPattern == 1 || pickRandBassPattern == 4) {
         //std::cout << "Selected discouraged bass pattern: " << pickRandBassPattern << ". Rerolling...\n";
-        pickRandBassPattern = rand() % 11;
+        pickRandBassPattern = mtRNG() % 11;
     }
 
     songSettings.prevPatternBass = pickRandBassPattern;
@@ -57,7 +57,7 @@ void GenBassTrack(Uint8* bassBuf, int bassBufLength)
     {
         for (int c = 0; c < bassBufLength; c += (songSettings.barLenMS * audioSettings.samplesPerMS * 2)) // 1 note per bar
         {
-            int chooseNote = rand() % 8;
+            int chooseNote = mtRNG() % 8;
             float noteFreq = key.freqs[chooseNote];
             SafeSawtooth(noteFreq, songSettings.barLenMS, qtrMag, bassBuf, c);
 
@@ -74,7 +74,7 @@ void GenBassTrack(Uint8* bassBuf, int bassBufLength)
     {
         for (int c = 0; c < bassBufLength; c += (songSettings.halfNoteLenBytes))
         {
-            int chooseNote = rand() % 8;
+            int chooseNote = mtRNG() % 8;
             float noteFreq = key.freqs[chooseNote];
             
             if (beatCount % 2 == 1)
@@ -99,7 +99,7 @@ void GenBassTrack(Uint8* bassBuf, int bassBufLength)
         {
             if ((barCount == 1 || barCount == 3) && beatCount == 1)
             {
-                chooseNote = rand() % 8;
+                chooseNote = mtRNG() % 8;
                 noteFreq = key.freqs[chooseNote];
             }
 
@@ -121,7 +121,7 @@ void GenBassTrack(Uint8* bassBuf, int bassBufLength)
     {
         for (int c = 0; c < bassBufLength; c += (songSettings.noteLenBytes)) // 4 beats
         {
-            int chooseNote = rand() % 8;
+            int chooseNote = mtRNG() % 8;
             float noteFreq = key.freqs[chooseNote];
             SafeSawtooth(noteFreq, songSettings.noteLenMS, qtrMag, bassBuf, c);
 
@@ -138,7 +138,7 @@ void GenBassTrack(Uint8* bassBuf, int bassBufLength)
     {
         for (int c = 0; c < bassBufLength; c += (songSettings.dblNoteLenBytes)) // 8 beats
         {
-            int chooseNote = rand() % 8;
+            int chooseNote = mtRNG() % 8;
             float noteFreq = key.freqs[chooseNote];
             SafeSawtooth(noteFreq, songSettings.dblNoteLenMS, qtrMag, bassBuf, c);
             SafeFadeOut(bassBuf, songSettings.noteLenBytes, c + songSettings.noteLenBytes); // attenuate the second half of the note
@@ -154,10 +154,10 @@ void GenBassTrack(Uint8* bassBuf, int bassBufLength)
     }
     case 5:
     {
-        float Note1 = key.freqs[rand() % 8];
-        float Note2 = key.freqs[rand() % 8];
-        float Note3 = key.freqs[rand() % 8];
-        float Note4 = key.freqs[rand() % 8];
+        float Note1 = key.freqs[mtRNG() % 8];
+        float Note2 = key.freqs[mtRNG() % 8];
+        float Note3 = key.freqs[mtRNG() % 8];
+        float Note4 = key.freqs[mtRNG() % 8];
 
 
         for (int c = 0; c < bassBufLength; c += songSettings.halfNoteLenBytes)
@@ -187,7 +187,7 @@ void GenBassTrack(Uint8* bassBuf, int bassBufLength)
     {
         for (int c = 0; c < bassBufLength; c += songSettings.barLenBytes) // 1 note per bar
         {
-            int chooseNote = rand() % 8;
+            int chooseNote = mtRNG() % 8;
             float noteFreq = key.freqs[chooseNote];
             SafeSawtooth(noteFreq, songSettings.barLenMS, qtrMag, bassBuf, c);
 
@@ -207,7 +207,7 @@ void GenBassTrack(Uint8* bassBuf, int bassBufLength)
     {
         for (int c = 0; c < bassBufLength; c += (songSettings.barLenMS * audioSettings.samplesPerMS * 4)) // 1 note per 2x bar
         {
-            int chooseNote = rand() % 8;
+            int chooseNote = mtRNG() % 8;
             float noteFreq = key.freqs[chooseNote];
             SafeSawtooth(noteFreq, songSettings.barLenMS * 2, qtrMag, bassBuf, c);
 
@@ -227,7 +227,7 @@ void GenBassTrack(Uint8* bassBuf, int bassBufLength)
 
             //if (beatCount % 2 == 1)
             //{
-                int chooseNote = rand() % 9;
+                int chooseNote = mtRNG() % 9;
                 if (chooseNote < 8)
                 {
                     float noteFreq = key.freqs[chooseNote];
@@ -246,15 +246,15 @@ void GenBassTrack(Uint8* bassBuf, int bassBufLength)
     }
     case 9: // bass alternate between two
     {
-        int chooseNote = rand() % 8;
+        int chooseNote = mtRNG() % 8;
         float freq1 = key.freqs[chooseNote];
-        chooseNote = rand() % 8;
+        chooseNote = mtRNG() % 8;
         float freq2 = key.freqs[chooseNote];
 
         // Discourage the same note from being used but don't ban it.
         if (freq2 == freq1)
         {
-            chooseNote = rand() % 8;
+            chooseNote = mtRNG() % 8;
             float freq2 = key.freqs[chooseNote];
         }
 
@@ -268,9 +268,9 @@ void GenBassTrack(Uint8* bassBuf, int bassBufLength)
 
 
             if (beatCount == 1 && !(barCount == 1)) {
-                chooseNote = rand() % 8;
+                chooseNote = mtRNG() % 8;
                 freq1 = key.freqs[chooseNote];
-                chooseNote = rand() % 8;
+                chooseNote = mtRNG() % 8;
                 freq2 = key.freqs[chooseNote];
             }
 
@@ -285,10 +285,10 @@ void GenBassTrack(Uint8* bassBuf, int bassBufLength)
     }
     case 10: // almost repeat of 5 cause it's good
     {
-        float Note1 = key.freqs[rand() % 8];
-        float Note2 = key.freqs[rand() % 8];
-        float Note3 = key.freqs[rand() % 8];
-        float Note4 = key.freqs[rand() % 8];
+        float Note1 = key.freqs[mtRNG() % 8];
+        float Note2 = key.freqs[mtRNG() % 8];
+        float Note3 = key.freqs[mtRNG() % 8];
+        float Note4 = key.freqs[mtRNG() % 8];
 
 
         for (int c = 0; c < bassBufLength; c += songSettings.halfNoteLenBytes)

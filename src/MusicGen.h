@@ -89,6 +89,7 @@ void FadeOut(Uint8* buffer, int numOfSamples);
 void SafeFadeOut(Uint8* buffer, int numOfBytes, int currPos);
 void SafeFadeIn(Uint8* buffer, int numOfBytes, int currPos);
 void Reverb(short* inL, short* outL, int bufLen);
+void InitReverb();
 void DebugReverb();
 
 // Music
@@ -100,9 +101,6 @@ ScaleType OppositeKeyMode(ScaleType key);
 void TestGiveScaleKey();
 std::pair<float, ScaleType> GiveKeyScale(float baseFreq, ScaleType keyType, int newDegree);
 void SwitchScale();
-
-// Temp
-void InitReverb();
 
 // Drums
 void GenDrumBeat(Uint8* drumBuf, int drumBufLength);
@@ -124,23 +122,24 @@ bool IsANote(std::string str);
 unsigned WordToNumber(std::string word);
 std::string RandomWordFromWordList();
 void SeedConfig();
+extern std::mt19937 mtRNG;
 
 // Structs
 
-struct audioSettings
+struct AudioSettings
 {
     SDL_AudioSpec audSpecWant, audSpecHave;
     SDL_AudioDeviceID device;
-    float samplesPerMS;
-    float bytesPerMS;
+    float samplesPerMS = 0;
+    float bytesPerMS = 0;
     bool inited = false;
     
-    audioSettings()
+    AudioSettings()
     {
         SDL_memset(&audSpecWant, 0, sizeof(audSpecWant));
         SDL_memset(&audSpecHave, 0, sizeof(audSpecHave));
         audSpecWant.freq = 48000;
-        audSpecWant.samples = 32768;
+        //audSpecWant.samples = 32768;
     }
     
     void Init(bool callback)
@@ -173,9 +172,7 @@ struct audioSettings
         else
             printf("Audio format is little endian.\n\n");
 #endif
-        
-        SDL_PauseAudioDevice(device, 0);
-        
+               
         samplesPerMS = (float)this->audSpecHave.freq / 1000.0F;
         bytesPerMS = samplesPerMS * 2.0;
         
@@ -189,7 +186,7 @@ struct audioSettings
         SDL_CloseAudioDevice(device);
     }
 };
-extern audioSettings audioSettings;
+extern AudioSettings audioSettings;
 
 struct userSettings {
     int BPM;
@@ -199,7 +196,7 @@ struct userSettings {
 };
 userSettings GetSongSettings();
 
-struct songSettings
+struct SongSettings
 {
     int BPM;
     int beatsToBar;
@@ -219,6 +216,7 @@ struct songSettings
     int prevPatternDrums = 1;
     int prevPatternBass = 0;
     int prevPatternLead = 0;
+    int sectionCount = 1;
     std::string keyNote;
     ScaleType keyType;
     float bassBaseScaleFreq;
@@ -233,7 +231,7 @@ struct songSettings
     bool leadSine = false;
     bool leadSawtooth = true;
     bool leadSquare = false;
-    std::string rngSeedString = "employed";
+    std::string rngSeedString = "endocrine";
     int rngSeed;
 
     
@@ -243,17 +241,17 @@ struct songSettings
     AudioData kickHatSound;
     AudioData snareHatSound;
 
-    songSettings()
+    SongSettings()
     {
-        this->BPM = 220;
+        this->BPM = 132;
         this->beatsToBar = 4;
-        this->keyNote = "A";
-        this->keyType = Minor;
-        // Hacky but 'Notes' class isn't available yet.
-        this->bassBaseScaleFreq = 55.0f; // A1 freq
-        this->leadBaseScaleFreq = 220.0f; // A3 freq
-        this->scaleType = Minor;
-        this->keyDeg = "i";
+        this->keyNote = "G";
+        this->keyType = ScaleType::Major;
+        // Hacky but 'Notes' class isn't available yet in proggy execution.
+        this->bassBaseScaleFreq = 49.0f; // A1 freq
+        this->leadBaseScaleFreq = 196.0f; // A3 freq
+        this->scaleType = ScaleType::Major;
+        this->keyDeg = "1";
         this->loFi = false;
         this->inited = false;
         this->genDrums = true;
@@ -304,9 +302,11 @@ struct songSettings
         SDL_MixAudioFormat(snareHatSound.buf, hihatSound.buf, sampleFmt, hihatSound.length, SDL_MIX_MAXVOLUME);
         
         this->inited = true;
+        this->sectionCount = 1;
+
     }
     
-    ~songSettings()
+    ~SongSettings()
     {
         std::cout << "\nCalling song Settings destructor\n";
         delete[] kickSound.buf;
@@ -316,9 +316,9 @@ struct songSettings
         delete[] kickHatSound.buf;
     }
 };
-extern songSettings songSettings;
+extern SongSettings songSettings;
 
-struct internalAudioBuffer
+struct InternalAudioBuffer
 {
     int pos;
     int length;
@@ -327,7 +327,7 @@ struct internalAudioBuffer
     Uint8* backBuf;
     bool inited;
     
-    internalAudioBuffer()
+    InternalAudioBuffer()
     {
         inited = false;
     }
@@ -367,7 +367,7 @@ struct internalAudioBuffer
         inited = true;
     }
 
-    ~internalAudioBuffer()
+    ~InternalAudioBuffer()
     {
         std::cout << "\nCalling internalAudioBuffer destructor\n";
         delete[] buf;
@@ -376,7 +376,7 @@ struct internalAudioBuffer
     }
     
 };
-extern internalAudioBuffer internalAudioBuffer;
+extern InternalAudioBuffer internalAudioBuffer;
 
 struct AudioData16
 {

@@ -102,12 +102,13 @@ unsigned WordToNumber(std::string word)
 // This selects a random word from the word list.
 std::string RandomWordFromWordList()
 {
+    /*
 #ifdef _WIN64
     LARGE_INTEGER cicles;
     QueryPerformanceCounter(&cicles);
-    std::srand(cicles.QuadPart);
+    std::smtRNG(cicles.QuadPart);
 #endif
-
+*/
     int linesInFile = 7776;
     int randLineNum = rand() % linesInFile;
     std::string word = "";

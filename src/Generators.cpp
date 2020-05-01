@@ -124,7 +124,7 @@ void Noise(float length, bool lowPitch, Uint8 *inBuf, int magnitude) // expects 
     {
         for (int c = 0; c < waveLength; c+=2)
         {
-            int16_t noiseVal = (std::rand() % magnitude) - halfMagnitude;
+            int16_t noiseVal = (mtRNG() % magnitude) - halfMagnitude;
             inBuf[c] = noiseVal & 0xFF;
             inBuf[c + 1] = noiseVal >> 8;
         }
@@ -134,7 +134,7 @@ void Noise(float length, bool lowPitch, Uint8 *inBuf, int magnitude) // expects 
         for (int c = 0; c < waveLength; c += 8)
         {
             // Should find out how to do proper brownian or pink noise
-            int16_t noiseVal = (std::rand() % magnitude) - halfMagnitude;
+            int16_t noiseVal = (mtRNG() % magnitude) - halfMagnitude;
 
             inBuf[c] = noiseVal & 0xFF;
             inBuf[c + 1] = noiseVal >> 8;
@@ -159,14 +159,14 @@ int16_t* Noise(float length, bool lowPitch, int magnitude) // expects length in 
     {
         for (int c = 0; c < waveLength; c++)
         {
-            waveBuffer[c] = (std::rand() % magnitude) - halfMagnitude;
+            waveBuffer[c] = (mtRNG() % magnitude) - halfMagnitude;
         }
     }
     else
     {
         for (int c = 0; c < waveLength; c += 4)
         {
-            int val = (std::rand() % magnitude) - halfMagnitude;
+            int val = (mtRNG() % magnitude) - halfMagnitude;
 
             waveBuffer[c] = val;
             waveBuffer[c + 1] = val;

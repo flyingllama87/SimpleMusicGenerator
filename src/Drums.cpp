@@ -25,25 +25,25 @@ void GenDrumBeat(Uint8 *drumBuf, int drumBufLength)
 
     // Select drum pattern
     int pickRandDrumPattern;
-    if (rand() % 2 == 0)
+    if (mtRNG() % 2 == 0)
     {
         std::cout << "   > RNJesus wants the drums to play the same pattern as last time... \n";
         pickRandDrumPattern = songSettings.prevPatternDrums;
     }
     else
     {
-        pickRandDrumPattern = rand() % 13;
+        pickRandDrumPattern = mtRNG() % 13;
 
         if (pickRandDrumPattern == 0 || pickRandDrumPattern == 2) // Discourage the use of these patterns by picking again.
-            pickRandDrumPattern = rand() % 13;
+            pickRandDrumPattern = mtRNG() % 13;
 
         if ((pickRandDrumPattern == 7 || pickRandDrumPattern == 5) && songSettings.BPM < 90)
-            pickRandDrumPattern = rand() % 13;
+            pickRandDrumPattern = mtRNG() % 13;
     }
     songSettings.prevPatternDrums = pickRandDrumPattern;
 
     //Testing Code
-   /* if (rand() % 2 == 0)
+   /* if (mtRNG() % 2 == 0)
         pickRandDrumPattern = 6;
     else
         pickRandDrumPattern = 3;*/
@@ -266,7 +266,7 @@ void GenDrumBeat(Uint8 *drumBuf, int drumBufLength)
     {
         std::cout << "Playing drum pattern: " << pickRandDrumPattern << " - Random 4/4 \n";
 
-        int drumChoice = rand() % 4;
+        int drumChoice = mtRNG() % 4;
         AudioData randDrum1;
         if (drumChoice == 0)
             randDrum1 = kick;
@@ -275,7 +275,7 @@ void GenDrumBeat(Uint8 *drumBuf, int drumBufLength)
         else if (drumChoice == 2)
             randDrum1 = hihat;
         
-        drumChoice = rand() % 4;
+        drumChoice = mtRNG() % 4;
         AudioData randDrum2;
         if (drumChoice == 1)
             randDrum2 = kick;
@@ -284,7 +284,7 @@ void GenDrumBeat(Uint8 *drumBuf, int drumBufLength)
         else if (drumChoice == 2)
             randDrum2 = hihat;
         
-        drumChoice = rand() % 4;
+        drumChoice = mtRNG() % 4;
         AudioData randDrum3;
         if (drumChoice == 0)
             randDrum3 = kick;
@@ -293,7 +293,7 @@ void GenDrumBeat(Uint8 *drumBuf, int drumBufLength)
         else if (drumChoice == 2)
             randDrum3 = hihat;
         
-        drumChoice = rand() % 5;
+        drumChoice = mtRNG() % 5;
         AudioData randDrum4;
         if (drumChoice == 0)
             randDrum4 = kick;
@@ -404,7 +404,7 @@ void GenDrumBeat(Uint8 *drumBuf, int drumBufLength)
 
         for (int c = 0; c < beatsPerBar; c++)
         {
-            beats[c] = rand() % 5;
+            beats[c] = mtRNG() % 5;
         }
 
         AudioData randDrum;

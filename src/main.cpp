@@ -4,6 +4,8 @@
 #include "windows.h"
 #endif
 
+#include <chrono>
+
 // Menu / CLI specific
 void SetSeedAndPlay();
 void Menu();
@@ -22,8 +24,7 @@ int main(int argc, char* argv[])
     }
 
     // Seed random number gen in main thread
-    songSettings.rngSeed += 1;
-    std::srand(songSettings.rngSeed);
+    srand(std::chrono::system_clock::now().time_since_epoch().count());
 
     Menu();
 

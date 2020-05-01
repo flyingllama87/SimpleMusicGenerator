@@ -167,7 +167,7 @@ short* allocBuffer(short* buf, int size) {
     buf = (short*)(calloc(size, sizeof(buf)));
 
     if (!buf) {
-        printf("Error allocating memory \ n");
+        printf("Error allocating memory \n");
         exit(1);
     }
     else return buf;
