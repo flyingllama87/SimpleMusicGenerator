@@ -233,7 +233,7 @@ struct songSettings
     bool leadSine = false;
     bool leadSawtooth = true;
     bool leadSquare = false;
-    std::string rngSeedString = "ungloved";
+    std::string rngSeedString = "employed";
     int rngSeed;
 
     
