@@ -35,27 +35,22 @@ int main(int argc, char* argv[])
 void Menu()
 {
     while (true) {
-		std::cout << "\nBPM: " << songSettings.BPM << "\n";
-        std::cout << "Key/Scale: " << songSettings.keyNote << " " << (songSettings.scaleType == ScaleType::Major ? "Major" : "Minor") << "\n";
-        std::cout << "LoFi: " << (songSettings.loFi == true ? "Yep" : "Nup") << "\n";
-        std::cout << "Seed word: " << songSettings.rngSeedString << "\n";
-#ifdef DEBUG_AUDIO
-        std::cout << "noteLength(ms): " << songSettings.noteLenMS << "\n";
-		std::cout << "songSettings.barLenMS: " << songSettings.barLenMS << "\n";
-		std::cout << "beatsToBar: " << songSettings.beatsToBar << "\n";
-#endif
+
         if (SDL_GetError() == NULL)
         {
             std::cout << "SDL Error from last command (if any):" << SDL_GetError() << "\n";
         }
 
         std::cout << "\n"
-            "Type a letter and press enter:\n"
-            " c to change settings\n"
+            " --- MAIN MENU ---\n\n"
+            "Type a letter and press enter:\n\n"
             " s to start music generator with configured settings\n"
-            " r to start music generator with random config\n"
-            " w to configure a specific seed word and start\n"
+            " c to change settings\n"
+            " r to start music generator with random seed word\n"
+            " w to set a seed word and play\n"
             " p to pause music generation\n"
+            " q to quit\n\n"
+            " --- DEBUG FUNCTIONS ---\n\n"
             " t to test wave/noise/effects generators\n"
             " d to test drums\n"
             " f to test sliding square waves\n"
@@ -63,8 +58,18 @@ void Menu()
             " n to play a minor scale\n"
             " l to test selecting a random seed\n"
             " a to test arpeggios\n"
-            " k to test scale/chord progression\n"
-            " q to quit\n\n";
+            " k to test scale/chord progression\n\n";
+
+        std::cout << " --- CURRENT SETTINGS ---\n\n";
+        std::cout << " BPM: " << songSettings.BPM << "\n";
+        std::cout << " Key/Scale: " << songSettings.keyNote << " " << (songSettings.scaleType == ScaleType::Major ? "Major" : "Minor") << "\n";
+        std::cout << " LoFi: " << (songSettings.loFi == true ? "Yep" : "Nup") << "\n";
+        std::cout << " Seed word: " << songSettings.rngSeedString << "\n";
+#ifdef DEBUG_AUDIO
+        std::cout << " noteLength(ms): " << songSettings.noteLenMS << "\n";
+        std::cout << " songSettings.barLenMS: " << songSettings.barLenMS << "\n";
+        std::cout << " beatsToBar: " << songSettings.beatsToBar << "\n";
+#endif
 
         std::string menuStr;
         std::getline(std::cin, menuStr);
