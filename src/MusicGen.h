@@ -29,6 +29,7 @@
 // #define DEBUG_BUFFERS 1
 // #define DEBUG_BUFFERS_PRIMARY 1
 // #define DISABLE_REVERB 1
+// #define DEBUG_DRUMS 1
 
 #define numChannels 1
 #define sampleFmt AUDIO_S16LSB
@@ -63,7 +64,7 @@ void GenAudioStream(void* userdata, Uint8* stream, int len);
 void GenMusicStream();
 void AudioPlayer(AudioData audioData);
 void SafeMemCopy(Uint8* destBuf, Uint8* srcBuf, Uint32 srcBufLen, int c, int destBufLen);
-int WriteMusicBuffer(void* ptr);
+int GenMusicToBuf(void* ptr);
 
 
 // Wave & Sound Generators

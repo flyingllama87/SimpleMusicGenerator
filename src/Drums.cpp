@@ -436,7 +436,7 @@ void GenDrumBeat(Uint8 *drumBuf, int drumBufLength)
         break;
     }
 
-#ifdef DEBUG_AUDIO
+#ifdef DEBUG_DRUMS
     std::cout << "Final barCount: " << barCount << "\n";
 	std::cout << "Final beatCount: " << beatCount << "\n";
     DumpBuffer(drumBuf, drumBufLength, "drumBuffer.txt");
@@ -444,55 +444,6 @@ void GenDrumBeat(Uint8 *drumBuf, int drumBufLength)
 
 }
 
-void TestDrums()
-{
-    SetupAudio();
-    AudioData silenceSec = Silence(1000);
-    AudioData jiffy = Silence(100);
-
-    AudioData kick = GiveKick();
-#ifdef DEBUG_AUDIO
-    DumpBuffer(kick.buf, kick.length, "kick.txt");
-#endif
-    AudioPlayer(kick);
-    AudioPlayer(jiffy);
-    AudioPlayer(kick);
-
-    AudioPlayer(silenceSec);
-
-    AudioData hihat = GiveHihat();
-    AudioPlayer(hihat);
-    AudioPlayer(jiffy);
-    AudioPlayer(hihat);
-#ifdef DEBUG_AUDIO
-    DumpBuffer(hihat.buf, hihat.length, "hihat.txt");
-#endif
-    
-    AudioPlayer(silenceSec);
-
-    AudioData snare = GiveSnare();
-    AudioPlayer(snare);
-    AudioPlayer(jiffy);
-    AudioPlayer(snare);
-
-    if (songSettings.inited)
-    {
-        AudioData snareHat = songSettings.snareHatSound;
-        AudioPlayer(snareHat);
-        AudioPlayer(jiffy);
-        AudioPlayer(snareHat);
-
-        AudioData kickHat = songSettings.kickHatSound;
-        AudioPlayer(kickHat);
-        AudioPlayer(jiffy);
-        AudioPlayer(kickHat);
-    }
-
-
-#ifdef DEBUG_AUDIO
-    DumpBuffer(snare.buf, snare.length, "snare.txt");
-#endif
-}
 
 AudioData GiveKick()
 {
@@ -529,7 +480,6 @@ AudioData GiveKick()
 
     return returnAD;
 }
-
 
 AudioData GiveHihat()
 {
@@ -580,4 +530,56 @@ AudioData GiveSnare()
     returnAD.length = waveLength;
 
     return returnAD;
+}
+
+
+
+void TestDrums()
+{
+    SetupAudio();
+    AudioData silenceSec = Silence(1000);
+    AudioData jiffy = Silence(100);
+
+    AudioData kick = GiveKick();
+#ifdef DEBUG_AUDIO
+    DumpBuffer(kick.buf, kick.length, "kick.txt");
+#endif
+    AudioPlayer(kick);
+    AudioPlayer(jiffy);
+    AudioPlayer(kick);
+
+    AudioPlayer(silenceSec);
+
+    AudioData hihat = GiveHihat();
+    AudioPlayer(hihat);
+    AudioPlayer(jiffy);
+    AudioPlayer(hihat);
+#ifdef DEBUG_AUDIO
+    DumpBuffer(hihat.buf, hihat.length, "hihat.txt");
+#endif
+
+    AudioPlayer(silenceSec);
+
+    AudioData snare = GiveSnare();
+    AudioPlayer(snare);
+    AudioPlayer(jiffy);
+    AudioPlayer(snare);
+
+    if (songSettings.inited)
+    {
+        AudioData snareHat = songSettings.snareHatSound;
+        AudioPlayer(snareHat);
+        AudioPlayer(jiffy);
+        AudioPlayer(snareHat);
+
+        AudioData kickHat = songSettings.kickHatSound;
+        AudioPlayer(kickHat);
+        AudioPlayer(jiffy);
+        AudioPlayer(kickHat);
+    }
+
+
+#ifdef DEBUG_DRUMS
+    DumpBuffer(snare.buf, snare.length, "snare.txt");
+#endif
 }
