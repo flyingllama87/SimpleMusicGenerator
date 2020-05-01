@@ -4,6 +4,11 @@
 #include "windows.h"
 #endif
 
+// Menu / CLI specific
+void SetSeedAndPlay();
+void Menu();
+void ChangeSongSettingsCLI(); // CLI for changing song & audio settings.
+
 // main etc.
 int main(int argc, char* argv[])
 {
@@ -32,6 +37,7 @@ void Menu()
 		std::cout << "\nBPM: " << songSettings.BPM << "\n";
         std::cout << "Key/Scale: " << songSettings.keyNote << " " << (songSettings.scaleType == ScaleType::Major ? "Major" : "Minor") << "\n";
         std::cout << "LoFi: " << (songSettings.loFi == true ? "Yep" : "Nup") << "\n";
+        std::cout << "Seed word: " << songSettings.rngSeedString << "\n";
 #ifdef DEBUG_AUDIO
         std::cout << "noteLength(ms): " << songSettings.noteLenMS << "\n";
 		std::cout << "songSettings.barLenMS: " << songSettings.barLenMS << "\n";
@@ -43,17 +49,21 @@ void Menu()
         }
 
         std::cout << "\n"
-            "Press c to change settings\n"
-            "Press s to start music generator\n"
-            "Press r to start music generator with random config\n"
-            "Press p to pause music generation\n"
-            "Press t to test wave/noise/effects generators\n"
-            "Press d to test drums\n"
-            "Press f to test sliding square waves\n"
-            "Press e to play a major scale\n"
-            "Press a to test arpeggios\n"
-            "Press k to test scale/chord progression\n"
-            "Press q to quit\n\nAnswer: ";
+            "Type a letter and press enter:\n"
+            " c to change settings\n"
+            " s to start music generator with configured settings\n"
+            " r to start music generator with random config\n"
+            " w to configure a specific seed word and start\n"
+            " p to pause music generation\n"
+            " t to test wave/noise/effects generators\n"
+            " d to test drums\n"
+            " f to test sliding square waves\n"
+            " m to play a major scale\n"
+            " n to play a minor scale\n"
+            " l to test selecting a random seed\n"
+            " a to test arpeggios\n"
+            " k to test scale/chord progression\n"
+            " q to quit\n\n";
 
         std::string menuStr;
         std::getline(std::cin, menuStr);
@@ -64,14 +74,11 @@ void Menu()
             ChangeSongSettingsCLI();
         else if (menuInput == 's')
             SetupAudio(true);
+        else if (menuInput == 'w')
+            SetSeedAndPlay();
         else if (menuInput == 'r')
         {
             RandomConfig();
-
-            std::cout << "\n\nBPM: " << songSettings.BPM << "\n"
-                "Key/Scale: " << songSettings.keyNote << " " << (songSettings.scaleType == ScaleType::Major ? "Major" : "Minor") << "\n"
-                "LoFi: " << (songSettings.loFi == true ? "Yep" : "Nup") << "\n\n";
-
             SetupAudio(true);
         }
         else if (menuInput == 'p')
@@ -85,9 +92,11 @@ void Menu()
             SlideSquare(440.0f, 880.0f, songSettings.barLenMS, qtrMag, tempBuf, 0);
             SlideSquare(880.0f, 440.0f, songSettings.barLenMS, qtrMag, tempBuf, 0);
         }
-        else if (menuInput == 'e')
-            PlayScale();
         else if (menuInput == 'm')
+            PlayMajorScale();
+        else if (menuInput == 'n')
+            PlayMinorScale();
+        else if (menuInput == 'l')
         {
             std::string word = RandomWordFromWordList();
             unsigned int numRep = WordToNumber(word);
@@ -205,3 +214,40 @@ void ChangeSongSettingsCLI()
         }
     }
 }
+
+
+
+bool IsValidSeedInputChar(char ch)
+{
+    if (int(ch) >= 32 && int(ch) <= 122)
+        return true;
+    else
+        return false;
+}
+
+bool ValidSeedInput(const std::string& s)
+{
+    std::string::const_iterator it = s.begin();
+    while (it != s.end() && IsValidSeedInputChar(*it)) ++it;
+    return !s.empty() && it == s.end();
+}
+
+
+void SetSeedAndPlay()
+{
+    std::string stdInputSeed;
+
+    do {
+        std::cout << "\nWhat seed word or phrase do you want to use? ";
+        std::getline(std::cin, stdInputSeed);
+    } while (!ValidSeedInput(stdInputSeed));
+
+    songSettings.rngSeedString = stdInputSeed;
+
+    SeedConfig();
+
+    SetupAudio(true);
+
+}
+
+

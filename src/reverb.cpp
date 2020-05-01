@@ -2,6 +2,8 @@
 
 #define _CRT_SECURE_NO_WARNINGS
 
+#ifndef DISABLE_REVERB
+
 #include <string.h>
 #include <stdlib.h>
 #include "reverb.h"
@@ -175,3 +177,5 @@ void removeBuffers(short** bufArray) {
     for (int i = 0; i < sizeof(bufArray); ++i)
         free(*(bufArray + i));
 }
+
+#endif

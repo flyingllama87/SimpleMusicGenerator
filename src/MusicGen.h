@@ -49,10 +49,6 @@ enum ScaleType { Major, Minor };
 
 // Functions prototypes
 
-// Menu / CLI specific
-void Menu();
-void ChangeSongSettingsCLI(); // CLI for changing song & audio settings.
-
 // Audio specific
 int InitSDL();
 void ConfigSong(int bpm, char note, int scale, bool lofi);
@@ -98,7 +94,8 @@ void DebugReverb();
 // Music
 void TestArpeggios();
 void GenArp(float freq, int arpLengthMS, int NoteLength, int magnitude, Uint8* inBuf, int currPo, bool slide);
-void PlayScale();
+void PlayMajorScale();
+void PlayMinorScale();
 ScaleType OppositeKeyMode(ScaleType key);
 void TestGiveScaleKey();
 std::pair<float, ScaleType> GiveKeyScale(float baseFreq, ScaleType keyType, int newDegree);
@@ -126,7 +123,7 @@ bool IsANote(std::string str);
 // RNG functions
 unsigned WordToNumber(std::string word);
 std::string RandomWordFromWordList();
-
+void SeedConfig();
 
 // Structs
 
@@ -227,6 +224,7 @@ struct songSettings
     float bassBaseScaleFreq;
     float leadBaseScaleFreq;
     ScaleType scaleType;
+    std::string keyDeg;
     bool loFi;
     bool inited;
     bool genDrums;
@@ -235,7 +233,7 @@ struct songSettings
     bool leadSine = false;
     bool leadSawtooth = true;
     bool leadSquare = false;
-    std::string rngSeedString = "unselfish";
+    std::string rngSeedString = "ungloved";
     int rngSeed;
 
     
@@ -255,6 +253,7 @@ struct songSettings
         this->bassBaseScaleFreq = 55.0f; // A1 freq
         this->leadBaseScaleFreq = 220.0f; // A3 freq
         this->scaleType = Minor;
+        this->keyDeg = "i";
         this->loFi = false;
         this->inited = false;
         this->genDrums = true;

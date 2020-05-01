@@ -15,6 +15,7 @@
 #include <unistd.h>
 #endif
 
+//#define DISABLE_REVERB 0
 
 struct audioSettings audioSettings;
 struct songSettings songSettings;
@@ -83,10 +84,17 @@ void GenAudioStream(void* userdata, Uint8* stream, int len)
         }
         else
         {
+            std::cout << "\nBPM: " << songSettings.BPM << "\n";
+            std::cout << "Base key: " << songSettings.keyNote << " " << (songSettings.scaleType == ScaleType::Major ? "Major" : "Minor") << "\n";
+            std::cout << "Scale in Key: " << songSettings.keyDeg << "\n";
+            std::cout << "LoFi: " << (songSettings.loFi == true ? "Yep" : "Nup") << "\n";
+            std::cout << "Seed word: " << songSettings.rngSeedString << "\n";
+
             if (backBufferThread != NULL)
             {
                 // Yield thread
                 int retVal = NULL;
+                std::cout << "\nWaiting for BG thread...\n"; //DEBUG
                 SDL_WaitThread(backBufferThread, &retVal);
                 backBufferThread = NULL;
 
@@ -259,13 +267,15 @@ int WriteMusicBuffer(void* ptr)
     if (songSettings.genBass)
         SDL_MixAudioFormat(inBuf, bassBuf, sampleFmt, internalAudioBuffer.backBufferLength, SDL_MIX_MAXVOLUME);
 
+#ifndef DISABLE_REVERB
     Uint8* leadOutBuf = new Uint8[internalAudioBuffer.backBufferLength]();
     short* leadOutBuf16 = new short[internalAudioBuffer.backBufferLength]();
     short* leadBuf16 = new short[internalAudioBuffer.backBufferLength]();
+#endif
 
     if (songSettings.genLead)
     {
-        
+#ifndef DISABLE_REVERB
         // Mix in reverb
         // convert to 16 bit buf
         memcpy(&leadBuf16[0], &leadBuf[0], internalAudioBuffer.backBufferLength);
@@ -273,6 +283,7 @@ int WriteMusicBuffer(void* ptr)
         Reverb(leadBuf16, leadOutBuf16, internalAudioBuffer.backBufferLength);
         c16to8(leadOutBuf16, internalAudioBuffer.backBufferLength / 2, leadOutBuf);
         SDL_MixAudioFormat(leadBuf, leadOutBuf, sampleFmt, internalAudioBuffer.backBufferLength, SDL_MIX_MAXVOLUME);
+#endif
         
         SDL_MixAudioFormat(inBuf, leadBuf, sampleFmt, internalAudioBuffer.backBufferLength, SDL_MIX_MAXVOLUME);
     }
@@ -288,9 +299,13 @@ int WriteMusicBuffer(void* ptr)
     delete[] drumBuf;
     delete[] bassBuf;
     delete[] leadBuf;
+    std::cout << "\nThread finished processing!\n";
+
+#ifndef DISABLE_REVERB
     delete[] leadOutBuf;
     delete[] leadOutBuf16;
     delete[] leadBuf16;
+#endif
 
     return 1;
 }
@@ -464,7 +479,7 @@ void TestArpeggios()
 }
 
 
-void PlayScale()
+void PlayMajorScale()
 {
     SetupAudio();
 
@@ -508,6 +523,68 @@ void PlayScale()
     DumpBuffer(scaleBuf, bufLen, "ScaleSine.txt");
 #endif
     
+    scale.buf = scaleBuf;
+    scale.length = bufLen;
+
+    AudioPlayer(scale);
+
+
+    std::map<std::string, float>::iterator note = key.notes.begin();
+    while (note != key.notes.end())
+    {
+        std::cout << "\nFreq of note " << note->first << " is " << note->second;
+        note++;
+    }
+
+    delete[] scaleBuf;
+}
+
+
+
+void PlayMinorScale()
+{
+    SetupAudio();
+
+    std::string strInputNoteName;
+    float fInputFreq;
+    AudioData scale;
+
+    // Buffer for total scale (8 notes) in 8-bit format
+    int bufLen = internalAudioBuffer.length;
+    Uint8* scaleBuf = new Uint8[bufLen];
+
+    for (auto note = Notes.KV.begin(); note != Notes.KV.end(); note++)
+    {
+        std::cout << note->first << "\n";
+    }
+
+    std::cout << "\n\nType in the base note name & press enter: ";
+    std::getline(std::cin, strInputNoteName);
+
+    fInputFreq = Notes.getNoteFreq(strInputNoteName);
+
+    // TODO: Fix this
+    /*if (fInputFreq == Notes.KV.end()->second)
+        std::cout << "\nReceived default note.  Was your input correct?\n";
+     */
+
+    auto key = Scale(ScaleType::Minor, fInputFreq);
+
+    int noteLen = songSettings.noteLenBytes;
+
+    Sine(key.notes["1st"], songSettings.noteLenMS, halfMag, &scaleBuf[0]);
+    Sine(key.notes["2nd"], songSettings.noteLenMS, halfMag, &scaleBuf[noteLen]);
+    Sine(key.notes["3rd"], songSettings.noteLenMS, halfMag, &scaleBuf[noteLen * 2]);
+    Sine(key.notes["4th"], songSettings.noteLenMS, halfMag, &scaleBuf[noteLen * 3]);
+    Sine(key.notes["5th"], songSettings.noteLenMS, halfMag, &scaleBuf[noteLen * 4]);
+    Sine(key.notes["6th"], songSettings.noteLenMS, halfMag, &scaleBuf[noteLen * 5]);
+    Sine(key.notes["7th"], songSettings.noteLenMS, halfMag, &scaleBuf[noteLen * 6]);
+    Sine(key.notes["8th"], songSettings.noteLenMS, halfMag, &scaleBuf[noteLen * 7]);
+
+#ifdef DEBUG_AUDIO
+    DumpBuffer(scaleBuf, bufLen, "ScaleSine.txt");
+#endif
+
     scale.buf = scaleBuf;
     scale.length = bufLen;
 
@@ -653,6 +730,8 @@ void ConfigSong(int bpm, char note, int scale, bool lofi)
 void RandomConfig()
 {
     songSettings.rngSeedString = RandomWordFromWordList();
+    songSettings.rngSeed = WordToNumber(songSettings.rngSeedString);
+    srand(songSettings.rngSeed);
 
     songSettings.BPM = ((rand() % 45) * 4) + 60;
     char note = (rand() % 7) + 65;
@@ -684,6 +763,41 @@ void RandomConfig()
     }*/
 }
 
+void SeedConfig()
+{
+    songSettings.rngSeed = WordToNumber(songSettings.rngSeedString);
+    srand(songSettings.rngSeed);
+
+    songSettings.BPM = ((rand() % 45) * 4) + 60;
+    char note = (rand() % 7) + 65;
+    // songSettings.scaleNote = note;
+    songSettings.keyNote = note;
+    songSettings.bassBaseScaleFreq = Notes.getNoteFreq(std::string(1, note) + "1");
+    songSettings.leadBaseScaleFreq = Notes.getNoteFreq(std::string(1, note) + "3");
+
+    if (rand() % 2) {
+        songSettings.scaleType = ScaleType::Major;
+        songSettings.keyType = ScaleType::Major;
+    }
+    else {
+        songSettings.scaleType = ScaleType::Minor;
+        songSettings.keyType = ScaleType::Minor;
+
+    }
+
+    /*if (rand() % 2)
+    {
+        songSettings.loFi = true;
+        audioSettings.audSpecWant.freq = 8000;
+        audioSettings.audSpecWant.samples = 4096;
+
+    } else {
+        songSettings.loFi = false;
+        audioSettings.audSpecWant.freq = 48000;
+        audioSettings.audSpecWant.samples = 32768;
+    }*/
+}
+
 
 userSettings GetSongSettings(){
     userSettings us;
@@ -708,18 +822,32 @@ ScaleType OppositeKeyMode(ScaleType key)
 };
 
 
-// Pick a new scale in existing key with bias towards the I, IV, V & vi keys/chords/scales/whatever terminology. 
+// Pick a new scale in existing key with some biases towards particular scales terminology. 
 void SwitchScale()
 {
 
     int newKeyDegree = rand() % 7 + 1;
 
+    /*
     // Prefer the 1st, 4th or 5th degree scales of the key.
-    if (newKeyDegree == 2 || newKeyDegree == 3 || newKeyDegree == 7)
+    if (songSettings.keyType == ScaleType::Major)
+        if (newKeyDegree == 2 || newKeyDegree == 3 || newKeyDegree == 7)
+        {
+            newKeyDegree = rand() % 7 + 1;
+            // Really discourage the use of the 7th diminished scale in a major key
+            if (newKeyDegree == 7)
+                newKeyDegree = rand() % 7 + 1;
+        }
+    else
     {
-        std::cout << "Selected discouraged scale degree: " << newKeyDegree << ". Rerolling...\n";
-        newKeyDegree = rand() % 7 + 1;
-    }
+        if (newKeyDegree == 2 || newKeyDegree == 5)
+        {
+            newKeyDegree = rand() % 7 + 1;
+            // Really discourage the use of the 2nd diminished scale in a minor key
+            if (newKeyDegree == 2)
+                newKeyDegree = rand() % 7 + 1;
+        }
+    }*/
 
     std::pair<float, ScaleType> newBassFreqTypePair = GiveKeyScale(Notes.getNoteFreq(songSettings.keyNote + "1"), songSettings.keyType, newKeyDegree);
     songSettings.scaleType = newBassFreqTypePair.second;
@@ -728,7 +856,8 @@ void SwitchScale()
     std::pair<float, ScaleType> newLeadFreqTypePair = GiveKeyScale(Notes.getNoteFreq(songSettings.keyNote + "3"), songSettings.keyType, newKeyDegree);
     songSettings.leadBaseScaleFreq = newLeadFreqTypePair.first;
 
-    std::cout << "\n   > RNJesus wants to change the scale to this degree of the song's key: " << newKeyDegree << " which has a frequency of " << newLeadFreqTypePair.first << "hz for the lead instrument\n";
+    songSettings.keyDeg = std::to_string(newKeyDegree);
+    std::cout << "\n   > RNJesus wants to change the scale to this degree of the song's key: " << newKeyDegree << "\n"; // " << which has a frequency of " << newLeadFreqTypePair.first << "hz for the lead instrument\n";
 
     /*
     char note = (rand() % 7) + 65;
@@ -779,11 +908,20 @@ std::pair<float, ScaleType> GiveKeyScale(float baseFreq, ScaleType keyType, int 
     Scale key(keyType, baseFreq); 
 
     ScaleType newKeyType;
-
-    if (newDegree == 4 || newDegree == 5) // If It's a IV or V use the same key type.
-        newKeyType = keyType;
-    else
-        newKeyType = OppositeKeyMode(keyType);
+    if (keyType == ScaleType::Major)
+    {
+        if (newDegree == 1 || newDegree == 4 || newDegree == 5) // If It's a I, IV or V make it a major scale too.
+            newKeyType = keyType;
+        else
+            newKeyType = OppositeKeyMode(keyType);
+    }
+    else // minor key
+    {
+        if (newDegree == 1 || newDegree == 2 || newDegree == 4 || newDegree == 5 ) // If It's a i, ii, iv or v it should be minor scale too.
+            newKeyType = keyType;
+        else
+            newKeyType = OppositeKeyMode(keyType);
+    }
 
     newDegree = newDegree - 1;
     float freqOfScaleDegree = key.freqs[newDegree];
