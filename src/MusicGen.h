@@ -27,6 +27,8 @@
 // #define DEBUG_AUDIO 1
 // #define PRINT_PATHS 1
 // #define DEBUG_BUFFERS 1
+// #define DEBUG_BUFFERS_PRIMARY 1
+// #define DISABLE_REVERB 1
 
 #define numChannels 1
 #define sampleFmt AUDIO_S16LSB
@@ -302,7 +304,6 @@ struct SongSettings
         SDL_MixAudioFormat(snareHatSound.buf, hihatSound.buf, sampleFmt, hihatSound.length, SDL_MIX_MAXVOLUME);
         
         this->inited = true;
-        this->sectionCount = 1;
 
     }
     

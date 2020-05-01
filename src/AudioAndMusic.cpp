@@ -13,8 +13,6 @@
 
 #include "MusicGen.h"
 
-//#define DISABLE_REVERB 0
-
 struct AudioSettings audioSettings;
 struct SongSettings songSettings;
 struct InternalAudioBuffer internalAudioBuffer;
@@ -252,7 +250,6 @@ int WriteMusicBuffer(void* ptr)
     if (songSettings.genLead)
         GenLeadTrack(leadBuf, internalAudioBuffer.backBufferLength);
 
-
     if (songSettings.genDrums)
         SDL_MixAudioFormat(inBuf, drumBuf, sampleFmt, internalAudioBuffer.backBufferLength, SDL_MIX_MAXVOLUME);
 
@@ -276,15 +273,14 @@ int WriteMusicBuffer(void* ptr)
         c16to8(leadOutBuf16, internalAudioBuffer.backBufferLength / 2, leadOutBuf);
         SDL_MixAudioFormat(leadBuf, leadOutBuf, sampleFmt, internalAudioBuffer.backBufferLength, SDL_MIX_MAXVOLUME);
 #endif
-        
         SDL_MixAudioFormat(inBuf, leadBuf, sampleFmt, internalAudioBuffer.backBufferLength, SDL_MIX_MAXVOLUME);
     }
 
-#ifdef DEBUG_BUFFERS
-    DumpBuffer(drumBuf, internalAudioBuffer.length, "DrumBuffer.txt");
-    DumpBuffer(bassBuf, internalAudioBuffer.length, "BassBuffer.txt");
-    DumpBuffer(leadBuf, internalAudioBuffer.length, "LeadBuffer.txt");
-    DumpBuffer(inBuf, internalAudioBuffer.length, "FullBuffer.txt");
+#ifdef DEBUG_BUFFERS_PRIMARY
+    DumpBuffer(drumBuf, internalAudioBuffer.length, "DrumBuffer" + std::to_string(songSettings.sectionCount) + ".txt");
+    DumpBuffer(bassBuf, internalAudioBuffer.length, "BassBuffer" + std::to_string(songSettings.sectionCount) + ".txt");
+    DumpBuffer(leadBuf, internalAudioBuffer.length, "LeadBuffer" + std::to_string(songSettings.sectionCount) + ".txt");
+    DumpBuffer(inBuf, internalAudioBuffer.length, "FullBuffer" + std::to_string(songSettings.sectionCount) + ".txt");
     std::cout << "Dumping Buffers!\n";
 #endif
 
@@ -678,6 +674,7 @@ void SetupAudio(bool callback)
     audioSettings.Init(callback);
     songSettings.Init();
     internalAudioBuffer.Init();
+    songSettings.sectionCount = 1;
     SDL_PauseAudioDevice(audioSettings.device, 0);
 }
 
