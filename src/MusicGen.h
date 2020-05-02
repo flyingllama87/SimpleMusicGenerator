@@ -91,7 +91,6 @@ void Sawtooth(float freq, int length, Uint16 magnitude, Uint8* inBuf);
 void Sine(float freq, int length, Uint16 magnitude, Uint8* inBuf);
 #endif
 
-
 // Effects
 void SafeFadeOut(Uint8* buffer, int numOfBytes, int currPos);
 void SafeFadeIn(Uint8* buffer, int numOfBytes, int currPos);
@@ -107,14 +106,16 @@ void FadeOut(Uint8* buffer, int numOfSamples);
 #endif
 
 // Music
-void TestArpeggios();
 void GenArp(float freq, int arpLengthMS, int NoteLength, int magnitude, Uint8* inBuf, int currPo, bool slide);
-void PlayMajorScale();
-void PlayMinorScale();
 ScaleType OppositeKeyMode(ScaleType key);
-void TestGiveScaleKey();
 std::pair<float, ScaleType> GiveKeyScale(float baseFreq, ScaleType keyType, int newDegree);
 void SwitchScale();
+#ifdef ENABLE_DEBUG_FUNCTIONS
+void TestGiveScaleKey();
+void TestArpeggios();
+void PlayMajorScale();
+void PlayMinorScale();
+#endif
 
 // Drums
 void GenDrumBeat(Uint8* drumBuf, int drumBufLength);
@@ -256,7 +257,7 @@ struct SongSettings
     bool loFi;
     bool inited = false;
 
-    std::string rngSeedString = "endocrine";
+    std::string rngSeedString = "covid";
     int rngSeed;
 
     bool drumsInited = false;
@@ -442,7 +443,6 @@ static struct Notes
         
     float getNoteFreq(std::string requestedNote)
     {
-        //std::find_if (myvector.begin(), myvector.end(), IsOdd);
         auto it = std::find_if(KV.begin(), KV.end(),
                                [&requestedNote](const std::pair<std::string, float>& element){ return element.first == requestedNote;}
         );
