@@ -1,6 +1,6 @@
 ### Description:
 
-Simple music generator program using SDL.  Tested on iOS, windows & macOS.
+Simple procedural music generator program.  Tested on iOS, windows & macOS.  Uses SDL for audio hardware abstraction.  Everything is my own except the modified reverb functions.
 
 Implemented:
 - Wave generators
@@ -14,21 +14,22 @@ Implemented:
 - Bass track generation
 - Lead track generation
 - Arpeggio generation
-- CLI interface options such as BPM etc.
+- CLI interface
 - basic GUI interface via iOS
 
 Unimplemented:
-- Accidentals in some areas!!
-- SDL2 GUI
-- WebAssembly support
+- Accidentals in some areas!
+- SDL2 GUI & WebAssembly GUI
 - Updated iOS GUI
-- Vibrato
-- More patterns! 'fligagoos', alternate between, etc.
+- Vibrato / LFO?
+- Backend seed voting server
 
 What I've learnt:
 - Coming but my own notes:
 - Building up small, pure functions DOES make it easier to restructure your program
-- Little Endian/Big Endian & off by one issues.  A bug that took me a long, long time to track down.
-- More modern-ish c++ stdlib.
-- Building a static lib and including that in other projects.
-- Some swift/iOS stuff.
+- Memory management
+- Endianness & off by one issues. Issues with endianness caused a bug that took me a long, long time to track down
+- More modern-ish c++ stdlib
+- Building a static lib and including that in other projects
+- Some swift/iOS stuff
+- Some music theory and audio programming skillz
