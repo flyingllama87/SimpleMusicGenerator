@@ -52,8 +52,11 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="wordlist.txt">
+    <CopyFileToFolders Include="..\SDL2\lib\x64\SDL2.dll">
       <Filter>Resource Files</Filter>
-    </Text>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="wordlist.txt">
+      <Filter>Resource Files</Filter>
+    </CopyFileToFolders>
   </ItemGroup>
 </Project>
