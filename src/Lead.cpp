@@ -109,8 +109,8 @@ void GenLeadTrack(Uint8* leadBuf, int leadBufLength)
             pickRandLeadPattern = 0;
 
         // this pattern sucks with lofi
-        if (songSettings.loFi == true && pickRandLeadPattern == 16)
-            pickRandLeadPattern = mtRNG() % 20;
+        //if (songSettings.loFi == true && pickRandLeadPattern == 16)
+        //    pickRandLeadPattern = mtRNG() % 20;
     }
 
     //DEBUG
@@ -828,8 +828,6 @@ void GenLeadTrack(Uint8* leadBuf, int leadBufLength)
     default:
         break;
     }
-
     songSettings.prevPatternLead = pickRandLeadPattern;
-
 }
 

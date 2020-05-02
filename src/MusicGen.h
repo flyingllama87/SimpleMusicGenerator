@@ -23,13 +23,15 @@
 #include <filesystem>
 #endif
 
+// COMMON
+// #define DISABLE_REVERB 1
+// #define DUMP_PRIMARY_BUFFERS 1
+// #define ENABLE_DEBUG_FUNCTIONS 1
+
+// RARE
 // #define DEBUG_AUDIO 1
 // #define PRINT_PATHS 1
-// #define DEBUG_BUFFERS 1
-// #define DISABLE_REVERB 1
 // #define DEBUG_DRUMS 1
-// #define DUMP_PRIMARY_BUFFERS 1
-// #define DUMP_BUFFERS
 
 #define numChannels 1
 #define sampleFmt AUDIO_S16LSB
@@ -70,32 +72,39 @@ void DumpBuffer(int16_t* wavBuffer, int length, std::string fileName);
 void DumpBuffer(Uint8* wavBuffer, int length, std::string fileName);
 
 // Wave & Sound Generators
+void SafeSquare(float freq, int length, int magnitude, Uint8 *inBuf, int currPos);
+void SlideSquare(float startFreq, float endFreq, int length, int magnitude, Uint8* inBuf, int currPos);
+void SafeSawtooth(float freq, int length, Uint16 magnitude, Uint8 *inBuf, int currPos);
+void Noise(float length, bool lowPitch, Uint8* inBuf, int magnitude = halfMag);
+void SafeSine(float freq, int length, Uint16 magnitude, Uint8 *inBuf, int currPos);
+void SafeLead(float freq, int length, Uint16 magnitude, Uint8* inBuf, int currPos);
+AudioData Silence(float length);
+// Debug generators
+#ifdef ENABLE_DEBUG_FUNCTIONS
 void DebugGenerators();
 int16_t* Square(float freq, float length, int magnitude);
 int16_t* Sawtooth(float freq, float length, Uint16 magnitude);
 int16_t* Noise(float length, bool lowPitch, int magnitude = halfMag);
 int16_t* SineWave(float freq, float length, Uint16 magnitude);
 void Square(float freq, int length, int magnitude, Uint8* inBuf);
-void SafeSquare(float freq, int length, int magnitude, Uint8 *inBuf, int currPos);
-void SlideSquare(float startFreq, float endFreq, int length, int magnitude, Uint8* inBuf, int currPos);
 void Sawtooth(float freq, int length, Uint16 magnitude, Uint8* inBuf);
-void SafeSawtooth(float freq, int length, Uint16 magnitude, Uint8 *inBuf, int currPos);
-void Noise(float length, bool lowPitch, Uint8* inBuf, int magnitude = halfMag);
 void Sine(float freq, int length, Uint16 magnitude, Uint8* inBuf);
-void SafeSine(float freq, int length, Uint16 magnitude, Uint8 *inBuf, int currPos);
-void SafeLead(float freq, int length, Uint16 magnitude, Uint8* inBuf, int currPos);
-AudioData Silence(float length);
+#endif
+
 
 // Effects
-void FadeIn(int16_t* buffer, int numOfSamples);
-void FadeOut(int16_t* buffer, int numOfSamples);
-void FadeIn(Uint8* buffer, int numOfSamples);
-void FadeOut(Uint8* buffer, int numOfSamples);
 void SafeFadeOut(Uint8* buffer, int numOfBytes, int currPos);
 void SafeFadeIn(Uint8* buffer, int numOfBytes, int currPos);
 void Reverb(short* inL, short* outL, int bufLen);
 void InitReverb();
 void DebugReverb();
+// Debug effects
+#ifdef ENABLE_DEBUG_FUNCTIONS
+void FadeIn(int16_t* buffer, int numOfSamples);
+void FadeOut(int16_t* buffer, int numOfSamples);
+void FadeIn(Uint8* buffer, int numOfSamples);
+void FadeOut(Uint8* buffer, int numOfSamples);
+#endif
 
 // Music
 void TestArpeggios();
@@ -187,8 +196,12 @@ struct AudioSettings
     
     void StopAudio()
     {
-        SDL_PauseAudioDevice(device, 1);
-        SDL_CloseAudioDevice(device);
+        if (this->inited)
+        {
+            SDL_PauseAudioDevice(device, 1);
+            SDL_CloseAudioDevice(device);
+            this->inited = false;
+        }
     }
 };
 extern AudioSettings audioSettings;
@@ -206,40 +219,47 @@ struct SongSettings
     int BPM;
     int beatsToBar;
     int barsPerMin;
+
     int barLenMS; // bar length in ms.
     int dblNoteLenMS;
     int noteLenMS; // Get noteLength in ms. 60000 = 1 min in milliseconds.
     int halfNoteLenMS;
     int qtrNoteLenMS;
     int eighthNoteLenMS;
+
     int barLenBytes;
     int dblNoteLenBytes;
     int noteLenBytes;
     int halfNoteLenBytes;
     int qtrNoteLenBytes;
     int eighthNoteLenBytes;
+
     int prevPatternDrums = 1;
     int prevPatternBass = 0;
     int prevPatternLead = 0;
-    int sectionCount = 1;
-    std::string keyNote;
-    ScaleType keyType;
-    float bassBaseScaleFreq;
-    float leadBaseScaleFreq;
-    ScaleType scaleType;
-    std::string keyDeg;
-    bool loFi;
-    bool inited;
     bool genDrums;
     bool genBass;
     bool genLead;
     bool leadSine = false;
     bool leadSawtooth = true;
     bool leadSquare = false;
+
+    int sectionCount = 1;
+    std::string keyNote;
+    ScaleType keyType;
+
+    float bassBaseScaleFreq;
+    float leadBaseScaleFreq;
+    ScaleType scaleType;
+    std::string keyDeg;
+
+    bool loFi;
+    bool inited = false;
+
     std::string rngSeedString = "endocrine";
     int rngSeed;
 
-    
+    bool drumsInited = false;
     AudioData kickSound;
     AudioData snareSound;
     AudioData hihatSound;
@@ -264,16 +284,9 @@ struct SongSettings
         this->genLead = true;
     }
 
+
     void Init() // Must be initialised after audioSettings are initialised.
     {
-        if (this->inited == true)
-        {
-            delete[] kickSound.buf;
-            delete[] snareSound.buf;
-            delete[] hihatSound.buf;
-            delete[] snareHatSound.buf;
-            delete[] kickHatSound.buf;
-        }
         if (!audioSettings.inited)
             std::cout << "\n\nWARNING: audioSettings not initialised.  This will fail.\n\n";
         //set lengths
@@ -290,6 +303,20 @@ struct SongSettings
 		this->halfNoteLenBytes = halfNoteLenMS * audioSettings.bytesPerMS;
 		this->qtrNoteLenBytes = qtrNoteLenMS * audioSettings.bytesPerMS;
 		this->eighthNoteLenBytes = eighthNoteLenMS * audioSettings.bytesPerMS;
+        this->inited = true;
+    }
+
+    // Drums only need to be inited at the start of music generation.  Technically, only needed when the samples per second changes when switching from/to lofi mode.
+    void ReinitDrums()
+    {
+        if (this->drumsInited == true)
+        {
+            delete[] kickSound.buf;
+            delete[] snareSound.buf;
+            delete[] hihatSound.buf;
+            delete[] snareHatSound.buf;
+            delete[] kickHatSound.buf;
+        }
 
         // set drum sounds
         this->kickSound = GiveKick();
@@ -305,8 +332,8 @@ struct SongSettings
         snareHatSound.buf = new Uint8[snareSound.length];
         memcpy(snareHatSound.buf, snareSound.buf, snareSound.length);
         SDL_MixAudioFormat(snareHatSound.buf, hihatSound.buf, sampleFmt, hihatSound.length, SDL_MIX_MAXVOLUME);
-        
-        this->inited = true;
+
+        this->drumsInited = true;
     }
     
     ~SongSettings()
@@ -351,7 +378,7 @@ struct InternalAudioBuffer
         if (!songSettings.inited || !audioSettings.inited)
             std::cout << "\n\nWARNING: songSettings or audioSettings not initialised.  This will fail.\n\n";
         backBufferLength = songSettings.barLenMS * 4 * audioSettings.samplesPerMS * 2; // 4 bars, x2 for bytes
-        backBufferLength = backBufferLength + (backBufferLength % 2); // Make length  if it wasn't.
+        backBufferLength = backBufferLength + (backBufferLength % 2); // Make length even if it wasn't.
         backBuf = new Uint8[backBufferLength]();
     }
 
@@ -364,7 +391,7 @@ struct InternalAudioBuffer
         if (!songSettings.inited || !audioSettings.inited)
             std::cout << "\n\nWARNING: songSettings or audioSettings not initialised.  This will fail.\n\n";
         length = songSettings.barLenMS * 4 * audioSettings.samplesPerMS * 2; // 4 bars, x2 for bytes
-        length = length + (length % 2); // Make length  if it wasn't.
+        length = length + (length % 2); // Make length even if it wasn't.
 
         buf = new Uint8[length]();
         inited = true;
@@ -375,20 +402,13 @@ struct InternalAudioBuffer
         std::cout << "\nCalling internalAudioBuffer destructor\n";
         delete[] buf;
         delete[] backBuf;
-
     }
-    
 };
 extern InternalAudioBuffer internalAudioBuffer;
 
-struct AudioData16
-{
-    Uint32 length = 0;
-    int16_t* buf;
-};
-
 static struct Notes
 {
+    // Is it worth constructing this programmatically?
     const std::vector<std::pair<std::string, float>> KV =
     {   std::make_pair("B4", 493.90f),
         std::make_pair("A4", 440.00f),
@@ -489,4 +509,11 @@ struct Scale
         }
 
     }
+};
+
+
+struct AudioData16
+{
+    Uint32 length = 0;
+    int16_t* buf;
 };

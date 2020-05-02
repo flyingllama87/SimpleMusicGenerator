@@ -109,7 +109,6 @@ std::string RandomWordFromWordList()
     for (int c = 0; c < randLineNum; c++)
     {
         getline(wordList, word);
-
     }
     return word;
 }

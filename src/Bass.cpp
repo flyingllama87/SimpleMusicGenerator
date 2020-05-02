@@ -160,7 +160,6 @@ void GenBassTrack(Uint8* bassBuf, int bassBufLength)
             if (barCount == 4)
                 SafeSawtooth(Note4, songSettings.halfNoteLenMS - 10, qtrMag, bassBuf, c);
 
-
             if (beatCount == 8)
             {
                 beatCount = 0;
@@ -212,16 +211,12 @@ void GenBassTrack(Uint8* bassBuf, int bassBufLength)
     {
         for (int c = 0; c < bassBufLength; c += (songSettings.noteLenBytes))
         {
-
-            //if (beatCount % 2 == 1)
-            //{
-                int chooseNote = mtRNG() % 9;
-                if (chooseNote < 8)
-                {
-                    float noteFreq = key.freqs[chooseNote];
-                    SafeSawtooth(noteFreq, songSettings.noteLenMS, qtrMag, bassBuf, c);
-                }
-            //}
+            int chooseNote = mtRNG() % 9;
+            if (chooseNote < 8)
+            {
+                float noteFreq = key.freqs[chooseNote];
+                SafeSawtooth(noteFreq, songSettings.noteLenMS, qtrMag, bassBuf, c);
+            }
 
             if (beatCount == 4)
             {
@@ -254,8 +249,8 @@ void GenBassTrack(Uint8* bassBuf, int bassBufLength)
             else
                 SafeSawtooth(freq2, songSettings.noteLenBytes, qtrMag, bassBuf, c);
 
-
-            if (beatCount == 1 && !(barCount == 1)) {
+            if (beatCount == 1 && !(barCount == 1))
+            {
                 chooseNote = mtRNG() % 8;
                 freq1 = key.freqs[chooseNote];
                 chooseNote = mtRNG() % 8;
@@ -291,7 +286,6 @@ void GenBassTrack(Uint8* bassBuf, int bassBufLength)
             if (barCount == 4)
                 SafeSawtooth(Note4, songSettings.halfNoteLenMS - 15, qtrMag, bassBuf, c);
 
-
             if (beatCount == 8)
             {
                 beatCount = 0;
@@ -307,4 +301,3 @@ void GenBassTrack(Uint8* bassBuf, int bassBufLength)
     }
 
 }
-

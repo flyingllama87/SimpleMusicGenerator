@@ -2,9 +2,10 @@
 // Taken from https://github.com/SergeiGorskiy/IFMO_Reverb.git
 // Modified for Single Channel
 // Cruft Removed
+// Move to secure functions where easy
 // Comments translated by Google Translate
 
-#define META 128 // 44
+#define META 256 // 44
 
 #define _CRT_SECURE_NO_WARNINGS
 
@@ -23,7 +24,8 @@ void Reverb(short* inL, short* outL, int bufLen) {
 
         inputL = (short)(*(inL + pos) * gain);
 
-        // each time the filters are passed: 1) a very muffled raw sample
+        // each time the filters are passed:
+        // 1) a very muffled raw sample
         // 2) index of the desired buffer (for arrays of iterators and sizes)
         // 3) pointer to the buffer itself
 

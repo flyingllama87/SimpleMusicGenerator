@@ -442,38 +442,35 @@ void GenDrumBeat(Uint8 *drumBuf, int drumBufLength)
 
 }
 
-
 AudioData GiveKick()
 {
     AudioData returnAD;
 
-    // 200ms kick
-    Uint16 kickLength = 200;
+    Uint16 kickLengthMS = 200;
 
-    Uint32 waveLength = audioSettings.samplesPerMS * kickLength * 2;
+    Uint32 waveLengthBytes = audioSettings.samplesPerMS * kickLengthMS * 2;
 
     // declare buffers
-    Uint8 *sineBuffer = new Uint8[waveLength];
-    Uint8 *waveBuffer = new Uint8[waveLength];
+    Uint8 *sineBuffer = new Uint8[waveLengthBytes];
+    Uint8 *waveBuffer = new Uint8[waveLengthBytes];
 
     // Noise
-    Noise(kickLength, true, waveBuffer, qtrMag / 2);
+    Noise(kickLengthMS, true, waveBuffer, qtrMag / 2);
 
     // SineWave
 #ifdef _WIN32 || _WIN64
-    Sine(60, kickLength, fullMag, sineBuffer);
+    SafeSine(60, kickLengthMS, fullMag, sineBuffer, 0);
 #else // Crappy speakers on laptops / mobile devices so need a higher freq kick
-    Sine(105, kickLength, halfMag, sineBuffer);
+    SafeSine(105, kickLengthMS, fullMag, sineBuffer, 0);
 #endif
-
-    FadeOut(waveBuffer, waveLength);
-    FadeOut(sineBuffer, waveLength);
+    SafeFadeOut(waveBuffer, waveLengthBytes, 0);
+    SafeFadeOut(sineBuffer, waveLengthBytes, 0);
 
     // Mix tracks
-    SDL_MixAudioFormat(waveBuffer, sineBuffer, sampleFmt, waveLength, SDL_MIX_MAXVOLUME);
+    SDL_MixAudioFormat(waveBuffer, sineBuffer, sampleFmt, waveLengthBytes, SDL_MIX_MAXVOLUME);
 
     returnAD.buf = waveBuffer;
-    returnAD.length = waveLength;
+    returnAD.length = waveLengthBytes;
 
     return returnAD;
 }
@@ -483,19 +480,18 @@ AudioData GiveHihat()
     AudioData returnAD;
 
     // 100ms hihat
-    Uint16 hatLength = 100;
+    Uint16 hatLengthMS = 100;
 
-    Uint32 waveLength = audioSettings.samplesPerMS * hatLength * 2;
-    Uint8* waveBuffer = new Uint8[waveLength];
+    Uint32 waveLengthBytes = audioSettings.samplesPerMS * hatLengthMS * 2;
+    Uint8* waveBuffer = new Uint8[waveLengthBytes];
 
     // Noise
-    Noise(hatLength, false, waveBuffer, qtrMag);
+    Noise(hatLengthMS, false, waveBuffer, qtrMag);
 
     //Fade
-    FadeOut(waveBuffer, waveLength);
-
+    SafeFadeOut(waveBuffer, waveLengthBytes, 0);
     returnAD.buf = waveBuffer;
-    returnAD.length = waveLength;
+    returnAD.length = waveLengthBytes;
 
     return returnAD;
 }
@@ -505,30 +501,30 @@ AudioData GiveSnare()
     AudioData returnAD;
 
     // 250ms snare
-    Uint32 snareLength = 250;
-    Uint32 const waveLength = audioSettings.samplesPerMS * snareLength * 2;
+    Uint32 snareLengthMS = 250;
+    Uint32 const waveLengthBytes = audioSettings.samplesPerMS * snareLengthMS * 2;
 
     // Initialise
-    Uint8* waveBuffer = new Uint8[waveLength];
-    Uint8* squareBuffer = new Uint8[waveLength];
+    Uint8* waveBuffer = new Uint8[waveLengthBytes];
+    Uint8* squareBuffer = new Uint8[waveLengthBytes];
 
     // Noise
-    Square(120, snareLength / 2, qtrMag / 4, squareBuffer);
-    Noise(snareLength, true, waveBuffer, qtrMag);
+    SafeSquare(120, snareLengthMS / 2, qtrMag / 4, squareBuffer, 0);
+    Noise(snareLengthMS, true, waveBuffer, qtrMag);
 
-    FadeOut(waveBuffer, waveLength);
-    FadeOut(squareBuffer, waveLength);
+    SafeFadeOut(waveBuffer, waveLengthBytes, 0);
+    SafeFadeOut(squareBuffer, waveLengthBytes, 0);
 
     // Mix tracks
-    SDL_MixAudioFormat(waveBuffer, squareBuffer, sampleFmt, waveLength, SDL_MIX_MAXVOLUME);
+    SDL_MixAudioFormat(waveBuffer, squareBuffer, sampleFmt, waveLengthBytes, SDL_MIX_MAXVOLUME);
 
     returnAD.buf = waveBuffer;
-    returnAD.length = waveLength;
+    returnAD.length = waveLengthBytes;
 
     return returnAD;
 }
 
-
+#ifdef ENABLE_DEBUG_FUNCTIONS
 void TestDrums()
 {
     SetupAudio();
@@ -577,3 +573,4 @@ void TestDrums()
     DumpBuffer(snare.buf, snare.length, "snare.txt");
 #endif
 }
+#endif

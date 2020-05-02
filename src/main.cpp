@@ -46,6 +46,7 @@ void Menu()
             " w to set a seed word and play\n"
             " p to pause music generation\n"
             " q to quit\n\n"
+#ifdef ENABLE_DEBUG_FUNCTIONS
             " --- DEBUG FUNCTIONS ---\n\n"
             " t to test wave/noise/effects generators\n"
             " d to test drums\n"
@@ -54,7 +55,9 @@ void Menu()
             " n to play a minor scale\n"
             " l to test selecting a random seed\n"
             " a to test arpeggios\n"
-            " k to test scale/chord progression\n\n";
+            " k to test scale/chord progression\n\n"
+#endif
+            ;
 
         std::cout << " --- CURRENT SETTINGS ---\n\n";
         std::cout << " BPM: " << songSettings.BPM << "\n";
@@ -70,12 +73,11 @@ void Menu()
         std::string menuStr;
         std::getline(std::cin, menuStr);
         char menuInput = menuStr[0];
-        if (menuInput == 'a')
-            TestArpeggios();
+
+        if (menuInput == 's')
+            SetupAudio(true);
         else if (menuInput == 'c')
             ChangeSongSettingsCLI();
-        else if (menuInput == 's')
-            SetupAudio(true);
         else if (menuInput == 'w')
             SetSeedAndPlay();
         else if (menuInput == 'r')
@@ -85,6 +87,14 @@ void Menu()
         }
         else if (menuInput == 'p')
             audioSettings.StopAudio();
+        else if (menuInput == 'q')
+        {
+            SDL_Quit();
+            exit(0);
+        }
+#ifdef ENABLE_DEBUG_FUNCTIONS
+        else if (menuInput == 'a')
+            TestArpeggios();
         else if (menuInput == 'd')
             TestDrums();
         else if (menuInput == 'f')
@@ -108,11 +118,7 @@ void Menu()
             DebugGenerators();
         else if (menuInput == 'k')
             TestGiveScaleKey();
-        else if (menuInput == 'q')
-        {
-            SDL_Quit();
-            exit(0);
-        }
+#endif
     }
 }
 
@@ -196,13 +202,13 @@ void ChangeSongSettingsCLI()
                 {
                     songSettings.loFi = false;
                     audioSettings.audSpecWant.freq = 48000;
-                    audioSettings.audSpecWant.samples = 32768;
+                    //audioSettings.audSpecWant.samples = 32768;
                 }
                 else
                 {
                     songSettings.loFi = true;
                     audioSettings.audSpecWant.freq = 8000;
-                    audioSettings.audSpecWant.samples = 4096;
+                    //audioSettings.audSpecWant.samples = 4096;
                 }
                 break;
             }
@@ -216,7 +222,6 @@ void ChangeSongSettingsCLI()
         }
     }
 }
-
 
 
 bool IsValidSeedInputChar(char ch)
@@ -249,7 +254,4 @@ void SetSeedAndPlay()
     SeedConfig();
 
     SetupAudio(true);
-
 }
-
-

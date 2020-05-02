@@ -56,7 +56,7 @@ void GenAudioStream(void* userdata, Uint8* stream, int len)
             printf("SDL_CreateThread failed: %s\n", SDL_GetError());
 
     }
-    else if (bytesTillIntBufEnd < len) // We are near the end of the internal buffer
+    else if (bytesTillIntBufEnd < len) // We are near the end of the internal buffer & need to generate the next section
     {
         // Copy the remaining data from the internal buffer
         memcpy(stream, &internalAudioBuffer.buf[internalAudioBuffer.pos], bytesTillIntBufEnd);
@@ -129,14 +129,13 @@ void GenAudioStream(void* userdata, Uint8* stream, int len)
         internalAudioBuffer.pos += len;
     }
 
-#ifdef DEBUG_BUFFERS
+#ifdef DEBUG_AUDIO
     DumpBuffer(stream, len, "ReqBuf.txt");
 #endif
 }
 
 void RNJesusSongSettings(int randTestChance)
 {
-
     // Evaluate switching musical scales (within key) or BPM between thread generations
     // switch scales?
     if (randTestChance > 90 && internalAudioBuffer.backBufferLength == internalAudioBuffer.length)
@@ -257,12 +256,12 @@ int GenMusic(void* ptr)
 void SetupAudio(bool callback)
 {
     songSettings.rngSeed = WordToNumber(songSettings.rngSeedString);
-    std::cout << "Seed word: " << songSettings.rngSeedString << "\n";
     audioSettings.Init(callback);
     songSettings.Init();
+    songSettings.ReinitDrums();
     internalAudioBuffer.Init();
     songSettings.sectionCount = 1;
-    SDL_PauseAudioDevice(audioSettings.device, 0);
+    SDL_PauseAudioDevice(audioSettings.device, 0); // Unpause audio device
 }
 
 
@@ -300,9 +299,7 @@ void RandomConfig()
     else {
         songSettings.scaleType = ScaleType::Minor;
         songSettings.keyType = ScaleType::Minor;
-
     }
-    
 }
 
 
@@ -522,7 +519,6 @@ void ConfigSong(int bpm, char note, int scale, bool lofi)
         songSettings.loFi = true;
         audioSettings.audSpecWant.freq = 8000;
         //audioSettings.audSpecWant.samples = 4096;
-
     }
     else {
         songSettings.loFi = false;
@@ -531,7 +527,7 @@ void ConfigSong(int bpm, char note, int scale, bool lofi)
     }
 }
 
-
+#ifdef ENABLE_DEBUG_FUNCTIONS
 void TestGiveScaleKey()
 {
 
@@ -836,3 +832,4 @@ void PlayMinorScale()
     delete[] scaleBuf;
 }
 
+#endif
