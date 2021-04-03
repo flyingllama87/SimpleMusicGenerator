@@ -17,6 +17,8 @@ struct SongSettings songSettings;
 struct InternalAudioBuffer internalAudioBuffer;
 std::mt19937 mtRNG;
 
+void RNJesusSongSettings(int randTestChance);
+
 // Callback function.  SDL will call this function when it wants audio.  Our mission is to fill the buffer.
 // len is number of bytes not number of samples requested.
 void GenAudioStream(void* userdata, Uint8* stream, int len)
@@ -104,7 +106,7 @@ void GenAudioStream(void* userdata, Uint8* stream, int len)
                     std::cout << "***ERROR*** Something happened with the BG thread!!! \n";
                 }
 
-                void RNJesusSongSettings(int randTestChance);
+                RNJesusSongSettings(randTestChance);
 
                 // Launch new thread to generate music to backBuffer
                 // std::cout << "Launching new BG thread to generate next section. \n";
