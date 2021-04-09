@@ -105,76 +105,38 @@ public:
                 cout << "LoFi state: " << songSettings.loFi << endl;
             });
 
+            auto& nsongList = window("Song List", Vector2i{ 300, 15 })
+                .withLayout<GroupLayout>();
 
-        auto& nsongList = window("Song List", Vector2i{ 300, 15 })
-            .withLayout<GroupLayout>();
+            std::vector<std::string> listOfSeeds; 
+            listOfSeeds.push_back("partake");
+            listOfSeeds.push_back("removal");
+            listOfSeeds.push_back("going");
+            listOfSeeds.push_back("caboose");
+            listOfSeeds.push_back("sebian");
+            listOfSeeds.push_back("amuser");
+            listOfSeeds.push_back("majesty");
+            listOfSeeds.push_back("oops");
+            listOfSeeds.push_back("flaxseed");
 
-        
-        // Samples
+            for (auto str = listOfSeeds.begin(); str != listOfSeeds.end(); str++)
+            {
+                std::string seedStr = *str;
+                std::cout << "seedStr: " << seedStr << "\n";
+                std::cout << str << " str: " << &str << "\n";
+                std::cout << *str << " *str: " << &*str << "\n";
+                // std::cout << str << " (void*)str: " << (void*)str << "\n";
+                // std::cout << *str << " (void*)*str: " << (void*)*str << "\n";
 
-        nsongList.button(
-            "partake", [&seedString](bool state) {
-                        songSettings.rngSeedString = "partake";
-                        seedString.setValue("partake");
-                    })
-            .setFlags(Button::RadioButton);
-        
-        nsongList.button(
-            "removal", [&seedString](bool state) {
-                        songSettings.rngSeedString = "removal";
-                        seedString.setValue("removal");
-                    })
-            .setFlags(Button::RadioButton);
-
-        nsongList.button(
-            "going", [&seedString](bool state) {
-                        songSettings.rngSeedString = "going";
-                        seedString.setValue("going");
-                    })
-            .setFlags(Button::RadioButton);
-
-        nsongList.button(
-            "caboose", [&seedString](bool state) {
-                        songSettings.rngSeedString = "caboose";
-                        seedString.setValue("caboose");
-                    })
-            .setFlags(Button::RadioButton);
-
-        nsongList.button(
-            "serbian", [&seedString](bool state) {
-                        songSettings.rngSeedString = "serbian";
-                        seedString.setValue("serbian");
-                    })
-            .setFlags(Button::RadioButton);
-
-        nsongList.button(
-            "amuser", [&seedString](bool state) {
-                        songSettings.rngSeedString = "amuser";
-                        seedString.setValue("amuser");
-                    })
-            .setFlags(Button::RadioButton);
-
-        nsongList.button(
-            "majesty", [&seedString](bool state) {
-                        songSettings.rngSeedString = "majesty";
-                        seedString.setValue("majesty");
-                    })
-            .setFlags(Button::RadioButton);
-
-        nsongList.button(
-            "oops", [&seedString](bool state) {
-                        songSettings.rngSeedString = "oops";
-                        seedString.setValue("oops");
-                    })
-            .setFlags(Button::RadioButton);
-
-        nsongList.button(
-            "flaxseed", [&seedString](bool state) {
-                        songSettings.rngSeedString = "flaxseed";
-                        seedString.setValue("flaxseed");
-                    })
-            .setFlags(Button::RadioButton);
-
+                nsongList.button(
+                *str, [&seedString, &seedStr, &listOfSeeds](bool state) {
+                            songSettings.rngSeedString = seedStr;
+                            std::cout << "\n\n" << seedStr << "\n\n";
+                            std::cout << seedStr << " seedStr: " << &seedStr << "\n";
+                            seedString.setValue(seedStr);
+                        })
+                .setFlags(Button::RadioButton);
+            }
         }
 
         performLayout(mSDL_Renderer);
