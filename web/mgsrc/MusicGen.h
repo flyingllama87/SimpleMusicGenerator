@@ -6,7 +6,7 @@
 //
 
 #include <iostream>
-#include <SDL2/SDL_mixer.h>
+#include <SDL_mixer.h>
 #include <string>
 #include <vector>
 #include <stdlib.h>
@@ -18,7 +18,8 @@
 #include <functional>
 #include <algorithm>
 #include <random>
-#include <SDL2/SDL_timer.h>
+#include <SDL_timer.h>
+#define _SILENCE_EXPERIMENTAL_FILESYSTEM_DEPRECATION_WARNING 1
 #include "filesystem.hpp"
 
 // COMMON

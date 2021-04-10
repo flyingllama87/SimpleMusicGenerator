@@ -54,6 +54,8 @@ using std::cout;
 using std::cerr;
 using std::endl;
 
+std::vector<std::string> listOfSeeds; 
+
 #undef main
 
 using namespace sdlgui;
@@ -108,7 +110,7 @@ public:
             auto& nsongList = window("Song List", Vector2i{ 300, 15 })
                 .withLayout<GroupLayout>();
 
-            std::vector<std::string> listOfSeeds; 
+            listOfSeeds.push_back("covid");
             listOfSeeds.push_back("partake");
             listOfSeeds.push_back("removal");
             listOfSeeds.push_back("going");
@@ -123,18 +125,19 @@ public:
             {
                 std::string seedStr = *str;
                 std::cout << "seedStr: " << seedStr << "\n";
-                std::cout << str << " str: " << &str << "\n";
-                std::cout << *str << " *str: " << &*str << "\n";
+                // std::cout << str << " str: " << &str << "\n";
+                // std::cout << *str << " *str: " << &*str << "\n";
                 // std::cout << str << " (void*)str: " << (void*)str << "\n";
                 // std::cout << *str << " (void*)*str: " << (void*)*str << "\n";
 
                 nsongList.button(
-                *str, [&seedString, &seedStr, &listOfSeeds](bool state) {
-                            songSettings.rngSeedString = seedStr;
-                            std::cout << "\n\n" << seedStr << "\n\n";
-                            std::cout << seedStr << " seedStr: " << &seedStr << "\n";
-                            seedString.setValue(seedStr);
-                        })
+                    *str, [&seedString, str](bool state) {
+                                songSettings.rngSeedString = *str;
+                                // std::cout << "\n\n" << caption << "\n\n";
+                                std::cout << *str << "\n";
+                                // std::cout << caption << " seedStr: " << &caption << "\n";
+                                seedString.setValue(*str);
+                            })
                 .setFlags(Button::RadioButton);
             }
         }

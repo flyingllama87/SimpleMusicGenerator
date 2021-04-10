@@ -1,6 +1,6 @@
-cmake_minimum_required (VERSION 2.8.3)
+cmake_minimum_required (VERSION 2.8.13)
 
-project("sdlgui")
+project("MusicGen")
 
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -11,6 +11,8 @@ set(NNGUI_EXTRA_LIBS "")
 
 # Platform-dependent files for nngui
 set(NNGUI_EXTRA_SOURCE "")
+
+# set(SDL_LIBRARY "./SDL2/lib/x64")
 
 include(CheckCXXCompilerFlag)
 
@@ -43,6 +45,7 @@ endif()
 if(MSVC)
   if(CMAKE_CXX_FLAGS MATCHES "/W[0-4]")
     string(REGEX REPLACE "/W[0-4]" "/W4" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+    set(SDL2_MIXER_DIR "SDL2")
   else()
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4")
   endif()
@@ -73,8 +76,9 @@ if( ${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
     # add_definitions(-DDEBUG_AUDIO)
 else()
     find_package(SDL2 REQUIRED)
-    find_package(SDL2IMAGE REQUIRED)
+    find_package(SDL2_IMAGE REQUIRED)
     find_package(SDL2TTF REQUIRED)
+    find_package(SDL2_MIXER REQUIRED)
 endif()
 
 include_directories(${CMAKE_SOURCE_DIR}/include)
@@ -85,8 +89,9 @@ if( ${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
 else()
     message([STATUS] "SETTING SDL2 INCLUDES FLAGS")
     include_directories(${SDL2_INCLUDE_DIR})
-    include_directories(${SDL2TTF_INCLUDE_DIR})
     include_directories(${SDL2_IMAGE_INCLUDE_DIR})
+    include_directories(${SDL2TTF_INCLUDE_DIR})
+    include_directories(${SDL2_MIXER_INCLUDE_DIR})
 endif()
 
 
@@ -149,7 +154,6 @@ list(APPEND NNGUI_BASIC_SOURCE
      sdlgui/nanovg_rt.h
      mgsrc/MusicGen.h
      mgsrc/reverb.h
-
      mgsrc/AudioAndMusic.cpp
      mgsrc/Bass.cpp
      mgsrc/Drums.cpp
@@ -191,13 +195,14 @@ list(APPEND NNGUI_BASIC_SOURCE
 )
      
 option(NANOGUI_BUILD_MUSICGEN "Build Music Generator & WASM interface" ON)
+
 if (NANOGUI_BUILD_MUSICGEN)
   # Build example application if desired
   add_executable(musicGenWASM ${NNGUI_EXTRA_SOURCE} ${NNGUI_BASIC_SOURCE} MusicGenWASM.cpp )
   set_target_properties(
       musicGenWASM PROPERTIES
       VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/build/debug")
-  target_link_libraries(musicGenWASM ${NNGUI_EXTRA_LIBS} ${SDL2_LIBRARY} ${SDL2IMAGE_LIBRARY} ${SDL2TTF_LIBRARY})
+  target_link_libraries(musicGenWASM ${NNGUI_EXTRA_LIBS} ${SDL2_LIBRARY} ${SDL2IMAGE_LIBRARY} ${SDL2TTF_LIBRARY} ${SDL2_MIXER_LIBRARY})
 
   # Copy icons for example application
   if (WIN32) 
