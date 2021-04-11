@@ -1,5 +1,4 @@
 /*
-
 Morgan Robertson 2021
 */
 
@@ -84,17 +83,13 @@ public:
             nwindow.label("Play Controls", "sans-bold");
 
             nwindow.button("Start", [] {
-                       StatusCheck();
                        SeedConfig();
                        SetupAudio(true);
-                       StatusCheck();
                    }).withTooltip("Start the music");
 
             nwindow.button("Stop", [] {
-                StatusCheck();
                 audioSettings.StopAudio();
                 SeedConfig();
-                StatusCheck();
             });
 
             nwindow.label("Settings", "sans-bold");
@@ -120,6 +115,13 @@ public:
             listOfSeeds.push_back("majesty");
             listOfSeeds.push_back("oops");
             listOfSeeds.push_back("flaxseed");
+
+            nsongList.button(
+                "Random", [&seedString](bool state) {
+                    RandomConfig();
+                })
+                .setFlags(Button::RadioButton);
+
 
             for (auto str = listOfSeeds.begin(); str != listOfSeeds.end(); str++)
             {

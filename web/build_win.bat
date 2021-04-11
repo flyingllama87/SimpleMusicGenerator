@@ -9,4 +9,9 @@ copy ..\SDL2\lib\x64\*.dll debug\
 
 copy ..\SDL2\lib\x64\*.dll release\
 
+copy ..\resources/wordlist.txt debug\
+
+copy ..\resources/wordlist.txt release\
+
+
 pause

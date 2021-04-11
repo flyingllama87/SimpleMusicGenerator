@@ -118,6 +118,7 @@ void StatusCheck()
 {
 
     std::cout << 
+    "\n\n** STATUS CHECK ** \n\n"
     "audioSettings.inited: " << audioSettings.inited << "\n"
     "audioSettings.audSpecWant.freq: " << audioSettings.audSpecWant.freq << "\n"
     "audioSettings.audSpecHave.freq: " << audioSettings.audSpecHave.freq << "\n"

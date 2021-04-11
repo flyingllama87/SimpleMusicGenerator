@@ -275,23 +275,7 @@ void SetupAudio(bool callback)
 void RandomConfig()
 {
     songSettings.rngSeedString = RandomWordFromWordList();
-    songSettings.rngSeed = WordToNumber(songSettings.rngSeedString);
-    mtRNG.seed(songSettings.rngSeed);
-
-    songSettings.BPM = ((mtRNG() % 45) * 4) + 60;
-    char note = (mtRNG() % 7) + 65;
-    songSettings.keyNote = note;
-    songSettings.bassBaseScaleFreq = Notes.getNoteFreq(std::string(1, note) + "1");
-    songSettings.leadBaseScaleFreq = Notes.getNoteFreq(std::string(1, note) + "3");
-
-    if (mtRNG() % 2) {
-        songSettings.scaleType = ScaleType::Major;
-        songSettings.keyType = ScaleType::Major;
-    }
-    else {
-        songSettings.scaleType = ScaleType::Minor;
-        songSettings.keyType = ScaleType::Minor;
-    }
+    SeedConfig();
 }
 
 
