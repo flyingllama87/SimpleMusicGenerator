@@ -115,13 +115,13 @@ public:
             listOfSeeds.push_back("majesty");
             listOfSeeds.push_back("oops");
             listOfSeeds.push_back("flaxseed");
+            listOfSeeds.push_back("reroute");
 
             nsongList.button(
                 "Random", [&seedString](bool state) {
-                    RandomConfig();
-                })
-                .setFlags(Button::RadioButton);
-
+                    songSettings.rngSeedString = RandomWordFromWordList();
+                    seedString.setValue(songSettings.rngSeedString);
+                });
 
             for (auto str = listOfSeeds.begin(); str != listOfSeeds.end(); str++)
             {
@@ -135,9 +135,6 @@ public:
                 nsongList.button(
                     *str, [&seedString, str](bool state) {
                                 songSettings.rngSeedString = *str;
-                                // std::cout << "\n\n" << caption << "\n\n";
-                                std::cout << *str << "\n";
-                                // std::cout << caption << " seedStr: " << &caption << "\n";
                                 seedString.setValue(*str);
                             })
                 .setFlags(Button::RadioButton);

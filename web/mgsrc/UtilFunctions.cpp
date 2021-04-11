@@ -98,6 +98,26 @@ unsigned WordToNumber(std::string word)
     return num * word.length();
 }
 
+// trim from left
+inline std::string& ltrim(std::string& s)
+{
+    s.erase(0, s.find_first_not_of(" \t\n\r\f\v"));
+    return s;
+}
+
+// trim from right
+inline std::string& rtrim(std::string& s)
+{
+    s.erase(s.find_last_not_of(" \t\n\r\f\v") + 1);
+    return s;
+}
+
+// trim from left & right
+inline std::string& trim(std::string& s)
+{
+    return ltrim(rtrim(s));
+}
+
 // This selects a random word from the word list.
 std::string RandomWordFromWordList()
 {
@@ -111,6 +131,7 @@ std::string RandomWordFromWordList()
     {
         getline(wordList, word);
     }
+    word = trim(word);
     return word;
 }
 
