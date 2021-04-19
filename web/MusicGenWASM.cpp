@@ -27,14 +27,19 @@ Morgan Robertson 2021
 #include <sdlgui/formhelper.h>
 #include <memory>
 #include <chrono>
+
 #include <mgsrc/MusicGen.h>
 
+#define EMSCRIPTEN 1
+
+
 #if EMSCRIPTEN
-#include <emscripten.h>
+    #include <emscripten.h>
+    #include <emscripten/fetch.h>
 #endif
 
 #if defined(_WIN32)
-#include <windows.h>
+    #include <windows.h>
 #endif
 #include <iostream>
 
@@ -118,10 +123,14 @@ public:
             listOfSeeds.push_back("reroute");
 
             nsongList.button(
-                "Random", [&seedString](bool state) {
-                    songSettings.rngSeedString = RandomWordFromWordList();
-                    seedString.setValue(songSettings.rngSeedString);
-                });
+                "RANDOM", [&seedString](bool state) {
+                    if (state == true)
+                    {
+                        songSettings.rngSeedString = RandomWordFromWordList();
+                        seedString.setValue(songSettings.rngSeedString);
+                    }
+                })
+                .setBackgroundColor(Color(0, 255, 25, 25));
 
             for (auto str = listOfSeeds.begin(); str != listOfSeeds.end(); str++)
             {
@@ -212,6 +221,21 @@ SDL_Renderer* g_renderer;
 TestWindow* g_screen;
 Fps fps;
 SDL_Event e;
+
+#ifdef EMSCRIPTEN
+
+    void downloadSucceeded(emscripten_fetch_t *fetch) {
+        printf("Finished downloading %llu bytes from URL %s.\n", fetch->numBytes, fetch->url);
+        // The data is now available at fetch->data[0] through fetch->data[fetch->numBytes-1];
+        emscripten_fetch_close(fetch); // Free data associated with the fetch.
+    }
+
+    void downloadFailed(emscripten_fetch_t *fetch) {
+        printf("Downloading %s failed, HTTP failure status code: %d.\n", fetch->url, fetch->status);
+        emscripten_fetch_close(fetch); // Also free data on failure.
+    }
+
+#endif
 
 int main(int /* argc */, char** /* argv */)
 {
@@ -307,6 +331,13 @@ int main(int /* argc */, char** /* argv */)
     std::cout << "About to render!" << '\n';
 
 #ifdef EMSCRIPTEN
+    emscripten_fetch_attr_t attr;
+    emscripten_fetch_attr_init(&attr);
+    strcpy(attr.requestMethod, "GET");
+    attr.attributes = EMSCRIPTEN_FETCH_LOAD_TO_MEMORY;
+    attr.onsuccess = downloadSucceeded;
+    attr.onerror = downloadFailed;
+    emscripten_fetch(&attr, "myfile.dat");
     emscripten_set_main_loop(MainLoop, 30, 1);
 #else
     while (quit == false) {

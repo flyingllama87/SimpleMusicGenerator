@@ -270,14 +270,11 @@ void SetupAudio(bool callback)
 }
 
 
-
-
 void RandomConfig()
 {
     songSettings.rngSeedString = RandomWordFromWordList();
     SeedConfig();
 }
-
 
 void SeedConfig()
 {

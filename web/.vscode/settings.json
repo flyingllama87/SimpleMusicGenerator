@@ -1,7 +1,8 @@
 {
     "C_Cpp.default.includePath": [
         "${workspaceFolder}/**",
-        "/usr/include/**"
+        "/usr/include/**",
+        "/home/user/src/emsdk/upstream/emscripten/system/include/**"
     ],
     "C_Cpp.errorSquiggles": "Enabled",
     "C_Cpp.loggingLevel": "Debug"

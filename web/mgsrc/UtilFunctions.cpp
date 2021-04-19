@@ -124,9 +124,9 @@ std::string RandomWordFromWordList()
     int linesInFile = 7776;
     int randLineNum = rand() % linesInFile;
     std::string word = "";
-    std::cout << "loading word list\n";
+    // std::cout << "loading word list\n";
     std::ifstream wordList("wordlist.txt");
-    std::cout << "loaded word list\n";
+    // std::cout << "loaded word list\n";
     for (int c = 0; c < randLineNum; c++)
     {
         getline(wordList, word);

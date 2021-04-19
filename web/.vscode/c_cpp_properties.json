@@ -5,14 +5,42 @@
             "includePath": [
                 "${workspaceFolder}/**",
                 "${workspaceFolder}",
-                "/usr/include"
+                "/usr/include",
+                "/home/user/src/emsdk/upstream/emscripten/system/include/**"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/clang",
             "cStandard": "c11",
             "cppStandard": "c++14",
             "intelliSenseMode": "linux-clang-x64",
-            "configurationProvider": "ms-vscode.cmake-tools"
+            "configurationProvider": "ms-vscode.cmake-tools",
+            "browse": {
+                "path": [
+                    "/home/user/src/emsdk/upstream/emscripten/system/include/**"
+                ]
+            }
+        },
+        {
+            "name": "EMCC",
+            "includePath": [
+                "${default}",
+                "/home/user/src/emsdk/upstream/emscripten/system/include/**",
+                "${workspaceFolder}/**",
+                "/usr/include"
+            ],
+            "defines": [],
+            "compilerPath": "/home/user/src/emsdk/upstream/emscripten/emcc",
+            "cStandard": "c11",
+            "cppStandard": "c++14",
+            "intelliSenseMode": "linux-clang-x64",
+            "compilerArgs": [
+                "-Wno-narrowing -g -s USE_WEBGL2=1 --profiling -flto -s FETCH=1 --embed-file ../resources/wordlist.txt@wordlist.txt -s ALLOW_BLOCKING_ON_MAIN_THREAD=1 -s FULL_ES3=1 -pthread --shell-file shell-minimal.html -s ALLOW_MEMORY_GROWTH=1 -s WASM=1 -s USE_SDL=2 -s USE_SDL_IMAGE=2 -s USE_SDL_MIXER=2 -s USE_SDL_TTF=2"
+            ],
+            "browse": {
+                "path": [
+                    "/home/user/src/emsdk/upstream/emscripten/system/include/**"
+                ]
+            }
         }
     ],
     "version": 4
