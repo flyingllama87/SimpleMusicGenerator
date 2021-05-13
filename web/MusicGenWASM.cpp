@@ -30,8 +30,6 @@ Morgan Robertson 2021
 
 #include <mgsrc/MusicGen.h>
 
-#define EMSCRIPTEN 1
-
 
 #if EMSCRIPTEN
     #include <emscripten.h>
@@ -134,12 +132,8 @@ public:
 
             for (auto str = listOfSeeds.begin(); str != listOfSeeds.end(); str++)
             {
-                std::string seedStr = *str;
-                std::cout << "seedStr: " << seedStr << "\n";
-                // std::cout << str << " str: " << &str << "\n";
-                // std::cout << *str << " *str: " << &*str << "\n";
-                // std::cout << str << " (void*)str: " << (void*)str << "\n";
-                // std::cout << *str << " (void*)*str: " << (void*)*str << "\n";
+                // std::string seedStr = *str;
+                // std::cout << "seedStr: " << seedStr << "\n";
 
                 nsongList.button(
                     *str, [&seedString, str](bool state) {
@@ -221,6 +215,8 @@ SDL_Renderer* g_renderer;
 TestWindow* g_screen;
 Fps fps;
 SDL_Event e;
+
+// #define EMSCRIPTEN 1
 
 #ifdef EMSCRIPTEN
 
@@ -337,7 +333,7 @@ int main(int /* argc */, char** /* argv */)
     attr.attributes = EMSCRIPTEN_FETCH_LOAD_TO_MEMORY;
     attr.onsuccess = downloadSucceeded;
     attr.onerror = downloadFailed;
-    emscripten_fetch(&attr, "myfile.dat");
+    emscripten_fetch(&attr, "http://morganrobertson.net/wp-content/uploads/3_cropped_130x130.png");
     emscripten_set_main_loop(MainLoop, 30, 1);
 #else
     while (quit == false) {
