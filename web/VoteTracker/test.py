@@ -168,6 +168,8 @@ if __name__ == "__main__":
         for x in range(2):
             test_DownVote(name = random_name)
 
+        test_GetScores()
+
         if failed_tests == False:
             print(f'{Fore.GREEN}ALL TESTS PASSED!{Style.RESET_ALL}')
         else: 

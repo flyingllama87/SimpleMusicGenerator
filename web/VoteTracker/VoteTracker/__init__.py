@@ -64,7 +64,7 @@ def DownVote(name:str="seed") -> str:
         db.close_db()
 
 @jsonrpc.method('app.GetScores')
-def GetScores() -> dict:
+def GetScores() -> str:
     try:
         db_connection = db.get_db()
         db_scores = db_connection.execute('SELECT * FROM scores ORDER BY score DESC').fetchall()
