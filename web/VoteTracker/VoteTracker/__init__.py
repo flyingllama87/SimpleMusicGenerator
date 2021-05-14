@@ -47,7 +47,9 @@ def vt_start():
     @app.route('/api/DownVote', methods=['POST'])
     def DownVote() -> str:
         try:
-            name = validate_seed(request.form['seed'])
+            if (validate_seed(request.form['seed']) == False):
+                raise Exception("Seed val needs to be alpha numeric or spaces only")
+            name = request.form['seed']
             db_connection = db.get_db()
             previous_score = db_connection.execute('SELECT * FROM scores WHERE name = ?', (name,)).fetchone()
             if previous_score and previous_score['score']:

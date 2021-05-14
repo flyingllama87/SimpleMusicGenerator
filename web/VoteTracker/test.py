@@ -160,7 +160,6 @@ if __name__ == "__main__":
 
         # Try another seed
         random_name = random_generator() + " 123"
-        test_check()
         test_UpVote(name = random_name)
         test_UpVoteInvalidData()
         
