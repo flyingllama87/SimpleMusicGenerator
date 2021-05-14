@@ -7,3 +7,4 @@ CREATE TABLE scores (
 
 INSERT INTO scores VALUES ("going", 10);
 INSERT INTO scores VALUES ("shitsong", -5);
+INSERT INTO scores VALUES ("seed with spaces", 2);
