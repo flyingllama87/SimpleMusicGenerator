@@ -30,10 +30,12 @@ Morgan Robertson 2021
 
 #include <mgsrc/MusicGen.h>
 
+#define API_URL "http://127.0.0.1:5000/api/"
 
 #if EMSCRIPTEN
     #include <emscripten.h>
     #include <emscripten/fetch.h>
+    // #include <emscripten/html5.h>
 #endif
 
 #if defined(_WIN32)
@@ -43,12 +45,9 @@ Morgan Robertson 2021
 
 #if defined(_WIN32)
 #include <SDL.h>
-#else
-#include <SDL2/SDL.h>
-#endif
-#if defined(_WIN32)
 #include <SDL_image.h>
 #else
+#include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #endif
 
@@ -56,7 +55,32 @@ using std::cout;
 using std::cerr;
 using std::endl;
 
-std::vector<std::string> listOfSeeds; 
+std::vector<std::tuple<std::string, int>> listOfSeeds;
+
+#ifdef EMSCRIPTEN
+
+    void downloadSucceeded(emscripten_fetch_t *fetch) {
+        printf("Finished downloading %llu bytes from URL %s.\n", fetch->numBytes, fetch->url);
+        // The data is now available at fetch->data[0] through fetch->data[fetch->numBytes-1];
+        emscripten_fetch_close(fetch); // Free data associated with the fetch.
+    }
+
+    void downloadFailed(emscripten_fetch_t *fetch) {
+        printf("Downloading %s failed, HTTP failure status code: %d.\n", fetch->url, fetch->status);
+        emscripten_fetch_close(fetch); // Also free data on failure.
+    }
+
+#endif
+
+#ifdef EMSCRIPTEN
+    EM_JS(int, canvas_get_width, (), {
+        return yourCanvasElement.width;
+    });
+
+    EM_JS(int, canvas_get_height, (), {
+        return yourCanvasElement.height;
+    });
+#endif
 
 #undef main
 
@@ -86,8 +110,11 @@ public:
             nwindow.label("Play Controls", "sans-bold");
 
             nwindow.button("Start", [] {
-                       SeedConfig();
-                       SetupAudio(true);
+                        if (audioSettings.inited == true) {
+                            audioSettings.StopAudio();
+                        }
+                        SeedConfig();
+                        SetupAudio(true);
                    }).withTooltip("Start the music");
 
             nwindow.button("Stop", [] {
@@ -95,6 +122,10 @@ public:
                 SeedConfig();
             });
 
+
+            /*
+            // Lofi mode is disabled for now as a) voting system can't differentiate between lofi or not and b) RNG is impacted with it on and thus the same seed sounds different if it's on vs not.
+            
             nwindow.label("Settings", "sans-bold");
 
             auto& loFiToggle = nwindow.button("Lo-Fi Mode");
@@ -104,21 +135,62 @@ public:
                 cout << "Toggle button state: " << state << endl;
                 cout << "LoFi state: " << songSettings.loFi << endl;
             });
+            */
+
+            nwindow.label("Vote", "sans-bold");
+            nwindow.button("Vote Up", [] {
+                    cout << "Lol No" << endl;
+                    emscripten_fetch_attr_t attr;
+                    emscripten_fetch_attr_init(&attr);
+                    strcpy(attr.requestMethod, "POST");
+                    const char * headers[] = {"Content-Type", "application/x-www-form-urlencoded", 0};
+                    attr.requestHeaders = headers;
+                    attr.attributes = EMSCRIPTEN_FETCH_LOAD_TO_MEMORY;
+                    attr.onsuccess = downloadSucceeded;
+                    attr.onerror = downloadFailed;
+                    std::string apiEndpoint = API_URL;
+                    apiEndpoint += "UpVote";
+                    std::string requestData = "seed=" + songSettings.rngSeedString;
+                    attr.requestData = requestData.c_str();
+                    attr.requestDataSize = strlen(attr.requestData);
+                    cout << "API Endpoint: " << apiEndpoint.c_str() << " Data sent: " << requestData.c_str() << " which has a length of " << std::to_string(attr.requestDataSize) << " bytes.";
+                    emscripten_fetch(&attr, apiEndpoint.c_str());
+                 });
+            nwindow.button("Vote Down", [] {
+                cout << "Lol No" << endl;
+            });
+
+
 
             auto& nsongList = window("Song List", Vector2i{ 300, 15 })
                 .withLayout<GroupLayout>();
 
-            listOfSeeds.push_back("covid");
-            listOfSeeds.push_back("partake");
-            listOfSeeds.push_back("removal");
-            listOfSeeds.push_back("going");
-            listOfSeeds.push_back("caboose");
-            listOfSeeds.push_back("sebian");
-            listOfSeeds.push_back("amuser");
-            listOfSeeds.push_back("majesty");
-            listOfSeeds.push_back("oops");
-            listOfSeeds.push_back("flaxseed");
-            listOfSeeds.push_back("reroute");
+            auto* seedLayout = new GridLayout(
+                                    Orientation::Horizontal,
+                                    2,
+                                    Alignment::Middle,
+                                    15,
+                                    5
+                                );
+            seedLayout->setColAlignment({ Alignment::Maximum, Alignment::Fill });
+
+            nsongList.setLayout(seedLayout);
+
+            std::tuple<std::string, int> seedAndScore;
+
+            listOfSeeds.push_back(std::tuple<std::string, int>{"covid", 0});
+            listOfSeeds.push_back(std::tuple<std::string, int>{"partake", 0});
+            listOfSeeds.push_back(std::tuple<std::string, int>{"removal", 0});
+            listOfSeeds.push_back(std::tuple<std::string, int>{"going", 0});
+            listOfSeeds.push_back(std::tuple<std::string, int>{"caboose", 0});
+            listOfSeeds.push_back(std::tuple<std::string, int>{"serbian", 0});
+            listOfSeeds.push_back(std::tuple<std::string, int>{"amuser", 0});
+            listOfSeeds.push_back(std::tuple<std::string, int>{"majesty", 0});
+            listOfSeeds.push_back(std::tuple<std::string, int>{"oops", 0});
+            listOfSeeds.push_back(std::tuple<std::string, int>{"flaxseed", 0});
+            listOfSeeds.push_back(std::tuple<std::string, int>{"reroute", 0});
+
+
 
             nsongList.button(
                 "RANDOM", [&seedString](bool state) {
@@ -126,21 +198,43 @@ public:
                     {
                         songSettings.rngSeedString = RandomWordFromWordList();
                         seedString.setValue(songSettings.rngSeedString);
+                        // Restart Audio
+                        audioSettings.StopAudio();
+                        SeedConfig();
+                        SetupAudio(true);
                     }
                 })
                 .setBackgroundColor(Color(0, 255, 25, 25));
 
-            for (auto str = listOfSeeds.begin(); str != listOfSeeds.end(); str++)
+            nsongList.label("∞", "sans-bold");
+
+            for (auto seedScorePair = listOfSeeds.begin(); seedScorePair != listOfSeeds.end(); seedScorePair++)
             {
                 // std::string seedStr = *str;
                 // std::cout << "seedStr: " << seedStr << "\n";
 
+                std::string *seedStrPtr = new std::string;
+                std::string seedStr = *seedStrPtr;
+                int score;
+                std::tie(seedStr, score) = *seedScorePair;
+
                 nsongList.button(
-                    *str, [&seedString, str](bool state) {
-                                songSettings.rngSeedString = *str;
-                                seedString.setValue(*str);
-                            })
-                .setFlags(Button::RadioButton);
+                    seedStr, [seedScorePair, &seedString](bool state) {
+                                // Split Seed name + score tuple
+                                int score;
+                                std::string seedStr;
+                                std::tie(seedStr, score) = *seedScorePair;                               
+                                // Set seed value
+                                songSettings.rngSeedString = seedStr;
+                                seedString.setValue(seedStr);
+                                // Restart Audio
+                                audioSettings.StopAudio();
+                                SeedConfig();
+                                SetupAudio(true);
+                            }).setFlags(Button::RadioButton);
+
+                nsongList.label(std::to_string(score), "sans-bold");
+
             }
         }
 
@@ -217,21 +311,6 @@ Fps fps;
 SDL_Event e;
 
 // #define EMSCRIPTEN 1
-
-#ifdef EMSCRIPTEN
-
-    void downloadSucceeded(emscripten_fetch_t *fetch) {
-        printf("Finished downloading %llu bytes from URL %s.\n", fetch->numBytes, fetch->url);
-        // The data is now available at fetch->data[0] through fetch->data[fetch->numBytes-1];
-        emscripten_fetch_close(fetch); // Free data associated with the fetch.
-    }
-
-    void downloadFailed(emscripten_fetch_t *fetch) {
-        printf("Downloading %s failed, HTTP failure status code: %d.\n", fetch->url, fetch->status);
-        emscripten_fetch_close(fetch); // Also free data on failure.
-    }
-
-#endif
 
 int main(int /* argc */, char** /* argv */)
 {
@@ -327,6 +406,7 @@ int main(int /* argc */, char** /* argv */)
     std::cout << "About to render!" << '\n';
 
 #ifdef EMSCRIPTEN
+    /*
     emscripten_fetch_attr_t attr;
     emscripten_fetch_attr_init(&attr);
     strcpy(attr.requestMethod, "GET");
@@ -334,6 +414,7 @@ int main(int /* argc */, char** /* argv */)
     attr.onsuccess = downloadSucceeded;
     attr.onerror = downloadFailed;
     emscripten_fetch(&attr, "http://morganrobertson.net/wp-content/uploads/3_cropped_130x130.png");
+    */
     emscripten_set_main_loop(MainLoop, 30, 1);
 #else
     while (quit == false) {
@@ -344,6 +425,11 @@ int main(int /* argc */, char** /* argv */)
     return 0;
 }
 
+void update_screen_size(int w, int h) 
+{
+   SDL_SetWindowSize(g_window, w, h);
+}
+
 void MainLoop()
 {
     //Handle events on queue
@@ -352,6 +438,12 @@ void MainLoop()
         if (e.type == SDL_QUIT) {
             quit = true;
         }
+        
+        if (e.type == SDL_WINDOWEVENT && e.window.event == SDL_WINDOWEVENT_RESIZED) 
+        {
+            update_screen_size(e.window.data1, e.window.data2);
+        }
+        
         g_screen->onEvent(e);
     }
 

@@ -5,8 +5,9 @@
 //  Copyright © 2020 Morgan. All rights reserved.
 //
 
+
+
 #include <iostream>
-#include <SDL_mixer.h>
 #include <string>
 #include <vector>
 #include <stdlib.h>
@@ -18,9 +19,23 @@
 #include <functional>
 #include <algorithm>
 #include <random>
-#include <SDL_timer.h>
+
 #define _SILENCE_EXPERIMENTAL_FILESYSTEM_DEPRECATION_WARNING 1
 #include "filesystem.hpp"
+
+
+#if defined(_WIN32)
+#include <SDL.h>
+#include <SDL_mixer.h>
+#include <SDL_image.h>
+#include <SDL_timer.h>
+#else
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_image.h>
+#include <SDL2/SDL_mixer.h>
+#include <SDL2/SDL_timer.h>
+#endif
+
 
 // COMMON
 // #define DISABLE_REVERB 1
@@ -69,9 +84,11 @@ void c16to8(int16_t* inBuf, int len, Uint8* outBuf);
 void SafeMemCopy(Uint8* destBuf, Uint8* srcBuf, Uint32 srcBufLen, int c, int destBufLen);
 
 // Debug functions
+#ifdef ENABLE_DEBUG_FUNCTIONS
 void DumpBuffer(int16_t* wavBuffer, int length, std::string fileName);
 void DumpBuffer(Uint8* wavBuffer, int length, std::string fileName);
 void StatusCheck();
+#endif
 
 // Wave & Sound Generators
 void SafeSquare(float freq, int length, int magnitude, Uint8 *inBuf, int currPos);
@@ -262,6 +279,7 @@ struct SongSettings
 
     bool loFi;
     bool inited = false;
+    bool playing = false;
 
     std::string rngSeedString = "covid";
     int rngSeed;
