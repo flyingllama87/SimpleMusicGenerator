@@ -61,14 +61,100 @@ std::vector<std::tuple<std::string, int>> listOfSeeds;
 
     void downloadSucceeded(emscripten_fetch_t *fetch) {
         printf("Finished downloading %llu bytes from URL %s.\n", fetch->numBytes, fetch->url);
+
         // The data is now available at fetch->data[0] through fetch->data[fetch->numBytes-1];
         emscripten_fetch_close(fetch); // Free data associated with the fetch.
+
     }
 
     void downloadFailed(emscripten_fetch_t *fetch) {
         printf("Downloading %s failed, HTTP failure status code: %d.\n", fetch->url, fetch->status);
         emscripten_fetch_close(fetch); // Also free data on failure.
     }
+
+    void voteSucceeded(emscripten_fetch_t *fetch) {
+        printf("Vote submitted.");
+
+        // The data is now available at fetch->data[0] through fetch->data[fetch->numBytes-1];
+        emscripten_fetch_close(fetch); // Free data associated with the fetch.
+
+    }
+
+    void voteFailed(emscripten_fetch_t *fetch) {
+        printf("Vote failed.  HTTP endpoint: %s , HTTP failure status code: %d.\n", fetch->url, fetch->status);
+        emscripten_fetch_close(fetch); // Also free data on failure.
+    }
+
+
+
+void getScoresSuccess(emscripten_fetch_t *fetch);
+void getScoresFailed(emscripten_fetch_t *fetch);
+
+void getSeedScores()
+{
+    emscripten_fetch_attr_t attr;
+    emscripten_fetch_attr_init(&attr);
+    strcpy(attr.requestMethod, "GET");
+    // attr.attributes = EMSCRIPTEN_FETCH_LOAD_TO_MEMORY | EMSCRIPTEN_FETCH_SYNCHRONOUS;
+    attr.attributes = EMSCRIPTEN_FETCH_LOAD_TO_MEMORY;
+    attr.onsuccess = getScoresSuccess;
+    attr.onerror = getScoresFailed;
+    std::string apiEndpoint = API_URL;
+    apiEndpoint += "GetScores";
+    // Send the request, should block here
+    emscripten_fetch(&attr, apiEndpoint.c_str());
+
+}
+
+
+void getScoresSuccess(emscripten_fetch_t *fetch) {
+    printf("Getting scores succeeded! Downloading %llu bytes from URL %s...\n", fetch->numBytes, fetch->url);
+    
+    // cout << fetch->data << endl;
+
+    std::string input(fetch->data);
+    std::string result;
+    std::istringstream iss(input);
+    for (std::string line; std::getline(iss, line); )
+    {
+        result += line + "\n";
+
+        std::string delimiter = ",";
+        int commaPos = line.find(delimiter);
+
+        if (commaPos > 0)
+        {
+            std::string seed = line.substr(0, line.find(delimiter));
+            cout << seed << " ";
+            std::string score = line.substr(line.find(delimiter) + 1, line.length() - 1);
+            cout << score << endl;
+            int intScore = stoi(score);
+            listOfSeeds.push_back(std::tuple<std::string, int>{seed, intScore});
+        }
+
+        // std::string s = "scott>=tiger";
+        // std::string token = s.substr(0, s.find(delimiter)); // token is "scott"
+
+        // The find(const string& str, size_t pos = 0) function returns the position of the first occurrence of str in the string, or npos if the string is not found.
+        //The substr(size_t pos = 0, size_t n = npos) function returns a substring of the object, starting at position pos and of length npos.
+
+    }
+
+    // cout << result << endl;
+
+
+    listOfSeeds.push_back(std::tuple<std::string, int>{"oops", 0});
+
+    // The data is now available at fetch->data[0] through fetch->data[fetch->numBytes-1];
+    emscripten_fetch_close(fetch); // Free data associated with the fetch.
+
+}
+
+void getScoresFailed(emscripten_fetch_t *fetch) {
+    printf("Getting scores %s failed, HTTP failure status code: %d.\n", fetch->url, fetch->status);
+    emscripten_fetch_close(fetch); // Also free data on failure.
+}
+
 
 #endif
 
@@ -86,6 +172,7 @@ std::vector<std::tuple<std::string, int>> listOfSeeds;
 
 using namespace sdlgui;
 
+
 class TestWindow : public Screen {
 public:
 
@@ -95,6 +182,16 @@ public:
         {
             auto& nwindow = window("Music Generator", Vector2i{ 15, 15 })
                 .withLayout<GroupLayout>();
+
+            auto* mainLayout = new GridLayout(
+                        Orientation::Horizontal,
+                        1,
+                        Alignment::Middle,
+                        15,
+                        5
+                    );
+            
+            nwindow.setLayout(mainLayout);
 
             nwindow.label("Seed Word", "sans-bold");
 
@@ -139,28 +236,59 @@ public:
 
             nwindow.label("Vote", "sans-bold");
             nwindow.button("Vote Up", [] {
-                    cout << "Lol No" << endl;
                     emscripten_fetch_attr_t attr;
                     emscripten_fetch_attr_init(&attr);
                     strcpy(attr.requestMethod, "POST");
-                    const char * headers[] = {"Content-Type", "application/x-www-form-urlencoded", 0};
+                    const char * headers[] = {"Content-Type", "application/x-www-form-urlencoded; charset=utf-8", 0};
                     attr.requestHeaders = headers;
                     attr.attributes = EMSCRIPTEN_FETCH_LOAD_TO_MEMORY;
-                    attr.onsuccess = downloadSucceeded;
-                    attr.onerror = downloadFailed;
+                    attr.onsuccess = voteSucceeded;
+                    attr.onerror = voteFailed;
                     std::string apiEndpoint = API_URL;
                     apiEndpoint += "UpVote";
-                    std::string requestData = "seed=" + songSettings.rngSeedString;
-                    attr.requestData = requestData.c_str();
+
+                    // Why do I have to do all this? Probably could use 
+                    std::string strHttpPostData ("seed=", 5);
+                    strHttpPostData = strHttpPostData.append(songSettings.rngSeedString.c_str());
+                    std::cout << strHttpPostData << endl;
+                    char * httpPostData = (char*) malloc(128);
+                    memset(httpPostData, '\0', sizeof(128));
+                    strcpy(httpPostData, strHttpPostData.c_str());
+                    const char * seedName = httpPostData;
+                    attr.requestData = httpPostData;
                     attr.requestDataSize = strlen(attr.requestData);
-                    cout << "API Endpoint: " << apiEndpoint.c_str() << " Data sent: " << requestData.c_str() << " which has a length of " << std::to_string(attr.requestDataSize) << " bytes.";
+                    // Send the request
                     emscripten_fetch(&attr, apiEndpoint.c_str());
                  });
             nwindow.button("Vote Down", [] {
-                cout << "Lol No" << endl;
+                    emscripten_fetch_attr_t attr;
+                    emscripten_fetch_attr_init(&attr);
+                    strcpy(attr.requestMethod, "POST");
+                    const char * headers[] = {"Content-Type", "application/x-www-form-urlencoded; charset=utf-8", 0};
+                    attr.requestHeaders = headers;
+                    attr.attributes = EMSCRIPTEN_FETCH_LOAD_TO_MEMORY;
+                    attr.onsuccess = voteSucceeded;
+                    attr.onerror = voteFailed;
+                    std::string apiEndpoint = API_URL;
+                    apiEndpoint += "DownVote";
+
+                    // Why do I have to do all this?
+                    std::string strHttpPostData ("seed=", 5);
+                    strHttpPostData = strHttpPostData.append(songSettings.rngSeedString.c_str());
+                    std::cout << strHttpPostData << endl;
+                    char * httpPostData = (char*) malloc(128);
+                    memset(httpPostData, '\0', sizeof(128));
+                    strcpy(httpPostData, strHttpPostData.c_str());
+                    const char * seedName = httpPostData;
+                    attr.requestData = httpPostData;
+                    attr.requestDataSize = strlen(attr.requestData);
+                    // Send the request
+                    emscripten_fetch(&attr, apiEndpoint.c_str());
             });
 
-
+            nwindow.button("Get Latest List", [] {
+                getSeedScores();
+            });
 
             auto& nsongList = window("Song List", Vector2i{ 300, 15 })
                 .withLayout<GroupLayout>();
@@ -176,8 +304,8 @@ public:
 
             nsongList.setLayout(seedLayout);
 
-            std::tuple<std::string, int> seedAndScore;
 
+            /*
             listOfSeeds.push_back(std::tuple<std::string, int>{"covid", 0});
             listOfSeeds.push_back(std::tuple<std::string, int>{"partake", 0});
             listOfSeeds.push_back(std::tuple<std::string, int>{"removal", 0});
@@ -186,10 +314,11 @@ public:
             listOfSeeds.push_back(std::tuple<std::string, int>{"serbian", 0});
             listOfSeeds.push_back(std::tuple<std::string, int>{"amuser", 0});
             listOfSeeds.push_back(std::tuple<std::string, int>{"majesty", 0});
+            */
+
             listOfSeeds.push_back(std::tuple<std::string, int>{"oops", 0});
             listOfSeeds.push_back(std::tuple<std::string, int>{"flaxseed", 0});
             listOfSeeds.push_back(std::tuple<std::string, int>{"reroute", 0});
-
 
 
             nsongList.button(
@@ -314,6 +443,9 @@ SDL_Event e;
 
 int main(int /* argc */, char** /* argv */)
 {
+
+    getSeedScores();
+
     char rendername[256] = { 0 };
 
     std::cout << "Complete: Renderer info. Enabling audio:" << '\n';
