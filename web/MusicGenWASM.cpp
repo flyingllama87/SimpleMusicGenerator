@@ -30,6 +30,8 @@ Morgan Robertson 2021
 
 #include <mgsrc/MusicGen.h>
 
+// #define DEBUG_SDL_INIT 0
+
 #define API_URL "http://127.0.0.1:5000/api/"
 
 #if EMSCRIPTEN
@@ -55,107 +57,17 @@ using std::cout;
 using std::cerr;
 using std::endl;
 
+
 std::vector<std::tuple<std::string, int>> listOfSeeds;
 
 #ifdef EMSCRIPTEN
-
-    void downloadSucceeded(emscripten_fetch_t *fetch) {
-        printf("Finished downloading %llu bytes from URL %s.\n", fetch->numBytes, fetch->url);
-
-        // The data is now available at fetch->data[0] through fetch->data[fetch->numBytes-1];
-        emscripten_fetch_close(fetch); // Free data associated with the fetch.
-
-    }
-
-    void downloadFailed(emscripten_fetch_t *fetch) {
-        printf("Downloading %s failed, HTTP failure status code: %d.\n", fetch->url, fetch->status);
-        emscripten_fetch_close(fetch); // Also free data on failure.
-    }
-
-    void voteSucceeded(emscripten_fetch_t *fetch) {
-        printf("Vote submitted.");
-
-        // The data is now available at fetch->data[0] through fetch->data[fetch->numBytes-1];
-        emscripten_fetch_close(fetch); // Free data associated with the fetch.
-
-    }
-
-    void voteFailed(emscripten_fetch_t *fetch) {
-        printf("Vote failed.  HTTP endpoint: %s , HTTP failure status code: %d.\n", fetch->url, fetch->status);
-        emscripten_fetch_close(fetch); // Also free data on failure.
-    }
-
-
-
+void voteSucceeded(emscripten_fetch_t *fetch);
+void voteFailed(emscripten_fetch_t *fetch);
+void downloadFailed(emscripten_fetch_t *fetch);
+void downloadSucceeded(emscripten_fetch_t *fetch);
+void getSeedScores();
 void getScoresSuccess(emscripten_fetch_t *fetch);
 void getScoresFailed(emscripten_fetch_t *fetch);
-
-void getSeedScores()
-{
-    emscripten_fetch_attr_t attr;
-    emscripten_fetch_attr_init(&attr);
-    strcpy(attr.requestMethod, "GET");
-    // attr.attributes = EMSCRIPTEN_FETCH_LOAD_TO_MEMORY | EMSCRIPTEN_FETCH_SYNCHRONOUS;
-    attr.attributes = EMSCRIPTEN_FETCH_LOAD_TO_MEMORY;
-    attr.onsuccess = getScoresSuccess;
-    attr.onerror = getScoresFailed;
-    std::string apiEndpoint = API_URL;
-    apiEndpoint += "GetScores";
-    // Send the request, should block here
-    emscripten_fetch(&attr, apiEndpoint.c_str());
-
-}
-
-
-void getScoresSuccess(emscripten_fetch_t *fetch) {
-    printf("Getting scores succeeded! Downloading %llu bytes from URL %s...\n", fetch->numBytes, fetch->url);
-    
-    // cout << fetch->data << endl;
-
-    std::string input(fetch->data);
-    std::string result;
-    std::istringstream iss(input);
-    for (std::string line; std::getline(iss, line); )
-    {
-        result += line + "\n";
-
-        std::string delimiter = ",";
-        int commaPos = line.find(delimiter);
-
-        if (commaPos > 0)
-        {
-            std::string seed = line.substr(0, line.find(delimiter));
-            cout << seed << " ";
-            std::string score = line.substr(line.find(delimiter) + 1, line.length() - 1);
-            cout << score << endl;
-            int intScore = stoi(score);
-            listOfSeeds.push_back(std::tuple<std::string, int>{seed, intScore});
-        }
-
-        // std::string s = "scott>=tiger";
-        // std::string token = s.substr(0, s.find(delimiter)); // token is "scott"
-
-        // The find(const string& str, size_t pos = 0) function returns the position of the first occurrence of str in the string, or npos if the string is not found.
-        //The substr(size_t pos = 0, size_t n = npos) function returns a substring of the object, starting at position pos and of length npos.
-
-    }
-
-    // cout << result << endl;
-
-
-    listOfSeeds.push_back(std::tuple<std::string, int>{"oops", 0});
-
-    // The data is now available at fetch->data[0] through fetch->data[fetch->numBytes-1];
-    emscripten_fetch_close(fetch); // Free data associated with the fetch.
-
-}
-
-void getScoresFailed(emscripten_fetch_t *fetch) {
-    printf("Getting scores %s failed, HTTP failure status code: %d.\n", fetch->url, fetch->status);
-    emscripten_fetch_close(fetch); // Also free data on failure.
-}
-
-
 #endif
 
 #ifdef EMSCRIPTEN
@@ -304,8 +216,7 @@ public:
 
             nsongList.setLayout(seedLayout);
 
-
-            /*
+/*
             listOfSeeds.push_back(std::tuple<std::string, int>{"covid", 0});
             listOfSeeds.push_back(std::tuple<std::string, int>{"partake", 0});
             listOfSeeds.push_back(std::tuple<std::string, int>{"removal", 0});
@@ -314,8 +225,7 @@ public:
             listOfSeeds.push_back(std::tuple<std::string, int>{"serbian", 0});
             listOfSeeds.push_back(std::tuple<std::string, int>{"amuser", 0});
             listOfSeeds.push_back(std::tuple<std::string, int>{"majesty", 0});
-            */
-
+*/
             listOfSeeds.push_back(std::tuple<std::string, int>{"oops", 0});
             listOfSeeds.push_back(std::tuple<std::string, int>{"flaxseed", 0});
             listOfSeeds.push_back(std::tuple<std::string, int>{"reroute", 0});
@@ -392,6 +302,68 @@ public:
         Screen::draw(renderer);
     }
 
+    
+    void DrawSongList()
+    {
+        auto& twindow = window("Song List", Vector2i{ 300, 300 })
+            .withLayout<GroupLayout>();
+
+        auto* tLayout = new GridLayout(
+                    Orientation::Horizontal,
+                    2,
+                    Alignment::Middle,
+                    15,
+                    5
+                );
+        
+        twindow.setLayout(tLayout);
+
+        twindow.label("Seed Word", "sans-bold");
+
+        twindow.button(
+            "RANDOM", [](bool state) {
+                if (state == true)
+                {
+                    songSettings.rngSeedString = RandomWordFromWordList();
+                    // Restart Audio
+                    audioSettings.StopAudio();
+                    SeedConfig();
+                    SetupAudio(true);
+                }
+            })
+            .setBackgroundColor(Color(0, 255, 25, 25));
+
+        
+        for (auto seedScorePair = listOfSeeds.begin(); seedScorePair != listOfSeeds.end(); seedScorePair++)
+        {
+            // std::string seedStr = *str;
+            // std::cout << "seedStr: " << seedStr << "\n";
+
+            std::string *seedStrPtr = new std::string;
+            std::string seedStr = *seedStrPtr;
+            int score;
+            std::tie(seedStr, score) = *seedScorePair;
+
+            twindow.button(
+                seedStr, [seedScorePair](bool state) {
+                            // Split Seed name + score tuple
+                            int score;
+                            std::string seedStr;
+                            std::tie(seedStr, score) = *seedScorePair;                               
+                            // Set seed value
+                            songSettings.rngSeedString = seedStr;
+                            // Restart Audio
+                            audioSettings.StopAudio();
+                            SeedConfig();
+                            SetupAudio(true);
+                        }).setFlags(Button::RadioButton);
+
+            twindow.label(std::to_string(score), "sans-bold");
+        }
+
+        performLayout(mSDL_Renderer);
+    }
+
     virtual void drawContents()
     {
     }
@@ -430,6 +402,8 @@ private:
 
 void MainLoop();
 
+// #define EMSCRIPTEN 1
+
 bool quit = false;
 SDL_Window* g_window; // Declare a pointer to an SDL_Window
 SDL_RendererInfo info;
@@ -439,16 +413,16 @@ TestWindow* g_screen;
 Fps fps;
 SDL_Event e;
 
-// #define EMSCRIPTEN 1
 
 int main(int /* argc */, char** /* argv */)
 {
 
-    getSeedScores();
 
     char rendername[256] = { 0 };
 
+#ifdef DEBUG_SDL_INIT
     std::cout << "Complete: Renderer info. Enabling audio:" << '\n';
+#endif
 
     if (SDL_Init(SDL_INIT_AUDIO) < 0)
         std::cout << "Could not initialise SDL";
@@ -459,7 +433,10 @@ int main(int /* argc */, char** /* argv */)
     srand(std::chrono::system_clock::now().time_since_epoch().count());
 
     SDL_Init(SDL_INIT_VIDEO); // Initialize SDL2
+
+#ifdef DEBUG_SDL_INIT
     std::cout << "Complete: init video" << '\n';
+#endif
 
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
@@ -468,7 +445,10 @@ int main(int /* argc */, char** /* argv */)
     int winWidth = 1024;
     int winHeight = 768;
 
+#ifdef DEBUG_SDL_INIT
     std::cout << "Complete: windows settings " << '\n';
+#endif
+
     // Create an application window with the following settings:
     g_window = SDL_CreateWindow(
         "An SDL2 window", //    const char* title
@@ -480,7 +460,9 @@ int main(int /* argc */, char** /* argv */)
         );
     SDL_SetWindowSize(g_window, winWidth, winHeight);
 
+#ifdef DEBUG_SDL_INIT
     std::cout << "Complete: Create window: " << '\n';
+#endif
 
     // Check that the window was successfully made
     if (g_window == NULL) {
@@ -490,23 +472,32 @@ int main(int /* argc */, char** /* argv */)
         return 1;
     }
 
+#ifdef DEBUG_SDL_INIT
     std::cout << "PASSED: error on windows creation " << '\n';
     std::cout << "Errors thus far: " << SDL_GetError() << '\n';
+#endif
+
 
     auto context = SDL_GL_CreateContext(g_window);
 
+#ifdef DEBUG_SDL_INIT
     std::cout << "Complete: create gl context " << '\n';
     std::cout << "Errors thus far: " << SDL_GetError() << '\n';
+#endif
 
     for (int it = 0; it < SDL_GetNumRenderDrivers(); it++) {
         SDL_GetRenderDriverInfo(it, &info);
         strcat(rendername, info.name);
         strcat(rendername, " ");
+#ifdef DEBUG_SDL_INIT
         std::cout << "RENDERER NAME: " << rendername << '\n';
+#endif
     }
 
+#ifdef DEBUG_SDL_INIT
     std::cout << "Complete: acquire renderer name " << '\n';
     std::cout << "Errors thus far: " << SDL_GetError() << '\n';
+#endif
 
 #ifdef WIN32
     g_renderer = SDL_CreateRenderer(g_window, 2, SDL_RENDERER_ACCELERATED);
@@ -514,28 +505,36 @@ int main(int /* argc */, char** /* argv */)
     g_renderer = SDL_CreateRenderer(g_window, -1, SDL_RENDERER_ACCELERATED);
 #endif
 
+#ifdef DEBUG_SDL_INIT
     std::cout << "Errors thus far: " << SDL_GetError() << '\n';
+#endif
 
     SDL_SetRenderDrawBlendMode(g_renderer, SDL_BLENDMODE_BLEND);
 
+#ifdef DEBUG_SDL_INIT
     std::cout << "Complete: Created render page with hardware accel" << '\n';
+#endif
 
     SDL_GetRendererInfo(g_renderer, &renderInfo);
+
+#ifdef DEBUG_SDL_INIT
     std::cout << "Selected Renderer name: " << renderInfo.name << '\n';
-
     std::cout << "Errors thus far: " << SDL_GetError() << '\n';
-
     std::cout << "VALS: " << winWidth << " " << winHeight << '\n';
+#endif
 
     g_screen = new TestWindow(g_window, winWidth, winHeight);
 
+#ifdef DEBUG_SDL_INIT
     std::cout << "Complete: Create new window! " << '\n';
-
     std::cout << "Initiating audio!" << '\n';
+#endif
 
     songSettings.rngSeedString = "covid";
 
+#ifdef DEBUG_SDL_INIT
     std::cout << "About to render!" << '\n';
+#endif
 
 #ifdef EMSCRIPTEN
     /*
@@ -589,3 +588,114 @@ void MainLoop()
 
     // fps.next();
 }
+
+
+#ifdef EMSCRIPTEN
+
+    void downloadSucceeded(emscripten_fetch_t *fetch) {
+        printf("Finished downloading %llu bytes from URL %s.\n", fetch->numBytes, fetch->url);
+
+        // The data is now available at fetch->data[0] through fetch->data[fetch->numBytes-1];
+        emscripten_fetch_close(fetch); // Free data associated with the fetch.
+
+    }
+
+    void downloadFailed(emscripten_fetch_t *fetch) {
+        printf("Downloading %s failed, HTTP failure status code: %d.\n", fetch->url, fetch->status);
+        emscripten_fetch_close(fetch); // Also free data on failure.
+    }
+
+    void voteSucceeded(emscripten_fetch_t *fetch) {
+        printf("Vote submitted.");
+
+        // The data is now available at fetch->data[0] through fetch->data[fetch->numBytes-1];
+        emscripten_fetch_close(fetch); // Free data associated with the fetch.
+
+    }
+
+    void voteFailed(emscripten_fetch_t *fetch) {
+        printf("Vote failed.  HTTP endpoint: %s , HTTP failure status code: %d.\n", fetch->url, fetch->status);
+        emscripten_fetch_close(fetch); // Also free data on failure.
+    }
+
+
+
+
+
+void getSeedScores()
+{
+    emscripten_fetch_attr_t attr;
+    emscripten_fetch_attr_init(&attr);
+    strcpy(attr.requestMethod, "GET");
+    // attr.attributes = EMSCRIPTEN_FETCH_LOAD_TO_MEMORY | EMSCRIPTEN_FETCH_SYNCHRONOUS;
+    attr.attributes = EMSCRIPTEN_FETCH_LOAD_TO_MEMORY;
+    attr.onsuccess = getScoresSuccess;
+    attr.onerror = getScoresFailed;
+    std::string apiEndpoint = API_URL;
+    apiEndpoint += "GetScores";
+    // Send the request, should block here
+    emscripten_fetch(&attr, apiEndpoint.c_str());
+
+}
+
+
+void getScoresSuccess(emscripten_fetch_t *fetch) {
+    printf("Getting scores succeeded! Downloading %llu bytes from URL %s...\n", fetch->numBytes, fetch->url);
+    
+    // cout << fetch->data << endl;
+
+    std::string input(fetch->data);
+    std::string result;
+    std::istringstream iss(input);
+    for (std::string line; std::getline(iss, line); )
+    {
+        result += line + "\n";
+
+        std::string delimiter = ",";
+        int commaPos = line.find(delimiter);
+
+        if (commaPos > 0)
+        {
+            std::string seed = line.substr(0, line.find(delimiter));
+            cout << seed << " ";
+            std::string score = line.substr(line.find(delimiter) + 1, line.length() - 1);
+            cout << score << endl;
+            int intScore = stoi(score);
+            listOfSeeds.push_back(std::tuple<std::string, int>{seed, intScore});
+        }
+
+        // std::string s = "scott>=tiger";
+        // std::string token = s.substr(0, s.find(delimiter)); // token is "scott"
+
+        // The find(const string& str, size_t pos = 0) function returns the position of the first occurrence of str in the string, or npos if the string is not found.
+        //The substr(size_t pos = 0, size_t n = npos) function returns a substring of the object, starting at position pos and of length npos.
+
+    }
+
+    // cout << result << endl;
+
+    for (auto seedScorePair = listOfSeeds.begin(); seedScorePair != listOfSeeds.end(); seedScorePair++)
+    {
+
+        std::string *seedStrPtr = new std::string;
+        std::string seedStr = *seedStrPtr;
+        int score;
+        std::tie(seedStr, score) = *seedScorePair;
+        cout << seedStr << " " << score << endl;
+    }
+
+    g_screen->DrawSongList();
+    // listOfSeeds.push_back(std::tuple<std::string, int>{"oops", 0});
+
+    // The data is now available at fetch->data[0] through fetch->data[fetch->numBytes-1];
+    emscripten_fetch_close(fetch); // Free data associated with the fetch.
+
+}
+
+void getScoresFailed(emscripten_fetch_t *fetch) {
+    printf("Getting scores %s failed, HTTP failure status code: %d.\n", fetch->url, fetch->status);
+    emscripten_fetch_close(fetch); // Also free data on failure.
+}
+
+
+#endif
