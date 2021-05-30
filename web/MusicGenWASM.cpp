@@ -242,7 +242,7 @@ public:
 
             auto& seedString = nwindow.textbox(songSettings.rngSeedString);
 
-            cout << "DECLTYPE: " << type_name<decltype(seedString)>() << endl;
+            // cout << "DECLTYPE: " << type_name<decltype(seedString)>() << endl;
             seedString.setEditable(true);
             seedString.setId("seed-string");
             seedString.setAlignment(sdlgui::TextBox::Alignment::Left);
@@ -403,36 +403,7 @@ private:
     int mCurrentImage;
 };
 
-class Fps {
-public:
-    explicit Fps(int tickInterval = 30)
-        : m_tickInterval(tickInterval)
-        , m_nextTime(SDL_GetTicks() + tickInterval)
-    {
-    }
-
-    void next()
-    {
-        SDL_Delay(getTicksToNextFrame());
-
-        m_nextTime += m_tickInterval;
-    }
-
-private:
-    const int m_tickInterval;
-    Uint32 m_nextTime;
-
-    Uint32 getTicksToNextFrame() const
-    {
-        Uint32 now = SDL_GetTicks();
-
-        return (m_nextTime <= now) ? 0 : m_nextTime - now;
-    }
-};
-
 void MainLoop();
-
-// #define EMSCRIPTEN 1
 
 bool quit = false;
 SDL_Window* g_window; // Declare a pointer to an SDL_Window
@@ -440,7 +411,6 @@ SDL_RendererInfo info;
 SDL_RendererInfo renderInfo;
 SDL_Renderer* g_renderer;
 TestWindow* g_screen;
-Fps fps;
 SDL_Event e;
 
 
@@ -607,7 +577,6 @@ void MainLoop()
     // Render the rect to the screen
     SDL_RenderPresent(g_renderer);
 
-    // fps.next();
 }
 
 
@@ -616,7 +585,6 @@ void MainLoop()
 void downloadSucceeded(emscripten_fetch_t* fetch) {
     printf("Finished downloading %llu bytes from URL %s.\n", fetch->numBytes, fetch->url);
 
-    // The data is now available at fetch->data[0] through fetch->data[fetch->numBytes-1];
     emscripten_fetch_close(fetch); // Free data associated with the fetch.
 
 }
@@ -629,7 +597,6 @@ void downloadFailed(emscripten_fetch_t* fetch) {
 void voteSucceeded(emscripten_fetch_t* fetch) {
     printf("Vote submitted.");
 
-    // The data is now available at fetch->data[0] through fetch->data[fetch->numBytes-1];
     emscripten_fetch_close(fetch); // Free data associated with the fetch.
 
 }
@@ -658,6 +625,8 @@ void getSeedScores()
 
 void getScoresSuccess(emscripten_fetch_t* fetch) {
     printf("Getting scores succeeded! Downloading %llu bytes from URL %s...\n", fetch->numBytes, fetch->url);
+
+    // The data is now available at fetch->data[0] through fetch->data[fetch->numBytes-1];
 
     // Split each line by a comma into separate seed and score values
     std::string input(fetch->data);
@@ -693,12 +662,11 @@ void getScoresSuccess(emscripten_fetch_t* fetch) {
         std::string seedStr = *seedStrPtr;
         int score;
         std::tie(seedStr, score) = *seedScorePair;
-        cout << seedStr << " " << score << endl;
+        // cout << seedStr << " " << score << endl;
     }
     g_screen->DrawControls();
     g_screen->DrawSongList();
 
-    // The data is now available at fetch->data[0] through fetch->data[fetch->numBytes-1];
     emscripten_fetch_close(fetch); // Free data associated with the fetch.
 
 }
