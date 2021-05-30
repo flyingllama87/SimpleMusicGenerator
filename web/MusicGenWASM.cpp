@@ -30,18 +30,117 @@ Morgan Robertson 2021
 
 #include <mgsrc/MusicGen.h>
 
+
+
+#include <cstddef>
+#include <stdexcept>
+#include <cstring>
+#include <ostream>
+
+#ifndef _MSC_VER
+#  if __cplusplus < 201103
+#    define CONSTEXPR11_TN
+#    define CONSTEXPR14_TN
+#    define NOEXCEPT_TN
+#  elif __cplusplus < 201402
+#    define CONSTEXPR11_TN constexpr
+#    define CONSTEXPR14_TN
+#    define NOEXCEPT_TN noexcept
+#  else
+#    define CONSTEXPR11_TN constexpr
+#    define CONSTEXPR14_TN constexpr
+#    define NOEXCEPT_TN noexcept
+#  endif
+#else  // _MSC_VER
+#  if _MSC_VER < 1900
+#    define CONSTEXPR11_TN
+#    define CONSTEXPR14_TN
+#    define NOEXCEPT_TN
+#  elif _MSC_VER < 2000
+#    define CONSTEXPR11_TN constexpr
+#    define CONSTEXPR14_TN
+#    define NOEXCEPT_TN noexcept
+#  else
+#    define CONSTEXPR11_TN constexpr
+#    define CONSTEXPR14_TN constexpr
+#    define NOEXCEPT_TN noexcept
+#  endif
+#endif  // _MSC_VER
+
+class static_string
+{
+    const char* const p_;
+    const std::size_t sz_;
+
+public:
+    typedef const char* const_iterator;
+
+    template <std::size_t N>
+    CONSTEXPR11_TN static_string(const char(&a)[N]) NOEXCEPT_TN
+        : p_(a)
+        , sz_(N - 1)
+    {}
+
+    CONSTEXPR11_TN static_string(const char* p, std::size_t N) NOEXCEPT_TN
+        : p_(p)
+        , sz_(N)
+    {}
+
+    CONSTEXPR11_TN const char* data() const NOEXCEPT_TN { return p_; }
+    CONSTEXPR11_TN std::size_t size() const NOEXCEPT_TN { return sz_; }
+
+    CONSTEXPR11_TN const_iterator begin() const NOEXCEPT_TN { return p_; }
+    CONSTEXPR11_TN const_iterator end()   const NOEXCEPT_TN { return p_ + sz_; }
+
+    CONSTEXPR11_TN char operator[](std::size_t n) const
+    {
+        return n < sz_ ? p_[n] : throw std::out_of_range("static_string");
+    }
+};
+
+inline
+std::ostream&
+operator<<(std::ostream& os, static_string const& s)
+{
+    return os.write(s.data(), s.size());
+}
+
+template <class T>
+CONSTEXPR14_TN
+static_string
+type_name()
+{
+#ifdef __clang__
+    static_string p = __PRETTY_FUNCTION__;
+    return static_string(p.data() + 31, p.size() - 31 - 1);
+#elif defined(__GNUC__)
+    static_string p = __PRETTY_FUNCTION__;
+#  if __cplusplus < 201402
+    return static_string(p.data() + 36, p.size() - 36 - 1);
+#  else
+    return static_string(p.data() + 46, p.size() - 46 - 1);
+#  endif
+#elif defined(_MSC_VER)
+    static_string p = __FUNCSIG__;
+    return static_string(p.data() + 38, p.size() - 38 - 7);
+#endif
+}
+
+#define EMSCRIPTEN 1
+
+
 // #define DEBUG_SDL_INIT 0
 
 #define API_URL "http://127.0.0.1:5000/api/"
 
 #if EMSCRIPTEN
-    #include <emscripten.h>
-    #include <emscripten/fetch.h>
-    // #include <emscripten/html5.h>
+#include <emscripten.h>
+#include <emscripten/fetch.h>
+// #include <emscripten/html5.h>
 #endif
 
 #if defined(_WIN32)
-    #include <windows.h>
+#include <windows.h>
 #endif
 #include <iostream>
 
@@ -61,22 +160,22 @@ using std::endl;
 std::vector<std::tuple<std::string, int>> listOfSeeds;
 
 #ifdef EMSCRIPTEN
-void voteSucceeded(emscripten_fetch_t *fetch);
-void voteFailed(emscripten_fetch_t *fetch);
-void downloadFailed(emscripten_fetch_t *fetch);
-void downloadSucceeded(emscripten_fetch_t *fetch);
+void voteSucceeded(emscripten_fetch_t* fetch);
+void voteFailed(emscripten_fetch_t* fetch);
+void downloadFailed(emscripten_fetch_t* fetch);
+void downloadSucceeded(emscripten_fetch_t* fetch);
 void getSeedScores();
-void getScoresSuccess(emscripten_fetch_t *fetch);
-void getScoresFailed(emscripten_fetch_t *fetch);
+void getScoresSuccess(emscripten_fetch_t* fetch);
+void getScoresFailed(emscripten_fetch_t* fetch);
 #endif
 
 #ifdef EMSCRIPTEN
-    EM_JS(int, canvas_get_width, (), {
-        return yourCanvasElement.width;
+EM_JS(int, canvas_get_width, (), {
+    return yourCanvasElement.width;
     });
 
-    EM_JS(int, canvas_get_height, (), {
-        return yourCanvasElement.height;
+EM_JS(int, canvas_get_height, (), {
+    return yourCanvasElement.height;
     });
 #endif
 
@@ -92,189 +191,9 @@ public:
         : Screen(pwindow, Vector2i(rwidth, rheight), "Music Generator")
     {
         {
-            auto& nwindow = window("Music Generator", Vector2i{ 15, 15 })
-                .withLayout<GroupLayout>();
-
-            auto* mainLayout = new GridLayout(
-                        Orientation::Horizontal,
-                        1,
-                        Alignment::Middle,
-                        15,
-                        5
-                    );
             
-            nwindow.setLayout(mainLayout);
+            getSeedScores();
 
-            nwindow.label("Seed Word", "sans-bold");
-
-            auto& seedString = nwindow.textbox(songSettings.rngSeedString);
-            seedString.setEditable(true);
-            seedString.setAlignment(sdlgui::TextBox::Alignment::Left);
-            seedString.setCallback([](const std::string& seedWord) -> bool {
-                songSettings.rngSeedString = seedWord;
-                std::cout << "seedWord set to " << seedWord;
-                return true;
-            });
-
-            nwindow.label("Play Controls", "sans-bold");
-
-            nwindow.button("Start", [] {
-                        if (audioSettings.inited == true) {
-                            audioSettings.StopAudio();
-                        }
-                        SeedConfig();
-                        SetupAudio(true);
-                   }).withTooltip("Start the music");
-
-            nwindow.button("Stop", [] {
-                audioSettings.StopAudio();
-                SeedConfig();
-            });
-
-
-            /*
-            // Lofi mode is disabled for now as a) voting system can't differentiate between lofi or not and b) RNG is impacted with it on and thus the same seed sounds different if it's on vs not.
-            
-            nwindow.label("Settings", "sans-bold");
-
-            auto& loFiToggle = nwindow.button("Lo-Fi Mode");
-            loFiToggle.setFlags(Button::ToggleButton);
-            loFiToggle.setChangeCallback([](bool state) {
-                songSettings.ToggleLofi();
-                cout << "Toggle button state: " << state << endl;
-                cout << "LoFi state: " << songSettings.loFi << endl;
-            });
-            */
-
-            nwindow.label("Vote", "sans-bold");
-            nwindow.button("Vote Up", [] {
-                    emscripten_fetch_attr_t attr;
-                    emscripten_fetch_attr_init(&attr);
-                    strcpy(attr.requestMethod, "POST");
-                    const char * headers[] = {"Content-Type", "application/x-www-form-urlencoded; charset=utf-8", 0};
-                    attr.requestHeaders = headers;
-                    attr.attributes = EMSCRIPTEN_FETCH_LOAD_TO_MEMORY;
-                    attr.onsuccess = voteSucceeded;
-                    attr.onerror = voteFailed;
-                    std::string apiEndpoint = API_URL;
-                    apiEndpoint += "UpVote";
-
-                    // Why do I have to do all this? Probably could use 
-                    std::string strHttpPostData ("seed=", 5);
-                    strHttpPostData = strHttpPostData.append(songSettings.rngSeedString.c_str());
-                    std::cout << strHttpPostData << endl;
-                    char * httpPostData = (char*) malloc(128);
-                    memset(httpPostData, '\0', sizeof(128));
-                    strcpy(httpPostData, strHttpPostData.c_str());
-                    const char * seedName = httpPostData;
-                    attr.requestData = httpPostData;
-                    attr.requestDataSize = strlen(attr.requestData);
-                    // Send the request
-                    emscripten_fetch(&attr, apiEndpoint.c_str());
-                 });
-            nwindow.button("Vote Down", [] {
-                    emscripten_fetch_attr_t attr;
-                    emscripten_fetch_attr_init(&attr);
-                    strcpy(attr.requestMethod, "POST");
-                    const char * headers[] = {"Content-Type", "application/x-www-form-urlencoded; charset=utf-8", 0};
-                    attr.requestHeaders = headers;
-                    attr.attributes = EMSCRIPTEN_FETCH_LOAD_TO_MEMORY;
-                    attr.onsuccess = voteSucceeded;
-                    attr.onerror = voteFailed;
-                    std::string apiEndpoint = API_URL;
-                    apiEndpoint += "DownVote";
-
-                    // Why do I have to do all this?
-                    std::string strHttpPostData ("seed=", 5);
-                    strHttpPostData = strHttpPostData.append(songSettings.rngSeedString.c_str());
-                    std::cout << strHttpPostData << endl;
-                    char * httpPostData = (char*) malloc(128);
-                    memset(httpPostData, '\0', sizeof(128));
-                    strcpy(httpPostData, strHttpPostData.c_str());
-                    const char * seedName = httpPostData;
-                    attr.requestData = httpPostData;
-                    attr.requestDataSize = strlen(attr.requestData);
-                    // Send the request
-                    emscripten_fetch(&attr, apiEndpoint.c_str());
-            });
-
-            nwindow.button("Get Latest List", [] {
-                getSeedScores();
-            });
-
-            auto& nsongList = window("Song List", Vector2i{ 300, 15 })
-                .withLayout<GroupLayout>();
-
-            auto* seedLayout = new GridLayout(
-                                    Orientation::Horizontal,
-                                    2,
-                                    Alignment::Middle,
-                                    15,
-                                    5
-                                );
-            seedLayout->setColAlignment({ Alignment::Maximum, Alignment::Fill });
-
-            nsongList.setLayout(seedLayout);
-
-/*
-            listOfSeeds.push_back(std::tuple<std::string, int>{"covid", 0});
-            listOfSeeds.push_back(std::tuple<std::string, int>{"partake", 0});
-            listOfSeeds.push_back(std::tuple<std::string, int>{"removal", 0});
-            listOfSeeds.push_back(std::tuple<std::string, int>{"going", 0});
-            listOfSeeds.push_back(std::tuple<std::string, int>{"caboose", 0});
-            listOfSeeds.push_back(std::tuple<std::string, int>{"serbian", 0});
-            listOfSeeds.push_back(std::tuple<std::string, int>{"amuser", 0});
-            listOfSeeds.push_back(std::tuple<std::string, int>{"majesty", 0});
-*/
-            listOfSeeds.push_back(std::tuple<std::string, int>{"oops", 0});
-            listOfSeeds.push_back(std::tuple<std::string, int>{"flaxseed", 0});
-            listOfSeeds.push_back(std::tuple<std::string, int>{"reroute", 0});
-
-
-            nsongList.button(
-                "RANDOM", [&seedString](bool state) {
-                    if (state == true)
-                    {
-                        songSettings.rngSeedString = RandomWordFromWordList();
-                        seedString.setValue(songSettings.rngSeedString);
-                        // Restart Audio
-                        audioSettings.StopAudio();
-                        SeedConfig();
-                        SetupAudio(true);
-                    }
-                })
-                .setBackgroundColor(Color(0, 255, 25, 25));
-
-            nsongList.label("∞", "sans-bold");
-
-            for (auto seedScorePair = listOfSeeds.begin(); seedScorePair != listOfSeeds.end(); seedScorePair++)
-            {
-                // std::string seedStr = *str;
-                // std::cout << "seedStr: " << seedStr << "\n";
-
-                std::string *seedStrPtr = new std::string;
-                std::string seedStr = *seedStrPtr;
-                int score;
-                std::tie(seedStr, score) = *seedScorePair;
-
-                nsongList.button(
-                    seedStr, [seedScorePair, &seedString](bool state) {
-                                // Split Seed name + score tuple
-                                int score;
-                                std::string seedStr;
-                                std::tie(seedStr, score) = *seedScorePair;                               
-                                // Set seed value
-                                songSettings.rngSeedString = seedStr;
-                                seedString.setValue(seedStr);
-                                // Restart Audio
-                                audioSettings.StopAudio();
-                                SeedConfig();
-                                SetupAudio(true);
-                            }).setFlags(Button::RadioButton);
-
-                nsongList.label(std::to_string(score), "sans-bold");
-
-            }
         }
 
         performLayout(mSDL_Renderer);
@@ -293,32 +212,138 @@ public:
 
     virtual void draw(SDL_Renderer* renderer)
     {
-        if (auto pbar = gfind<ProgressBar>("progressbar")) {
-            pbar->setValue(pbar->value() + 0.001f);
-            if (pbar->value() >= 1.f)
-                pbar->setValue(0.f);
-        }
+        if (auto* textBox = gfind<TextBox>("seed-string"))
+            {
+                textBox->setValue(songSettings.rngSeedString);
+            }
+                        
 
         Screen::draw(renderer);
     }
 
-    
+
+    auto& DrawControls()
+    {
+        
+        auto& nwindow = window("Music Generator", Vector2i{ 15, 15 })
+            .withLayout<GroupLayout>();
+
+            auto* mainLayout = new GridLayout(
+                Orientation::Horizontal,
+                1,
+                Alignment::Minimum,
+                25,
+                10
+            );
+
+            nwindow.setLayout(mainLayout);
+
+            nwindow.label("Seed Word", "sans-bold");
+
+            auto& seedString = nwindow.textbox(songSettings.rngSeedString);
+
+            cout << "DECLTYPE: " << type_name<decltype(seedString)>() << endl;
+            seedString.setEditable(true);
+            seedString.setId("seed-string");
+            seedString.setAlignment(sdlgui::TextBox::Alignment::Left);
+            seedString.setCallback([](const std::string& seedWord) -> bool {
+                songSettings.rngSeedString = seedWord;
+                std::cout << "seedWord set to " << seedWord;
+                return true;
+            });
+
+            nwindow.label("Play Controls", "sans-bold");
+
+            nwindow.button("Start", [] {
+                if (audioSettings.inited == true) {
+                    audioSettings.StopAudio();
+                }
+                SeedConfig();
+                SetupAudio(true);
+            }).withTooltip("Start the music");
+
+            nwindow.button("Stop", [] {
+                audioSettings.StopAudio();
+                SeedConfig();
+            });
+
+
+            // Voting buttons
+            nwindow.label("Vote", "sans-bold");
+
+            nwindow.button("Vote Up", [] {
+                // Send HTTP Req
+                emscripten_fetch_attr_t attr;
+                emscripten_fetch_attr_init(&attr);
+                strcpy(attr.requestMethod, "POST");
+                const char* headers[] = { "Content-Type", "application/x-www-form-urlencoded; charset=utf-8", 0 };
+                attr.requestHeaders = headers;
+                attr.attributes = EMSCRIPTEN_FETCH_LOAD_TO_MEMORY;
+                attr.onsuccess = voteSucceeded;
+                attr.onerror = voteFailed;
+                std::string apiEndpoint = API_URL;
+                apiEndpoint += "UpVote";
+
+                // Why do I have to do all this?
+                std::string strHttpPostData("seed=", 5);
+                strHttpPostData = strHttpPostData.append(songSettings.rngSeedString.c_str());
+                // std::cout << strHttpPostData << endl;
+                char* httpPostData = (char*)malloc(128);
+                memset(httpPostData, '\0', sizeof(128));
+                strcpy(httpPostData, strHttpPostData.c_str());
+                const char* seedName = httpPostData;
+                attr.requestData = httpPostData;
+                attr.requestDataSize = strlen(attr.requestData);
+                // Send the request
+                emscripten_fetch(&attr, apiEndpoint.c_str());
+            })
+                .setBackgroundColor(Color(0, 255, 25, 25));
+            nwindow.button("Vote Down", [] {
+                // Send HTTP Req
+                emscripten_fetch_attr_t attr;
+                emscripten_fetch_attr_init(&attr);
+                strcpy(attr.requestMethod, "POST");
+                const char* headers[] = { "Content-Type", "application/x-www-form-urlencoded; charset=utf-8", 0 };
+                attr.requestHeaders = headers;
+                attr.attributes = EMSCRIPTEN_FETCH_LOAD_TO_MEMORY;
+                attr.onsuccess = voteSucceeded;
+                attr.onerror = voteFailed;
+                std::string apiEndpoint = API_URL;
+                apiEndpoint += "DownVote";
+
+                // Why do I have to do all this?
+                std::string strHttpPostData("seed=", 5);
+                strHttpPostData = strHttpPostData.append(songSettings.rngSeedString.c_str());
+                // std::cout << strHttpPostData << endl;
+                char* httpPostData = (char*)malloc(128);
+                memset(httpPostData, '\0', sizeof(128));
+                strcpy(httpPostData, strHttpPostData.c_str());
+                const char* seedName = httpPostData;
+                attr.requestData = httpPostData;
+                attr.requestDataSize = strlen(attr.requestData);
+                // Send the request
+                emscripten_fetch(&attr, apiEndpoint.c_str());
+            }).setBackgroundColor(Color(255, 25, 25, 25));
+
+        return seedString;
+    }
+
     void DrawSongList()
     {
-        auto& twindow = window("Song List", Vector2i{ 300, 300 })
+        auto& twindow = window("Song List / Score", Vector2i{ 300, 300 })
             .withLayout<GroupLayout>();
 
         auto* tLayout = new GridLayout(
-                    Orientation::Horizontal,
-                    2,
-                    Alignment::Middle,
-                    15,
-                    5
-                );
-        
+            Orientation::Horizontal,
+            2,
+            Alignment::Middle,
+            15,
+            5
+        );
+
         twindow.setLayout(tLayout);
 
-        twindow.label("Seed Word", "sans-bold");
+        // twindow.label("Seed Word", "sans-bold");
 
         twindow.button(
             "RANDOM", [](bool state) {
@@ -333,30 +358,35 @@ public:
             })
             .setBackgroundColor(Color(0, 255, 25, 25));
 
-        
+        twindow.label("∞", "sans-bold");
+
         for (auto seedScorePair = listOfSeeds.begin(); seedScorePair != listOfSeeds.end(); seedScorePair++)
         {
             // std::string seedStr = *str;
             // std::cout << "seedStr: " << seedStr << "\n";
 
-            std::string *seedStrPtr = new std::string;
+            std::string* seedStrPtr = new std::string;
             std::string seedStr = *seedStrPtr;
             int score;
             std::tie(seedStr, score) = *seedScorePair;
 
-            twindow.button(
-                seedStr, [seedScorePair](bool state) {
-                            // Split Seed name + score tuple
-                            int score;
-                            std::string seedStr;
-                            std::tie(seedStr, score) = *seedScorePair;                               
-                            // Set seed value
-                            songSettings.rngSeedString = seedStr;
-                            // Restart Audio
-                            audioSettings.StopAudio();
-                            SeedConfig();
-                            SetupAudio(true);
-                        }).setFlags(Button::RadioButton);
+            auto& seedBtn = twindow.button(seedStr);
+            seedBtn.setWidth(200);
+            seedBtn.setFlags(Button::RadioButton);
+            seedBtn.setCallback([seedScorePair]() {
+                // Split Seed name + score tuple
+                int score;
+                std::string seedStr;
+                std::tie(seedStr, score) = *seedScorePair;
+                // Set seed value
+                songSettings.rngSeedString = seedStr;
+                // Restart Audio
+                audioSettings.StopAudio();
+                SeedConfig();
+                SetupAudio(true);
+            });
+
+            // seedBtn.setWidth(200);
 
             twindow.label(std::to_string(score), "sans-bold");
         }
@@ -457,7 +487,7 @@ int main(int /* argc */, char** /* argv */)
         winWidth, //    int w: width, in pixels
         winHeight, //    int h: height, in pixels
         SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE //    Uint32 flags: window options, see docs
-        );
+    );
     SDL_SetWindowSize(g_window, winWidth, winHeight);
 
 #ifdef DEBUG_SDL_INIT
@@ -537,15 +567,6 @@ int main(int /* argc */, char** /* argv */)
 #endif
 
 #ifdef EMSCRIPTEN
-    /*
-    emscripten_fetch_attr_t attr;
-    emscripten_fetch_attr_init(&attr);
-    strcpy(attr.requestMethod, "GET");
-    attr.attributes = EMSCRIPTEN_FETCH_LOAD_TO_MEMORY;
-    attr.onsuccess = downloadSucceeded;
-    attr.onerror = downloadFailed;
-    emscripten_fetch(&attr, "http://morganrobertson.net/wp-content/uploads/3_cropped_130x130.png");
-    */
     emscripten_set_main_loop(MainLoop, 30, 1);
 #else
     while (quit == false) {
@@ -556,9 +577,9 @@ int main(int /* argc */, char** /* argv */)
     return 0;
 }
 
-void update_screen_size(int w, int h) 
+void update_screen_size(int w, int h)
 {
-   SDL_SetWindowSize(g_window, w, h);
+    SDL_SetWindowSize(g_window, w, h);
 }
 
 void MainLoop()
@@ -569,12 +590,12 @@ void MainLoop()
         if (e.type == SDL_QUIT) {
             quit = true;
         }
-        
-        if (e.type == SDL_WINDOWEVENT && e.window.event == SDL_WINDOWEVENT_RESIZED) 
+
+        if (e.type == SDL_WINDOWEVENT && e.window.event == SDL_WINDOWEVENT_RESIZED)
         {
             update_screen_size(e.window.data1, e.window.data2);
         }
-        
+
         g_screen->onEvent(e);
     }
 
@@ -592,34 +613,31 @@ void MainLoop()
 
 #ifdef EMSCRIPTEN
 
-    void downloadSucceeded(emscripten_fetch_t *fetch) {
-        printf("Finished downloading %llu bytes from URL %s.\n", fetch->numBytes, fetch->url);
+void downloadSucceeded(emscripten_fetch_t* fetch) {
+    printf("Finished downloading %llu bytes from URL %s.\n", fetch->numBytes, fetch->url);
 
-        // The data is now available at fetch->data[0] through fetch->data[fetch->numBytes-1];
-        emscripten_fetch_close(fetch); // Free data associated with the fetch.
+    // The data is now available at fetch->data[0] through fetch->data[fetch->numBytes-1];
+    emscripten_fetch_close(fetch); // Free data associated with the fetch.
 
-    }
+}
 
-    void downloadFailed(emscripten_fetch_t *fetch) {
-        printf("Downloading %s failed, HTTP failure status code: %d.\n", fetch->url, fetch->status);
-        emscripten_fetch_close(fetch); // Also free data on failure.
-    }
+void downloadFailed(emscripten_fetch_t* fetch) {
+    printf("Downloading %s failed, HTTP failure status code: %d.\n", fetch->url, fetch->status);
+    emscripten_fetch_close(fetch); // Also free data on failure.
+}
 
-    void voteSucceeded(emscripten_fetch_t *fetch) {
-        printf("Vote submitted.");
+void voteSucceeded(emscripten_fetch_t* fetch) {
+    printf("Vote submitted.");
 
-        // The data is now available at fetch->data[0] through fetch->data[fetch->numBytes-1];
-        emscripten_fetch_close(fetch); // Free data associated with the fetch.
+    // The data is now available at fetch->data[0] through fetch->data[fetch->numBytes-1];
+    emscripten_fetch_close(fetch); // Free data associated with the fetch.
 
-    }
+}
 
-    void voteFailed(emscripten_fetch_t *fetch) {
-        printf("Vote failed.  HTTP endpoint: %s , HTTP failure status code: %d.\n", fetch->url, fetch->status);
-        emscripten_fetch_close(fetch); // Also free data on failure.
-    }
-
-
-
+void voteFailed(emscripten_fetch_t* fetch) {
+    printf("Vote failed.  HTTP endpoint: %s , HTTP failure status code: %d.\n", fetch->url, fetch->status);
+    emscripten_fetch_close(fetch); // Also free data on failure.
+}
 
 
 void getSeedScores()
@@ -635,18 +653,17 @@ void getSeedScores()
     apiEndpoint += "GetScores";
     // Send the request, should block here
     emscripten_fetch(&attr, apiEndpoint.c_str());
-
 }
 
 
-void getScoresSuccess(emscripten_fetch_t *fetch) {
+void getScoresSuccess(emscripten_fetch_t* fetch) {
     printf("Getting scores succeeded! Downloading %llu bytes from URL %s...\n", fetch->numBytes, fetch->url);
-    
-    // cout << fetch->data << endl;
 
+    // Split each line by a comma into separate seed and score values
     std::string input(fetch->data);
     std::string result;
     std::istringstream iss(input);
+
     for (std::string line; std::getline(iss, line); )
     {
         result += line + "\n";
@@ -657,44 +674,53 @@ void getScoresSuccess(emscripten_fetch_t *fetch) {
         if (commaPos > 0)
         {
             std::string seed = line.substr(0, line.find(delimiter));
-            cout << seed << " ";
+            // cout << seed << " ";
             std::string score = line.substr(line.find(delimiter) + 1, line.length() - 1);
-            cout << score << endl;
+            // cout << score << endl;
             int intScore = stoi(score);
             listOfSeeds.push_back(std::tuple<std::string, int>{seed, intScore});
         }
-
-        // std::string s = "scott>=tiger";
-        // std::string token = s.substr(0, s.find(delimiter)); // token is "scott"
-
-        // The find(const string& str, size_t pos = 0) function returns the position of the first occurrence of str in the string, or npos if the string is not found.
-        //The substr(size_t pos = 0, size_t n = npos) function returns a substring of the object, starting at position pos and of length npos.
 
     }
 
     // cout << result << endl;
 
+    // Debug print.
     for (auto seedScorePair = listOfSeeds.begin(); seedScorePair != listOfSeeds.end(); seedScorePair++)
     {
 
-        std::string *seedStrPtr = new std::string;
+        std::string* seedStrPtr = new std::string;
         std::string seedStr = *seedStrPtr;
         int score;
         std::tie(seedStr, score) = *seedScorePair;
         cout << seedStr << " " << score << endl;
     }
-
+    g_screen->DrawControls();
     g_screen->DrawSongList();
-    // listOfSeeds.push_back(std::tuple<std::string, int>{"oops", 0});
 
     // The data is now available at fetch->data[0] through fetch->data[fetch->numBytes-1];
     emscripten_fetch_close(fetch); // Free data associated with the fetch.
 
 }
 
-void getScoresFailed(emscripten_fetch_t *fetch) {
+void getScoresFailed(emscripten_fetch_t* fetch) {
     printf("Getting scores %s failed, HTTP failure status code: %d.\n", fetch->url, fetch->status);
     emscripten_fetch_close(fetch); // Also free data on failure.
+
+    listOfSeeds.push_back(std::tuple<std::string, int>{"reroute", 10});
+    listOfSeeds.push_back(std::tuple<std::string, int>{"going", 10});
+    listOfSeeds.push_back(std::tuple<std::string, int>{"covid", 8});
+    listOfSeeds.push_back(std::tuple<std::string, int>{"caboose", 6});
+    listOfSeeds.push_back(std::tuple<std::string, int>{"partake", 2});
+    listOfSeeds.push_back(std::tuple<std::string, int>{"removal", 2});
+    listOfSeeds.push_back(std::tuple<std::string, int>{"flaxseed", 2});
+    listOfSeeds.push_back(std::tuple<std::string, int>{"serbian", 2});
+    listOfSeeds.push_back(std::tuple<std::string, int>{"amuser", 2});
+    listOfSeeds.push_back(std::tuple<std::string, int>{"majesty", 2});
+    listOfSeeds.push_back(std::tuple<std::string, int>{"oops", 2});
+
+    g_screen->DrawControls();
+    g_screen->DrawSongList();
 }
 
 

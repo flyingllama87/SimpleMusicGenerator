@@ -24,7 +24,7 @@ init() #init colorama
 class Proxy():
     DEFAULT_HEADERS = {}
 
-    def __init__(self, endpoint = 'http://127.0.0.1:8080/api', headers=None):
+    def __init__(self, endpoint = 'http://127.0.0.1:5000/api', headers=None):
         self.service_url = endpoint
         self.headers = headers or self.DEFAULT_HEADERS
 
@@ -43,7 +43,7 @@ class Proxy():
         return str(url_request.content.decode())
 
 # server = Proxy('http://morganrobertson.net/LTLeaderBoard/api')
-server = Proxy(endpoint = 'http://127.0.0.1:8080/api')
+server = Proxy(endpoint = 'http://127.0.0.1:5000/api')
 
 failed_tests = False
 

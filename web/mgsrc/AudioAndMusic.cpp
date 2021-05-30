@@ -278,6 +278,12 @@ void RandomConfig()
 
 void SeedConfig()
 {
+    // reset instruments
+    songSettings.leadSine = false;
+    songSettings.leadSawtooth = true;
+    songSettings.leadSquare = false;
+
+    // Seed RNG
     songSettings.rngSeed = WordToNumber(songSettings.rngSeedString);
     mtRNG.seed(songSettings.rngSeed);
 
