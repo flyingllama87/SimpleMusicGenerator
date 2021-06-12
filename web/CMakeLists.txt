@@ -146,6 +146,7 @@ list(APPEND NNGUI_BASIC_SOURCE
      sdlgui/textbox.h
      sdlgui/theme.h
      sdlgui/vscrollpanel.h
+     sdlgui/vswrap.h
      sdlgui/switchbox.h
      sdlgui/dropdownbox.h
      sdlgui/widget.h
@@ -188,6 +189,7 @@ list(APPEND NNGUI_BASIC_SOURCE
      sdlgui/dropdownbox.cpp
      sdlgui/theme.cpp
      sdlgui/vscrollpanel.cpp
+     sdlgui/vswrap.cpp
      sdlgui/widget.cpp
      sdlgui/window.cpp
      sdlgui/nanovg.c

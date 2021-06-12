@@ -20,6 +20,7 @@ Morgan Robertson 2021
 #include <sdlgui/imagepanel.h>
 #include <sdlgui/imageview.h>
 #include <sdlgui/vscrollpanel.h>
+#include <sdlgui/vswrap.h>
 #include <sdlgui/colorwheel.h>
 #include <sdlgui/graph.h>
 #include <sdlgui/tabwidget.h>
@@ -117,10 +118,26 @@ public:
     virtual void draw(SDL_Renderer* renderer)
     {
         if (auto* textBox = gfind<TextBox>("seed-string"))
-            {
-                textBox->setValue(songSettings.rngSeedString);
-            }
-                        
+        {
+            textBox->setValue(songSettings.rngSeedString);
+        }
+
+     /*   
+        if (auto* vscrollpanel = gfind<VScrollPanel>("vsp"))
+        {
+            std::cout << "vsp height: " << vscrollpanel->height() << "\n";
+        }
+
+        if (auto* vspWrapper = gfind<Widget>("vsp-wrapper"))
+        {
+            std::cout << "vsp-wrapper height: " << vspWrapper->height() << "\n";
+        }
+
+        if (auto* twindow = gfind<Window>("twindow"))
+        {
+            std::cout << "window height: " << twindow->height() << "\n";
+        }
+    */
 
         Screen::draw(renderer);
     }
@@ -233,9 +250,29 @@ public:
 
     void DrawSongList()
     {
-        auto& twindow = window("Song List / Score", Vector2i{ 300, 300 })
+        auto& twindow = window("Song List / Score", Vector2i{ 300, 10 })
             .withLayout<GroupLayout>();
 
+        twindow.setId("twindow");
+
+        static constexpr int width      = 400;
+        static constexpr int height     = 300;
+
+        // twindow.setFixedSize({width, height});
+        // twindow.setHeight(height);
+
+        // attach a vertical scroll panel
+        auto vscroll = new VScrollPanel(&twindow);
+        vscroll->setFixedSize({width, height});
+        // vscroll->setHeight(height);
+        vscroll->setId("vsp");
+
+        // vscroll should only have *ONE* child. this is what `wrapper` is for
+        auto wrapper = new VSWrapper(vscroll);
+        wrapper->setId("vsp-wrapper");
+
+        // wrapper->setLayout(new GridLayout());// defaults: 2 columns
+        
         auto* tLayout = new GridLayout(
             Orientation::Horizontal,
             2,
@@ -244,11 +281,17 @@ public:
             5
         );
 
-        twindow.setLayout(tLayout);
+        wrapper->setLayout(tLayout);
+
+        // wrapper->setLayout(tLayout);
+
+        // wrapper->setHeight(height);
+        // wrapper->setFixedSize({width, height});
+
 
         // twindow.label("Seed Word", "sans-bold");
 
-        twindow.button(
+        wrapper->button(
             "RANDOM", [](bool state) {
                 if (state == true)
                 {
@@ -261,7 +304,7 @@ public:
             })
             .setBackgroundColor(Color(0, 255, 25, 25));
 
-        twindow.label("∞", "sans-bold");
+        wrapper->label("∞", "sans-bold");
 
         for (auto seedScorePair = listOfSeeds.begin(); seedScorePair != listOfSeeds.end(); seedScorePair++)
         {
@@ -273,8 +316,8 @@ public:
             int score;
             std::tie(seedStr, score) = *seedScorePair;
 
-            auto& seedBtn = twindow.button(seedStr);
-            seedBtn.setWidth(200);
+            auto& seedBtn = wrapper->button(seedStr);
+            // rseedBtn.setWidth(200);
             seedBtn.setFlags(Button::RadioButton);
             seedBtn.setCallback([seedScorePair]() {
                 // Split Seed name + score tuple
@@ -288,10 +331,11 @@ public:
                 SeedConfig();
                 SetupAudio(true);
             });
+            // seedBtn.setVisible(false);
 
             // seedBtn.setWidth(200);
 
-            twindow.label(std::to_string(score), "sans-bold");
+            wrapper->label(std::to_string(score), "sans-bold");
         }
 
         performLayout(mSDL_Renderer);
