@@ -11,6 +11,8 @@
 
 #include <sdlgui/vscrollpanel.h>
 #include <sdlgui/theme.h>
+// #include <iostream>
+// #include <string>
 
 NAMESPACE_BEGIN(sdlgui)
 
@@ -52,9 +54,11 @@ bool VScrollPanel::mouseDragEvent(const Vector2i &, const Vector2i &rel,  int, i
 
 bool VScrollPanel::scrollEvent(const Vector2i &/* p */, const Vector2f &rel)
 {
-    float scrollAmount = rel.y * (mSize.y / 20.0f);
+    float scrollAmount = (rel.y * 0.01) * 35.0f;
     float scrollh = height() *
         std::min(1.0f, height() / (float)mChildPreferredHeight);
+
+    // std::cout << "mScroll: " << std::to_string(mScroll) << " scrollAmount: " << scrollAmount << " mSize.y: "<< mSize.y << " rel.y: " << rel.y << "\n";
 
     mScroll = std::max((float) 0.0f, std::min((float) 1.0f,
             mScroll - scrollAmount / (float)(mSize.y - 8 - scrollh)));
@@ -104,13 +108,13 @@ void VScrollPanel::draw(SDL_Renderer *renderer)
     }
 
     SDL_Color sc = mTheme->mBorderDark.toSdlColor();
-    SDL_Rect srect{ ap.x + mSize.x - 12, ap.y + 4, 8, mSize.y - 8 };
+    SDL_Rect srect{ ap.x + mSize.x - 12, ap.y + 4, 16, mSize.y - 8 };
 
     SDL_SetRenderDrawColor(renderer, sc.r, sc.g, sc.b, sc.a);
     SDL_RenderFillRect(renderer, &srect);
       
     SDL_Color ss = mTheme->mBorderLight.toSdlColor();
-    SDL_Rect drect{ ap.x + mSize.x - 12 + 1, ap.y + 4 + (mSize.y - 8 - scrollh) * mScroll + 1, 6, scrollh - 1 };
+    SDL_Rect drect{ ap.x + mSize.x - 12 + 1, ap.y + 4 + (mSize.y - 8 - scrollh) * mScroll + 1, 16, scrollh - 1 };
 
     SDL_SetRenderDrawColor(renderer, ss.r, ss.g, ss.b, ss.a);
     SDL_RenderFillRect(renderer, &drect);

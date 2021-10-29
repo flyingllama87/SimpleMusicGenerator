@@ -89,22 +89,20 @@ EM_JS(int, canvas_get_height, (), {
 using namespace sdlgui;
 
 
-class TestWindow : public Screen {
+class MainWindow : public Screen {
 public:
 
-    TestWindow(SDL_Window* pwindow, int rwidth, int rheight)
+    MainWindow(SDL_Window* pwindow, int rwidth, int rheight)
         : Screen(pwindow, Vector2i(rwidth, rheight), "Music Generator")
     {
         {
-            
             getSeedScores();
-
         }
 
         performLayout(mSDL_Renderer);
     }
 
-    ~TestWindow()
+    ~MainWindow()
     {
     }
 
@@ -143,29 +141,41 @@ public:
     }
 
 
-    auto& DrawControls()
-    {
-        
-        auto& nwindow = window("Music Generator", Vector2i{ 15, 15 })
-            .withLayout<GroupLayout>();
+    void DrawControls()
+    {   
+
+        if (auto* twindow = gfind<Window>("controls"))
+        {
+            std::cout << "Controls already displayed!" << "\n";
+            return;
+        }
+
+        auto& nwindow = window("Music Generator", Vector2i{ 5, 5 });
 
             auto* mainLayout = new GridLayout(
                 Orientation::Horizontal,
                 1,
-                Alignment::Minimum,
-                25,
+                Alignment::Fill,
+                5,
                 10
             );
 
             nwindow.setLayout(mainLayout);
 
+            nwindow.setFixedWidth(310);
+
             nwindow.label("Seed Word", "sans-bold");
+
+            nwindow.setId("controls");
 
             auto& seedString = nwindow.textbox(songSettings.rngSeedString);
 
             seedString.setEditable(true);
             seedString.setId("seed-string");
             seedString.setAlignment(sdlgui::TextBox::Alignment::Left);
+            seedString.setFormat("^[a-zA-Z0-9 _]{1,20}$");
+            seedString.setFixedHeight(50);
+
             seedString.setCallback([](const std::string& seedWord) -> bool {
                 songSettings.rngSeedString = seedWord;
                 std::cout << "seedWord set to " << seedWord;
@@ -180,18 +190,18 @@ public:
                 }
                 SeedConfig();
                 SetupAudio(true);
-            }).withTooltip("Start the music");
+            }).setFixedHeight(50);
 
             nwindow.button("Stop", [] {
                 audioSettings.StopAudio();
                 SeedConfig();
-            });
+            }).setFixedHeight(50);
 
 
             // Voting buttons
             nwindow.label("Vote", "sans-bold");
 
-            nwindow.button("Vote Up", [] {
+            auto& voteUpBtn = nwindow.button("Vote Up", [] {
                 // Send HTTP Req
                 emscripten_fetch_attr_t attr;
                 emscripten_fetch_attr_init(&attr);
@@ -216,9 +226,11 @@ public:
                 attr.requestDataSize = strlen(attr.requestData);
                 // Send the request
                 emscripten_fetch(&attr, apiEndpoint.c_str());
-            })
-                .setBackgroundColor(Color(0, 255, 25, 25));
-            nwindow.button("Vote Down", [] {
+            });
+            voteUpBtn.setBackgroundColor(Color(0, 255, 25, 25));
+            voteUpBtn.setFixedHeight(50);
+
+            auto& voteDownBtn = nwindow.button("Vote Down", [] {
                 // Send HTTP Req
                 emscripten_fetch_attr_t attr;
                 emscripten_fetch_attr_init(&attr);
@@ -243,20 +255,31 @@ public:
                 attr.requestDataSize = strlen(attr.requestData);
                 // Send the request
                 emscripten_fetch(&attr, apiEndpoint.c_str());
-            }).setBackgroundColor(Color(255, 25, 25, 25));
+            });
+            voteDownBtn.setBackgroundColor(Color(240, 50, 50, 255));
+            voteDownBtn.setFixedHeight(50);
 
-        return seedString;
+        return;
+    }
+
+    void DestroySongList()
+    {
+        if (auto* twindow = gfind<Window>("twindow"))
+        {
+            std::cout << "found list of seeds - window height: " << twindow->height() << "\n";
+            this->disposeWindow(twindow);
+        }
     }
 
     void DrawSongList()
     {
-        auto& twindow = window("Song List / Score", Vector2i{ 300, 10 })
+        auto& twindow = window("Song List & Scores", Vector2i{ 350, 5 })
             .withLayout<GroupLayout>();
 
         twindow.setId("twindow");
 
-        static constexpr int width      = 400;
-        static constexpr int height     = 300;
+        static constexpr int width      = 425;
+        static constexpr int height     = 700;
 
         // twindow.setFixedSize({width, height});
         // twindow.setHeight(height);
@@ -276,9 +299,9 @@ public:
         auto* tLayout = new GridLayout(
             Orientation::Horizontal,
             2,
-            Alignment::Middle,
-            15,
-            5
+            Alignment::Fill,
+            5,
+            10
         );
 
         wrapper->setLayout(tLayout);
@@ -291,7 +314,7 @@ public:
 
         // twindow.label("Seed Word", "sans-bold");
 
-        wrapper->button(
+        auto& randomBtn = wrapper->button(
             "RANDOM", [](bool state) {
                 if (state == true)
                 {
@@ -301,10 +324,11 @@ public:
                     SeedConfig();
                     SetupAudio(true);
                 }
-            })
-            .setBackgroundColor(Color(0, 255, 25, 25));
+            });
+            randomBtn.setBackgroundColor(Color(0, 255, 25, 25));
+            randomBtn.setFixedHeight(50);
 
-        wrapper->label("∞", "sans-bold");
+        wrapper->label("     ∞", "sans-bold");
 
         for (auto seedScorePair = listOfSeeds.begin(); seedScorePair != listOfSeeds.end(); seedScorePair++)
         {
@@ -333,9 +357,9 @@ public:
             });
             // seedBtn.setVisible(false);
 
-            // seedBtn.setWidth(200);
+            seedBtn.setFixedHeight(50);
 
-            wrapper->label(std::to_string(score), "sans-bold");
+            wrapper->label("  " + std::to_string(score), "sans-bold");
         }
 
         performLayout(mSDL_Renderer);
@@ -357,13 +381,12 @@ SDL_Window* g_window; // Declare a pointer to an SDL_Window
 SDL_RendererInfo info;
 SDL_RendererInfo renderInfo;
 SDL_Renderer* g_renderer;
-TestWindow* g_screen;
+MainWindow* g_screen;
 SDL_Event e;
 
 
 int main(int /* argc */, char** /* argv */)
 {
-
 
     char rendername[256] = { 0 };
 
@@ -396,6 +419,11 @@ int main(int /* argc */, char** /* argv */)
     std::cout << "Complete: windows settings " << '\n';
 #endif
 
+
+    int w, h;
+    emscripten_get_canvas_element_size("#canvas", &winWidth, &winHeight);
+    printf("w:%d,h:%d\n",winWidth,winHeight);
+    
     // Create an application window with the following settings:
     g_window = SDL_CreateWindow(
         "An SDL2 window", //    const char* title
@@ -405,7 +433,7 @@ int main(int /* argc */, char** /* argv */)
         winHeight, //    int h: height, in pixels
         SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE //    Uint32 flags: window options, see docs
     );
-    SDL_SetWindowSize(g_window, winWidth, winHeight);
+    // SDL_SetWindowSize(g_window, winWidth, winHeight);
 
 #ifdef DEBUG_SDL_INIT
     std::cout << "Complete: Create window: " << '\n';
@@ -426,6 +454,7 @@ int main(int /* argc */, char** /* argv */)
 
 
     auto context = SDL_GL_CreateContext(g_window);
+
 
 #ifdef DEBUG_SDL_INIT
     std::cout << "Complete: create gl context " << '\n';
@@ -470,7 +499,8 @@ int main(int /* argc */, char** /* argv */)
     std::cout << "VALS: " << winWidth << " " << winHeight << '\n';
 #endif
 
-    g_screen = new TestWindow(g_window, winWidth, winHeight);
+    g_screen = new MainWindow(g_window, winWidth, winHeight);
+    g_screen->setId("MainWindow");
 
 #ifdef DEBUG_SDL_INIT
     std::cout << "Complete: Create new window! " << '\n';
@@ -482,6 +512,12 @@ int main(int /* argc */, char** /* argv */)
 #ifdef DEBUG_SDL_INIT
     std::cout << "About to render!" << '\n';
 #endif
+
+    // Test 3: Check that resizing the canvas works as well.
+    // emscripten_set_canvas_element_size("#canvas", 1024, 768);
+    // emscripten_get_canvas_element_size("#canvas", &w, &h);
+    // printf("w:%d,h:%d\n", w,h);
+
 
 #ifdef EMSCRIPTEN
     emscripten_set_main_loop(MainLoop, 30, 1);
@@ -496,7 +532,13 @@ int main(int /* argc */, char** /* argv */)
 
 void update_screen_size(int w, int h)
 {
-    SDL_SetWindowSize(g_window, w, h);
+    int w2, h2;
+    // Test 3: Check that resizing the canvas works as well.
+    emscripten_set_canvas_element_size("#canvas", w, h);
+    emscripten_get_canvas_element_size("#canvas", &w2, &h2);
+    printf("w:%d,h:%d\n", w2,h2);
+
+    // SDL_SetWindowSize(g_window, w2, h2);
 }
 
 void MainLoop()
@@ -510,6 +552,7 @@ void MainLoop()
 
         if (e.type == SDL_WINDOWEVENT && e.window.event == SDL_WINDOWEVENT_RESIZED)
         {
+            std::cout << "Resize Event!";
             update_screen_size(e.window.data1, e.window.data2);
         }
 
@@ -546,6 +589,11 @@ void voteSucceeded(emscripten_fetch_t* fetch) {
 
     emscripten_fetch_close(fetch); // Free data associated with the fetch.
 
+    g_screen->DestroySongList();
+    getSeedScores();
+    // std::this_thread::sleep_for(1000);
+    // g_screen->DrawSongList();
+    
 }
 
 void voteFailed(emscripten_fetch_t* fetch) {
@@ -580,6 +628,8 @@ void getScoresSuccess(emscripten_fetch_t* fetch) {
     std::string result;
     std::istringstream iss(input);
 
+    listOfSeeds.clear();
+
     for (std::string line; std::getline(iss, line); )
     {
         result += line + "\n";
@@ -599,18 +649,16 @@ void getScoresSuccess(emscripten_fetch_t* fetch) {
 
     }
 
-    // cout << result << endl;
-
     // Debug print.
     for (auto seedScorePair = listOfSeeds.begin(); seedScorePair != listOfSeeds.end(); seedScorePair++)
     {
-
         std::string* seedStrPtr = new std::string;
         std::string seedStr = *seedStrPtr;
         int score;
         std::tie(seedStr, score) = *seedScorePair;
         // cout << seedStr << " " << score << endl;
     }
+
     g_screen->DrawControls();
     g_screen->DrawSongList();
 

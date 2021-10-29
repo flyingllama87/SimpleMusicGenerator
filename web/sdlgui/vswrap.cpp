@@ -11,8 +11,7 @@
 
 #include <sdlgui/vswrap.h>
 #include <sdlgui/theme.h>
-#include <iostream>
-#include <string>
+
 
 NAMESPACE_BEGIN(sdlgui)
 
@@ -31,7 +30,6 @@ void VSWrapper::draw(SDL_Renderer *renderer)
         continue;
     if ((parentYPosEnd - 20) < childYPos)
         continue;
-    // std::cout << "child y pos: " << std::to_string(temp.y) << "\n";
     if (child->visible())
       child->draw(renderer);
   }

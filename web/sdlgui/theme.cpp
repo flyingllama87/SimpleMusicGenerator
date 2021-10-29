@@ -27,17 +27,17 @@ namespace internal
 }
 
 Theme::Theme(SDL_Renderer *ctx) {
-    mStandardFontSize                 = 16;
-    mButtonFontSize                   = 20;
-    mTextBoxFontSize                  = 20;
-    mWindowCornerRadius               = 2;
+    mStandardFontSize                 = 20;
+    mButtonFontSize                   = 24;
+    mTextBoxFontSize                  = 24;
+    mWindowCornerRadius               = 10;
     mWindowHeaderHeight               = 30;
     mWindowDropShadowSize             = 10;
     mButtonCornerRadius               = 2;
     mTabBorderWidth                   = 0.75f;
     mTabInnerMargin                   = 5;
     mTabMinButtonWidth                = 30;
-    mTabMaxButtonWidth                = 180;
+    mTabMaxButtonWidth                = 300;
     mTabControlWidth                  = 20;
     mTabButtonHorizontalPadding       = 10;
     mTabButtonVerticalPadding         = 2;
