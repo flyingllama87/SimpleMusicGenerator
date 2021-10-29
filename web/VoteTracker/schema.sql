@@ -6,7 +6,6 @@ CREATE TABLE scores (
 );
 
 INSERT INTO scores VALUES ("going", 10);
-INSERT INTO scores VALUES ("shitsong", -5);
 INSERT INTO scores VALUES ("covid", 5);
 INSERT INTO scores VALUES ("partake", 2);
 INSERT INTO scores VALUES ("removal", 2);
