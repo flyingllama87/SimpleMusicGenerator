@@ -7,7 +7,6 @@ CREATE TABLE scores (
 
 INSERT INTO scores VALUES ("going", 10);
 INSERT INTO scores VALUES ("shitsong", -5);
-INSERT INTO scores VALUES ("seed with spaces", 2);
 INSERT INTO scores VALUES ("covid", 5);
 INSERT INTO scores VALUES ("partake", 2);
 INSERT INTO scores VALUES ("removal", 2);
@@ -22,3 +21,4 @@ INSERT INTO scores VALUES ("moistbox", 1);
 INSERT INTO scores VALUES ("slip", 3);
 INSERT INTO scores VALUES ("gurgling", 3);
 INSERT INTO scores VALUES ("street", 3);
+INSERT INTO scores VALUES ("MMMMMMMMMMMMMMM", -1);

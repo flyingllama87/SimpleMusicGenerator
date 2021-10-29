@@ -29,14 +29,14 @@ void VScrollPanel::performLayout(SDL_Renderer *ctx)
     Widget *child = mChildren[0];
     mChildPreferredHeight = child->preferredSize(ctx).y;
     child->setPosition({ 0, 0 });
-    child->setSize({ mSize.x - 12, mChildPreferredHeight });
+    child->setSize({ mSize.x - 24, mChildPreferredHeight });
 }
 
 Vector2i VScrollPanel::preferredSize(SDL_Renderer *ctx) const
 {
     if (mChildren.empty())
       return{ 0, 0 };
-    return mChildren[0]->preferredSize(ctx) + Vector2i(12, 0);
+    return mChildren[0]->preferredSize(ctx) + Vector2i(24, 0);
 }
 
 bool VScrollPanel::mouseDragEvent(const Vector2i &, const Vector2i &rel,  int, int)
@@ -119,13 +119,13 @@ void VScrollPanel::draw(SDL_Renderer *renderer)
     }
 
     SDL_Color sc = mTheme->mBorderDark.toSdlColor();
-    SDL_Rect srect{ ap.x + mSize.x - 12, ap.y + 4, 16, mSize.y - 8 };
+    SDL_Rect srect{ ap.x + mSize.x - 29, ap.y + 4, 22, mSize.y - 8 };
 
     SDL_SetRenderDrawColor(renderer, sc.r, sc.g, sc.b, sc.a);
     SDL_RenderFillRect(renderer, &srect);
       
     SDL_Color ss = mTheme->mBorderLight.toSdlColor();
-    SDL_Rect drect{ ap.x + mSize.x - 12 + 1, ap.y + 4 + (mSize.y - 8 - scrollh) * mScroll + 1, 16, scrollh - 1 };
+    SDL_Rect drect{ ap.x + mSize.x - 30 + 1, ap.y + 4 + (mSize.y - 8 - scrollh) * mScroll + 1, 24, scrollh - 1 };
 
     SDL_SetRenderDrawColor(renderer, ss.r, ss.g, ss.b, ss.a);
     SDL_RenderFillRect(renderer, &drect);

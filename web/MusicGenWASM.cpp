@@ -37,6 +37,8 @@ Morgan Robertson 2021
 // #define DEBUG_SDL_INIT 0
 
 #define API_URL "http://127.0.0.1:5000/api/"
+// #define API_URL "http://vt.morganrobertson.net/api/"
+
 
 #if EMSCRIPTEN
 #include <emscripten.h>
@@ -152,7 +154,7 @@ public:
             seedString.setEditable(true);
             seedString.setId("seed-string");
             seedString.setAlignment(sdlgui::TextBox::Alignment::Left);
-            seedString.setFormat("^[a-zA-Z0-9 _]{1,20}$");
+            seedString.setFormat("^[a-zA-Z0-9 _]{1,15}$");
             seedString.setFixedHeight(50);
 
             seedString.setCallback([](const std::string& seedWord) -> bool {
@@ -235,7 +237,7 @@ public:
                 // Send the request
                 emscripten_fetch(&attr, apiEndpoint.c_str());
             });
-            voteDownBtn.setBackgroundColor(Color(240, 50, 50, 255));
+            voteDownBtn.setBackgroundColor(Color(255, 25, 25, 25));
             voteDownBtn.setFixedHeight(50);
 
         return;
@@ -251,16 +253,17 @@ public:
 
     void DrawSongList()
     {
+
+        int WinWidth, WinHeight;
+        emscripten_get_canvas_element_size("#canvas", &WinWidth, &WinHeight);
+
+
         auto& twindow = window("Song List & Scores", Vector2i{ 350, 15 })
             .withLayout<GroupLayout>();
 
         twindow.setId("twindow");
 
-        int WinWidth, WinHeight;
-
-        emscripten_get_canvas_element_size("#canvas", &WinWidth, &WinHeight);
-
-        int width      = 500;
+        int width      = 525;
         int height     = WinHeight - 100;
 
         // twindow.setFixedSize({width, height});
@@ -342,7 +345,7 @@ public:
 
             seedBtn.setFixedHeight(50);
 
-            wrapper->label("  " + std::to_string(score), "sans-bold");
+            auto& scoreLabel = wrapper->label("  " + std::to_string(score), "sans-bold");
         }
 
         // std::cout << "g_vspPos = " << g_vspPos << "\n";
@@ -409,7 +412,6 @@ int main(int /* argc */, char** /* argv */)
 
     int w, h;
     emscripten_get_canvas_element_size("#canvas", &winWidth, &winHeight);
-    printf("w:%d,h:%d\n",winWidth,winHeight);
     
     // Create an application window with the following settings:
     g_window = SDL_CreateWindow(
@@ -420,7 +422,6 @@ int main(int /* argc */, char** /* argv */)
         winHeight, //    int h: height, in pixels
         SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE //    Uint32 flags: window options, see docs
     );
-    // SDL_SetWindowSize(g_window, winWidth, winHeight);
 
 #ifdef DEBUG_SDL_INIT
     std::cout << "Complete: Create window: " << '\n';
@@ -520,12 +521,10 @@ int main(int /* argc */, char** /* argv */)
 void update_screen_size(int w, int h)
 {
     int w2, h2;
-    // Test 3: Check that resizing the canvas works as well.
     emscripten_set_canvas_element_size("#canvas", w, h);
-    emscripten_get_canvas_element_size("#canvas", &w2, &h2);
-    printf("w:%d,h:%d\n", w2,h2);
+    SDL_SetWindowSize(g_window, w, h);
 
-    // SDL_SetWindowSize(g_window, w2, h2);
+    emscripten_get_canvas_element_size("#canvas", &w2, &h2);
 }
 
 void MainLoop()
@@ -571,14 +570,12 @@ void downloadFailed(emscripten_fetch_t* fetch) {
 }
 
 void voteSucceeded(emscripten_fetch_t* fetch) {
-    printf("Vote submitted.");
+    printf("\nVote submitted! ");
 
     emscripten_fetch_close(fetch); // Free data associated with the fetch.
 
     g_screen->DestroySongList();
     getSeedScores();
-
-    
 }
 
 void voteFailed(emscripten_fetch_t* fetch) {
@@ -604,7 +601,7 @@ void getSeedScores()
 
 
 void getScoresSuccess(emscripten_fetch_t* fetch) {
-    printf("Getting scores succeeded! Downloading %llu bytes from URL %s...\n", fetch->numBytes, fetch->url);
+    printf("Succeeded getting scores! Downloaded %llu bytes from URL %s...\n", fetch->numBytes, fetch->url);
 
     // The data is now available at fetch->data[0] through fetch->data[fetch->numBytes-1];
 
@@ -652,7 +649,7 @@ void getScoresSuccess(emscripten_fetch_t* fetch) {
 }
 
 void getScoresFailed(emscripten_fetch_t* fetch) {
-    printf("Getting scores %s failed, HTTP failure status code: %d.\n", fetch->url, fetch->status);
+    printf("Getting scores %s FAILED!, HTTP failure status code: %d.\n", fetch->url, fetch->status);
     emscripten_fetch_close(fetch); // Also free data on failure.
 
     listOfSeeds.push_back(std::tuple<std::string, int>{"reroute", 10});
@@ -666,6 +663,8 @@ void getScoresFailed(emscripten_fetch_t* fetch) {
     listOfSeeds.push_back(std::tuple<std::string, int>{"amuser", 2});
     listOfSeeds.push_back(std::tuple<std::string, int>{"majesty", 2});
     listOfSeeds.push_back(std::tuple<std::string, int>{"oops", 2});
+    listOfSeeds.push_back(std::tuple<std::string, int>{"MMMMMMMMMMMMMMM", -1});
+
 
     g_screen->DrawControls();
     g_screen->DrawSongList();

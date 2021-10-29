@@ -276,7 +276,7 @@ void Window::draw(SDL_Renderer* renderer)
   if (_titleTex.dirty)
   {
     Color titleTextColor = (mFocused ? mTheme->mWindowTitleFocused : mTheme->mWindowTitleUnfocused);
-    mTheme->getTexAndRectUtf8(renderer, _titleTex, 0, 0, mTitle.c_str(), "sans-bold", 18, titleTextColor);
+    mTheme->getTexAndRectUtf8(renderer, _titleTex, 0, 0, mTitle.c_str(), "sans-bold", 24, titleTextColor);
   }
 
   if (!mTitle.empty() && _titleTex.tex) 
