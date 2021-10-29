@@ -28,13 +28,12 @@ void VSWrapper::draw(SDL_Renderer *renderer)
     int parentYPosEnd = mParent->getAbsoluteCliprect().y2;
     if (parentYPosStart > childYPos)
         continue;
-    if ((parentYPosEnd - 20) < childYPos)
+    if ((parentYPosEnd - 30) < childYPos)
         continue;
     if (child->visible())
       child->draw(renderer);
   }
 }
-
 
 SDL_Point VSWrapper::getAbsolutePos() const
 {

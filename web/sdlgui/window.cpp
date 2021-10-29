@@ -307,14 +307,14 @@ void Window::center()
 bool Window::mouseDragEvent(const Vector2i &, const Vector2i &rel,
                             int button, int /* modifiers */) 
 {
-    /*if (mDrag && (button & (1 << SDL_BUTTON_LEFT)) != 0)
+    if (mDrag && (button & (1 << SDL_BUTTON_LEFT)) != 0)
     {
         _pos += rel;
         _pos = _pos.cmax({ 0, 0 });
         _pos = _pos.cmin(parent()->size() - mSize);
         return true;
     }
-    */
+    
     return true;
 }
 

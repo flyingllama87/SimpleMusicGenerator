@@ -58,7 +58,7 @@ bool VScrollPanel::scrollEvent(const Vector2i &/* p */, const Vector2f &rel)
     float scrollh = height() *
         std::min(1.0f, height() / (float)mChildPreferredHeight);
 
-    // std::cout << "mScroll: " << std::to_string(mScroll) << " scrollAmount: " << scrollAmount << " mSize.y: "<< mSize.y << " rel.y: " << rel.y << "\n";
+    // std::cout << "mScroll: " << std::to_string(mScroll) << "\n";
 
     mScroll = std::max((float) 0.0f, std::min((float) 1.0f,
             mScroll - scrollAmount / (float)(mSize.y - 8 - scrollh)));
@@ -79,6 +79,17 @@ bool VScrollPanel::mouseMotionEvent(const Vector2i &p, const Vector2i &rel, int 
         return false;
     int shift = (int) (mScroll*(mChildPreferredHeight - mSize.y));
     return mChildren[0]->mouseMotionEvent(p - _pos + Vector2i{ 0, shift }, rel, button, modifiers);
+}
+
+
+void VScrollPanel::scrollTo(float scrollPos)
+{
+    mScroll = scrollPos;
+}
+
+float VScrollPanel::getScrollPos()
+{
+    return mScroll;
 }
 
 void VScrollPanel::draw(SDL_Renderer *renderer) 

@@ -61,6 +61,7 @@ using std::cout;
 using std::cerr;
 using std::endl;
 
+float g_vspPos = 0.0;
 
 std::vector<std::tuple<std::string, int>> listOfSeeds;
 
@@ -72,16 +73,6 @@ void downloadSucceeded(emscripten_fetch_t* fetch);
 void getSeedScores();
 void getScoresSuccess(emscripten_fetch_t* fetch);
 void getScoresFailed(emscripten_fetch_t* fetch);
-#endif
-
-#ifdef EMSCRIPTEN
-EM_JS(int, canvas_get_width, (), {
-    return yourCanvasElement.width;
-    });
-
-EM_JS(int, canvas_get_height, (), {
-    return yourCanvasElement.height;
-    });
 #endif
 
 #undef main
@@ -120,22 +111,10 @@ public:
             textBox->setValue(songSettings.rngSeedString);
         }
 
-     /*   
-        if (auto* vscrollpanel = gfind<VScrollPanel>("vsp"))
+        if (auto* vsp = gfind<VScrollPanel>("vsp"))
         {
-            std::cout << "vsp height: " << vscrollpanel->height() << "\n";
+            g_vspPos = vsp->getScrollPos();
         }
-
-        if (auto* vspWrapper = gfind<Widget>("vsp-wrapper"))
-        {
-            std::cout << "vsp-wrapper height: " << vspWrapper->height() << "\n";
-        }
-
-        if (auto* twindow = gfind<Window>("twindow"))
-        {
-            std::cout << "window height: " << twindow->height() << "\n";
-        }
-    */
 
         Screen::draw(renderer);
     }
@@ -146,17 +125,17 @@ public:
 
         if (auto* twindow = gfind<Window>("controls"))
         {
-            std::cout << "Controls already displayed!" << "\n";
+            // Skip drawing controls if they already exist.
             return;
         }
 
-        auto& nwindow = window("Music Generator", Vector2i{ 5, 5 });
+        auto& nwindow = window("Music Generator", Vector2i{ 15, 15 });
 
             auto* mainLayout = new GridLayout(
                 Orientation::Horizontal,
                 1,
                 Alignment::Fill,
-                5,
+                15,
                 10
             );
 
@@ -266,20 +245,23 @@ public:
     {
         if (auto* twindow = gfind<Window>("twindow"))
         {
-            std::cout << "found list of seeds - window height: " << twindow->height() << "\n";
             this->disposeWindow(twindow);
         }
     }
 
     void DrawSongList()
     {
-        auto& twindow = window("Song List & Scores", Vector2i{ 350, 5 })
+        auto& twindow = window("Song List & Scores", Vector2i{ 350, 15 })
             .withLayout<GroupLayout>();
 
         twindow.setId("twindow");
 
-        static constexpr int width      = 425;
-        static constexpr int height     = 700;
+        int WinWidth, WinHeight;
+
+        emscripten_get_canvas_element_size("#canvas", &WinWidth, &WinHeight);
+
+        int width      = 500;
+        int height     = WinHeight - 100;
 
         // twindow.setFixedSize({width, height});
         // twindow.setHeight(height);
@@ -289,6 +271,7 @@ public:
         vscroll->setFixedSize({width, height});
         // vscroll->setHeight(height);
         vscroll->setId("vsp");
+
 
         // vscroll should only have *ONE* child. this is what `wrapper` is for
         auto wrapper = new VSWrapper(vscroll);
@@ -328,7 +311,7 @@ public:
             randomBtn.setBackgroundColor(Color(0, 255, 25, 25));
             randomBtn.setFixedHeight(50);
 
-        wrapper->label("     ∞", "sans-bold");
+        wrapper->label("  ∞", "sans-bold");
 
         for (auto seedScorePair = listOfSeeds.begin(); seedScorePair != listOfSeeds.end(); seedScorePair++)
         {
@@ -362,7 +345,11 @@ public:
             wrapper->label("  " + std::to_string(score), "sans-bold");
         }
 
+        // std::cout << "g_vspPos = " << g_vspPos << "\n";
+        vscroll->scrollTo(g_vspPos);
+
         performLayout(mSDL_Renderer);
+
     }
 
     virtual void drawContents()
@@ -552,7 +539,6 @@ void MainLoop()
 
         if (e.type == SDL_WINDOWEVENT && e.window.event == SDL_WINDOWEVENT_RESIZED)
         {
-            std::cout << "Resize Event!";
             update_screen_size(e.window.data1, e.window.data2);
         }
 
@@ -591,8 +577,7 @@ void voteSucceeded(emscripten_fetch_t* fetch) {
 
     g_screen->DestroySongList();
     getSeedScores();
-    // std::this_thread::sleep_for(1000);
-    // g_screen->DrawSongList();
+
     
 }
 

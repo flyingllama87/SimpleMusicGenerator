@@ -27,9 +27,9 @@ namespace internal
 }
 
 Theme::Theme(SDL_Renderer *ctx) {
-    mStandardFontSize                 = 20;
-    mButtonFontSize                   = 24;
-    mTextBoxFontSize                  = 24;
+    mStandardFontSize                 = 30;
+    mButtonFontSize                   = 30;
+    mTextBoxFontSize                  = 30;
     mWindowCornerRadius               = 10;
     mWindowHeaderHeight               = 30;
     mWindowDropShadowSize             = 10;

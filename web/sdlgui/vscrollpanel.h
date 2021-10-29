@@ -34,6 +34,8 @@ public:
     bool mouseButtonEvent(const Vector2i &p, int button, bool down, int modifiers) override;
     bool mouseMotionEvent(const Vector2i &p, const Vector2i &rel, int button, int modifiers) override;
     void draw(SDL_Renderer *render) override;
+    void scrollTo(float scrollHeight);
+    float getScrollPos();
 
     SDL_Point getAbsolutePos() const override;
     PntRect getAbsoluteCliprect() const override;
