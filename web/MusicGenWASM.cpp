@@ -131,7 +131,13 @@ public:
             return;
         }
 
-        auto& nwindow = window("Music Generator", Vector2i{ 15, 15 });
+        // Calculate where to draw the controls window
+        int WinWidth, WinHeight, xPos;
+        emscripten_get_canvas_element_size("#canvas", &WinWidth, &WinHeight);
+        xPos = WinWidth / 2 - (925 / 2);
+        std::cout << xPos << "\n";
+
+        auto& nwindow = window("Music Generator", Vector2i{ xPos, 15 });
 
             auto* mainLayout = new GridLayout(
                 Orientation::Horizontal,
@@ -254,17 +260,19 @@ public:
     void DrawSongList()
     {
 
-        int WinWidth, WinHeight;
+        // Calculate where to draw the Song List window
+        int WinWidth, WinHeight, xPos;
         emscripten_get_canvas_element_size("#canvas", &WinWidth, &WinHeight);
+        xPos = WinWidth / 2 - (925 / 2) + 350;
 
 
-        auto& twindow = window("Song List & Scores", Vector2i{ 350, 15 })
+        auto& twindow = window("Song List & Scores", Vector2i{ xPos, 15 })
             .withLayout<GroupLayout>();
 
         twindow.setId("twindow");
 
-        int width      = 525;
-        int height     = WinHeight - 100;
+        int width = 525;
+        int height = WinHeight - 100;
 
         // twindow.setFixedSize({width, height});
         // twindow.setHeight(height);
@@ -410,7 +418,6 @@ int main(int /* argc */, char** /* argv */)
 #endif
 
 
-    int w, h;
     emscripten_get_canvas_element_size("#canvas", &winWidth, &winHeight);
     
     // Create an application window with the following settings:
