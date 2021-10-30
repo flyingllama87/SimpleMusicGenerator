@@ -1,6 +1,6 @@
 ### Description:
 
-Simple procedural music generator program.  Tested on iOS, windows & macOS.  Uses SDL for audio hardware abstraction.  Everything is my own except the modified reverb functions.
+Simple procedural music generator program. Tested on iOS, windows & macOS. Uses SDL for audio hardware abstraction. Everything is my own except the modified reverb functions & the GUI/SDL toolkit.
 
 Implemented:
 - Wave generators
@@ -15,14 +15,10 @@ Implemented:
 - Lead track generation
 - Arpeggio generation
 - CLI interface
-- basic GUI interface via iOS
-
-Unimplemented:
-- Accidentals in some areas!
+- Backend python/flash seed voting server
 - SDL2 GUI & WebAssembly GUI
-- Updated iOS GUI
-- Vibrato / LFO?
-- Backend seed voting server
+- basic GUI interface via iOS (currently broken)
+
 
 What I've learnt:
 - Coming but my own notes:
