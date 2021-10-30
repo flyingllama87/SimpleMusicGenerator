@@ -169,9 +169,9 @@ public:
                 return true;
             });
 
-            nwindow.label("Play Controls", "sans-bold");
+            nwindow.label("Controls", "sans-bold");
 
-            nwindow.button("Start", [] {
+            nwindow.button("Play", [] {
                 if (audioSettings.inited == true) {
                     audioSettings.StopAudio();
                 }
