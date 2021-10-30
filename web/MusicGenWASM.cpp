@@ -36,8 +36,8 @@ Morgan Robertson 2021
 
 // #define DEBUG_SDL_INIT 0
 
-#define API_URL "http://127.0.0.1:5000/api/"
-// #define API_URL "http://vt.morganrobertson.net/api/"
+// #define API_URL "http://127.0.0.1:5000/api/"
+#define API_URL "https://musicgen.net/api/"
 
 
 #if EMSCRIPTEN

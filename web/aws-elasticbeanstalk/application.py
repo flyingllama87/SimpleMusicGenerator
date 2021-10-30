@@ -5,21 +5,25 @@ from traceback import print_exc
 from pprint import pprint
 import json
 
-from VoteTracker import db
+import db
 
 def vt_start():
-    app = Flask(__name__)
+    application = Flask(__name__)
 
     def validate_seed(seed: str):
         return seed.replace(" ", "").isalnum()
 
-    db.init_app(app)
+    db.init_app(application)
 
-    @app.route('/api/check')
+    @application.route('/api/check')
+    def check() -> str:
+        return u'Welcome to VoteTracker!'
+
+    @application.route('/')
     def index() -> str:
         return u'Welcome to VoteTracker!'
 
-    @app.route('/api/UpVote', methods=['POST'])
+    @application.route('/api/UpVote', methods=['POST'])
     def UpVote() -> str:
         try:
             if (validate_seed(request.form['seed']) == False):
@@ -44,7 +48,7 @@ def vt_start():
         finally:
             db.close_db()
 
-    @app.route('/api/DownVote', methods=['POST'])
+    @application.route('/api/DownVote', methods=['POST'])
     def DownVote() -> str:
         try:
             if (validate_seed(request.form['seed']) == False):
@@ -69,7 +73,7 @@ def vt_start():
         finally:
             db.close_db()
 
-    @app.route('/api/GetScores')
+    @application.route('/api/GetScores')
     def GetScores() -> str:
         try:
             db_connection = db.get_db()
@@ -90,8 +94,10 @@ def vt_start():
         finally:
             db.close_db()
     
-    return app
+    return application
 
 if __name__ == "__main__":
-    app = vt_start()
-    app.run()
+    application = vt_start()
+    application.run(port=5000,debug=False)
+else:
+    application = vt_start()
