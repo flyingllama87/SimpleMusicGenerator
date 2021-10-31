@@ -617,7 +617,7 @@ void getScoresSuccess(emscripten_fetch_t* fetch) {
     listOfSeeds.clear();
     
     // Split each line by a comma into separate seed and score values
-    std::string input(fetch->data);
+    std::string input(fetch->data, fetch->numBytes-1);
     std::string result;
     std::istringstream iss(input);
 
