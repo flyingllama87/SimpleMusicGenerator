@@ -115,9 +115,9 @@ void SafeFadeOut(Uint8* buffer, int numOfBytes, int currPos);
 void SafeFadeIn(Uint8* buffer, int numOfBytes, int currPos);
 void Reverb(short* inL, short* outL, int bufLen);
 void InitReverb();
-void DebugReverb();
 // Debug effects
 #ifdef ENABLE_DEBUG_FUNCTIONS
+void DebugReverb();
 void FadeIn(int16_t* buffer, int numOfSamples);
 void FadeOut(int16_t* buffer, int numOfSamples);
 void FadeIn(Uint8* buffer, int numOfSamples);
@@ -128,7 +128,8 @@ void FadeOut(Uint8* buffer, int numOfSamples);
 void GenArp(float freq, int arpLengthMS, int NoteLength, int magnitude, Uint8* inBuf, int currPo, bool slide);
 ScaleType OppositeKeyMode(ScaleType key);
 std::pair<float, ScaleType> GiveKeyScale(float baseFreq, ScaleType keyType, int newDegree);
-void SwitchScale();
+void SwitchScaleDegree();
+void RNJesusSongSettings(int randTestChance);
 #ifdef ENABLE_DEBUG_FUNCTIONS
 void TestGiveScaleKey();
 void TestArpeggios();
@@ -336,6 +337,8 @@ struct SongSettings
         this->prevPatternBass = 0;
         this->prevPatternLead = 0;
         this->inited = true;
+
+        ReinitDrums();
     }
 
     void ToggleLofi()
@@ -430,7 +433,7 @@ struct InternalAudioBuffer
         backBuf = new Uint8[backBufferLength]();
     }
 
-        void InitBuffer()
+    void InitBuffer()
     {
         if (this->inited == true)
         {

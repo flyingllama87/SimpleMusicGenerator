@@ -16,8 +16,8 @@ void GenDrumBeat(Uint8 *drumBuf, int drumBufLength)
     AudioData kick = songSettings.kickSound;
     AudioData hihat = songSettings.hihatSound;
     AudioData snare = songSettings.snareSound;
-    AudioData kickHat = songSettings.kickHatSound;;
-    AudioData snareHat = songSettings.snareHatSound;;
+    AudioData kickHat = songSettings.kickHatSound;
+    AudioData snareHat = songSettings.snareHatSound;
 
     int beatCount = 1;
     int barCount = 1;
@@ -265,64 +265,37 @@ void GenDrumBeat(Uint8 *drumBuf, int drumBufLength)
     {
         std::cout << "Playing drum pattern: " << pickRandDrumPattern << " - Random 4/4 \n";
 
-        int drumChoice = mtRNG() % 4;
-        AudioData randDrum1;
-        if (drumChoice == 0)
-            randDrum1 = kick;
-        else if (drumChoice == 1)
-            randDrum1 = snare;
-        else if (drumChoice == 2)
-            randDrum1 = hihat;
-        
-        drumChoice = mtRNG() % 4;
-        AudioData randDrum2;
-        if (drumChoice == 1)
-            randDrum2 = kick;
-        else if (drumChoice == 2)
-            randDrum2 = snare;
-        else if (drumChoice == 2)
-            randDrum2 = hihat;
-        
-        drumChoice = mtRNG() % 4;
-        AudioData randDrum3;
-        if (drumChoice == 0)
-            randDrum3 = kick;
-        else if (drumChoice == 1)
-            randDrum3 = snare;
-        else if (drumChoice == 2)
-            randDrum3 = hihat;
-        
-        drumChoice = mtRNG() % 5;
-        AudioData randDrum4;
-        if (drumChoice == 0)
-            randDrum4 = kick;
-        else if (drumChoice == 1)
-            randDrum4 = snare;
-        else if (drumChoice == 2)
-            randDrum4 = hihat;
-        
-        for (int c = 0; c < drumBufLength; c += songSettings.qtrNoteLenBytes)
+        int const beatsPerBar = 4;
+        int beats[beatsPerBar+1];
+
+        for (int c = 0; c < beatsPerBar; c++)
         {
-            
-            if (beatCount == 1)
-                SafeMemCopy(drumBuf, randDrum1.buf, randDrum1.length, c, drumBufLength);
-            
-            if (beatCount == 5)
-                SafeMemCopy(drumBuf, randDrum2.buf, randDrum2.length, c, drumBufLength);
-            
-            if (beatCount == 9)
-                SafeMemCopy(drumBuf, randDrum3.buf, randDrum3.length, c, drumBufLength);
-            
-            if (beatCount == 13)
-                SafeMemCopy(drumBuf, randDrum4.buf, randDrum4.length, c, drumBufLength);
+            beats[c] = mtRNG() % 4;
+        }
 
+        AudioData randDrum;
 
-            if (beatCount == 16)
+        for (int c = 0; c < drumBufLength; c += songSettings.noteLenBytes)
+        {
+            beatCount++;
+
+            int drumChoice = beats[beatCount];
+
+            if (drumChoice == 0)
+                randDrum = kick;
+            else if (drumChoice == 1)
+                randDrum = snare;
+            else if (drumChoice == 2)
+                randDrum = hihat;
+
+            if (drumChoice < 3)
+                SafeMemCopy(drumBuf, randDrum.buf, randDrum.length, c, drumBufLength);
+
+            if (beatCount == 4)
             {
                 beatCount = 0;
                 barCount++;
             }
-            beatCount++;
         }
     }
     break;
@@ -472,6 +445,8 @@ AudioData GiveKick()
     returnAD.buf = waveBuffer;
     returnAD.length = waveLengthBytes;
 
+    delete[] sineBuffer;
+
     return returnAD;
 }
 
@@ -520,6 +495,8 @@ AudioData GiveSnare()
 
     returnAD.buf = waveBuffer;
     returnAD.length = waveLengthBytes;
+
+    delete[] squareBuffer;
 
     return returnAD;
 }

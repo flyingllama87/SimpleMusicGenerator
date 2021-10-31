@@ -265,7 +265,6 @@ public:
         emscripten_get_canvas_element_size("#canvas", &WinWidth, &WinHeight);
         xPos = WinWidth / 2 - (925 / 2) + 350;
 
-
         auto& twindow = window("Song List & Scores", Vector2i{ xPos, 15 })
             .withLayout<GroupLayout>();
 
@@ -273,9 +272,6 @@ public:
 
         int width = 525;
         int height = WinHeight - 100;
-
-        // twindow.setFixedSize({width, height});
-        // twindow.setHeight(height);
 
         // attach a vertical scroll panel
         auto vscroll = new VScrollPanel(&twindow);
@@ -287,9 +283,7 @@ public:
         // vscroll should only have *ONE* child. this is what `wrapper` is for
         auto wrapper = new VSWrapper(vscroll);
         wrapper->setId("vsp-wrapper");
-
-        // wrapper->setLayout(new GridLayout());// defaults: 2 columns
-        
+       
         auto* tLayout = new GridLayout(
             Orientation::Horizontal,
             2,
@@ -299,14 +293,6 @@ public:
         );
 
         wrapper->setLayout(tLayout);
-
-        // wrapper->setLayout(tLayout);
-
-        // wrapper->setHeight(height);
-        // wrapper->setFixedSize({width, height});
-
-
-        // twindow.label("Seed Word", "sans-bold");
 
         auto& randomBtn = wrapper->button(
             "RANDOM", [](bool state) {

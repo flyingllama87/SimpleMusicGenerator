@@ -104,7 +104,7 @@ void GenAudioStream(void* userdata, Uint8* stream, int len)
                     std::cout << "***ERROR*** Something happened with the BG thread!!! \n";
                 }
 
-                void RNJesusSongSettings(int randTestChance);
+                RNJesusSongSettings(randTestChance);
 
                 // Launch new thread to generate music to backBuffer
                 // std::cout << "Launching new BG thread to generate next section. \n";
@@ -134,17 +134,19 @@ void GenAudioStream(void* userdata, Uint8* stream, int len)
 #endif
 }
 
+// Evaluate switching musical scales (within key) or BPM between thread generations
 void RNJesusSongSettings(int randTestChance)
 {
-    // Evaluate switching musical scales (within key) or BPM between thread generations
-    // switch scales?
-    if (randTestChance > 90 && internalAudioBuffer.backBufferLength == internalAudioBuffer.length)
+    
+    // switch scales to different scale in same key - 2% chance
+    // Edit: This is wrong from a music theory perspective.
+    if (randTestChance > 94 && randTestChance < 97 && internalAudioBuffer.backBufferLength == internalAudioBuffer.length)
     {
-        SwitchScale();
+        SwitchScaleDegree();
     }
 
-    // switch keys?
-    if (randTestChance > 20 && randTestChance < 25 && internalAudioBuffer.backBufferLength == internalAudioBuffer.length)
+    // Switch to random key - 1% chance
+    if (randTestChance > 20 && randTestChance < 22 && internalAudioBuffer.backBufferLength == internalAudioBuffer.length)
     {
         char note = (mtRNG() % 7) + 65;
         songSettings.keyNote = note;
@@ -156,12 +158,12 @@ void RNJesusSongSettings(int randTestChance)
         songSettings.bassBaseScaleFreq = Notes.getNoteFreq(songSettings.keyNote + "1");
         songSettings.leadBaseScaleFreq = Notes.getNoteFreq(songSettings.keyNote + "3");
 
-        std::cout << "\n   > RNJesus wants to change the key to: " << songSettings.keyNote << " " << (songSettings.scaleType == ScaleType::Major ? "Major" : "Minor") << "\n";
+        std::cout << "\n   > RNJesus wants to change the song key to: " << songSettings.keyNote << " " << (songSettings.scaleType == ScaleType::Major ? "Major" : "Minor") << "\n";
     }
 
-    // switch bpm?
-    if (((randTestChance > 85 && randTestChance < 95) ||
-        (songSettings.BPM <= 140 && randTestChance % 4 == 0)) && // Encourage slower songs to speed up
+    // switch bpm? 4% chance or 10% is slower than 100 BPM
+    if (((randTestChance > 35 && randTestChance < 40) ||
+        (songSettings.BPM <= 100 && randTestChance % 10 == 0)) && // Encourage slower songs to speed up
         internalAudioBuffer.backBufferLength == internalAudioBuffer.length)
     {
         songSettings.BPM = ((mtRNG() % 55) * 4) + 60; // range of 60 - 260 BPM
@@ -189,6 +191,7 @@ int GenMusic(void* ptr)
 
     // Gen Drums
     Uint8* drumBuf = new Uint8[internalAudioBuffer.backBufferLength]();
+    std::fill_n(drumBuf, internalAudioBuffer.backBufferLength, 0);
     if (songSettings.genDrums)
         GenDrumBeat(drumBuf, internalAudioBuffer.backBufferLength);
 
@@ -221,7 +224,7 @@ int GenMusic(void* ptr)
     {
 #ifndef DISABLE_REVERB
         // *** Mix in reverb ***
-        // convert to 16 bit buf, apply reverb and convert back to 8 bit buf and mix into lead track.  Better options?
+        // convert to 16 bit buf, apply reverb and convert back to 8 bit buf and mix into lead track. Better options?
         memcpy(&leadBuf16[0], &leadBuf[0], internalAudioBuffer.backBufferLength);
         Reverb(leadBuf16, leadOutBuf16, internalAudioBuffer.backBufferLength);
         c16to8(leadOutBuf16, internalAudioBuffer.backBufferLength / 2, leadOutBuf);
@@ -257,7 +260,7 @@ void SetupAudio(bool callback)
 {
     audioSettings.Init(callback);
     songSettings.Init();
-    songSettings.ReinitDrums();
+    // songSettings.ReinitDrums();
     internalAudioBuffer.Init();
     songSettings.sectionCount = 1;
     SDL_PauseAudioDevice(audioSettings.device, 0); // Unpause audio device
@@ -314,32 +317,12 @@ ScaleType OppositeKeyMode(ScaleType key)
 };
 
 
-// Pick a new scale in existing key with some biases towards particular scales terminology. 
-void SwitchScale()
+// Pick a new scale in existing key with some biases towards particular scales.
+// Edit: I don't think this makes sense musically
+void SwitchScaleDegree()
 {
 
     int newKeyDegree = mtRNG() % 7 + 1;
-
-    /*
-    // Prefer the 1st, 4th or 5th degree scales of the key.
-    if (songSettings.keyType == ScaleType::Major)
-        if (newKeyDegree == 2 || newKeyDegree == 3 || newKeyDegree == 7)
-        {
-            newKeyDegree = mtRNG() % 7 + 1;
-            // Really discourage the use of the 7th diminished scale in a major key
-            if (newKeyDegree == 7)
-                newKeyDegree = mtRNG() % 7 + 1;
-        }
-    else
-    {
-        if (newKeyDegree == 2 || newKeyDegree == 5)
-        {
-            newKeyDegree = mtRNG() % 7 + 1;
-            // Really discourage the use of the 2nd diminished scale in a minor key
-            if (newKeyDegree == 2)
-                newKeyDegree = mtRNG() % 7 + 1;
-        }
-    }*/
 
     // Get frequency for bass instrument
     std::pair<float, ScaleType> newBassFreqTypePair = GiveKeyScale(Notes.getNoteFreq(songSettings.keyNote + "1"), songSettings.keyType, newKeyDegree);
@@ -358,6 +341,8 @@ void SwitchScale()
 
 
 // Returns the frequency & scale type of a particular degree in an existing scale.
+// Edit: This doesn't actually make sense musically as I was conflating chords in a key and scale degrees of a key at the time.
+// Further edit: And perhaps that is why it doesn't sound great.
 std::pair<float, ScaleType> GiveKeyScale(float baseFreq, ScaleType keyType, int newDegree)
 {
     // Return the input note and key type if the input doesn't make sense.
@@ -365,25 +350,30 @@ std::pair<float, ScaleType> GiveKeyScale(float baseFreq, ScaleType keyType, int 
     {
         return std::pair<float, ScaleType>(baseFreq, keyType);
     }
-    
+
+    // Return the input note and key type if the new scale will be diminished as I don't have a diminished generator
+    if (keyType == ScaleType::Major && newDegree == 7)
+    {
+        std::cout << "\n   > RNJesus can't change to 7th degree of Major scale - no diminished scale gen \n";
+        return std::pair<float, ScaleType>(baseFreq, keyType);
+    }
+
+    // Return the input note and key type if the new scale will be diminished as I don't have a diminished generator
+    if (keyType == ScaleType::Minor && newDegree == 2)
+    {
+        std::cout << "\n   > RNJesus can't change to 2nd degree of Minor scale - no diminished scale gen \n";
+        return std::pair<float, ScaleType>(baseFreq, keyType);
+    }
+
+
     // Construct key scale
     Scale key(keyType, baseFreq); 
 
     ScaleType newKeyType;
-    if (keyType == ScaleType::Major)
-    {
-        if (newDegree == 1 || newDegree == 4 || newDegree == 5) // If It's a I, IV or V make it a major scale too.
-            newKeyType = keyType;
-        else
-            newKeyType = OppositeKeyMode(keyType);
-    }
-    else // minor key
-    {
-        if (newDegree == 1 || newDegree == 2 || newDegree == 4 || newDegree == 5 ) // If It's a i, ii, iv or v it should be minor scale too.
-            newKeyType = keyType;
-        else
-            newKeyType = OppositeKeyMode(keyType);
-    }
+    if (newDegree == 4 || newDegree == 5) // If the new scale degree is the fourth of fifth, return the same key/scale type.
+        newKeyType = keyType;
+    else
+        newKeyType = OppositeKeyMode(keyType);
 
     newDegree = newDegree - 1;
     float freqOfScaleDegree = key.freqs[newDegree];
