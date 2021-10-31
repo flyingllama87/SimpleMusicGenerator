@@ -639,7 +639,6 @@ void getScoresSuccess(emscripten_fetch_t* fetch) {
         }
 
     }
-    */
 
     /*
     // Debug print.
@@ -653,6 +652,7 @@ void getScoresSuccess(emscripten_fetch_t* fetch) {
     }
 
     */
+   
     g_screen->DrawControls();
     g_screen->DrawSongList();
 
