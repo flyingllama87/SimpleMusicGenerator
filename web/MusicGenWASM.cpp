@@ -214,7 +214,7 @@ public:
                 // Send the request
                 emscripten_fetch(&attr, apiEndpoint.c_str());
             });
-            voteUpBtn.setBackgroundColor(Color(0, 255, 25, 25));
+            voteUpBtn.setBackgroundColor(Color(60, 85, 63, 255));
             voteUpBtn.setFixedHeight(50);
 
             auto& voteDownBtn = nwindow.button("Vote Down", [] {
@@ -243,7 +243,7 @@ public:
                 // Send the request
                 emscripten_fetch(&attr, apiEndpoint.c_str());
             });
-            voteDownBtn.setBackgroundColor(Color(255, 25, 25, 25));
+            voteDownBtn.setBackgroundColor(Color(85, 63, 63, 255));
             voteDownBtn.setFixedHeight(50);
 
         return;
@@ -319,7 +319,7 @@ public:
                     SetupAudio(true);
                 }
             });
-            randomBtn.setBackgroundColor(Color(0, 255, 25, 25));
+            randomBtn.setBackgroundColor(Color(60, 85, 63, 255));
             randomBtn.setFixedHeight(50);
 
         wrapper->label("  ∞", "sans-bold");
@@ -608,16 +608,18 @@ void getSeedScores()
 
 
 void getScoresSuccess(emscripten_fetch_t* fetch) {
+    
+    
     printf("Succeeded getting scores! Downloaded %llu bytes from URL %s...\n", fetch->numBytes, fetch->url);
 
     // The data is now available at fetch->data[0] through fetch->data[fetch->numBytes-1];
 
+    listOfSeeds.clear();
+    
     // Split each line by a comma into separate seed and score values
     std::string input(fetch->data);
     std::string result;
     std::istringstream iss(input);
-
-    listOfSeeds.clear();
 
     for (std::string line; std::getline(iss, line); )
     {
@@ -637,7 +639,9 @@ void getScoresSuccess(emscripten_fetch_t* fetch) {
         }
 
     }
+    */
 
+    /*
     // Debug print.
     for (auto seedScorePair = listOfSeeds.begin(); seedScorePair != listOfSeeds.end(); seedScorePair++)
     {
@@ -648,6 +652,7 @@ void getScoresSuccess(emscripten_fetch_t* fetch) {
         // cout << seedStr << " " << score << endl;
     }
 
+    */
     g_screen->DrawControls();
     g_screen->DrawSongList();
 

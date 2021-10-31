@@ -399,7 +399,7 @@ void GenDrumBeat(Uint8 *drumBuf, int drumBufLength)
         std::cout << "Playing drum pattern: " << pickRandDrumPattern << " - Random 8 drum notes \n";
 
         int const beatsPerBar = 8;
-        int beats[beatsPerBar];
+        int beats[beatsPerBar+1];
 
         for (int c = 0; c < beatsPerBar; c++)
         {
