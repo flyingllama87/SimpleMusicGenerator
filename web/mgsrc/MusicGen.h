@@ -459,7 +459,7 @@ extern InternalAudioBuffer internalAudioBuffer;
 
 static struct Notes
 {
-    // Is it worth constructing this programmatically?
+    // Is it worth constructing this programmatically? Used as the starting frequency.
     const std::vector<std::pair<std::string, float>> KV =
     {   std::make_pair("B4", 493.90f),
         std::make_pair("A4", 440.00f),
