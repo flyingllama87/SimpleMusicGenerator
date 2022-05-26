@@ -4,7 +4,7 @@
 
 Generates and plays procedureal chip-inspired music.
 
-Runs on the web at https://musicgen.net.
+Runs on the web at https://musicgen.net/start
 
 Runs on windows & macOS with a CLI.
 
@@ -12,7 +12,7 @@ Runs on iOS with a custom graphical client (out of date).
 
 ### How to use
 
-Go to https://musicgen.net.
+Go to https://musicgen.net/start
 
 Select a seed from the score list to the right or type in new a "seed word" and click "Play" to hear never ending chip-inspired music. You can vote with the voting buttons and the result will be saved to the server.
 
