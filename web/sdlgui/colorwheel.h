@@ -32,8 +32,8 @@ public:
 
     Vector2i preferredSize(SDL_Renderer *ctx) const override;
     void draw(SDL_Renderer *renderer) override;
-    bool mouseButtonEvent(const Vector2i &p, int button, bool down, int modifiers);
-    bool mouseDragEvent(const Vector2i &p, const Vector2i &rel, int button, int modifiers);
+    bool mouseButtonEvent(const Vector2i &p, int button, bool down, int modifiers) override;
+    bool mouseDragEvent(const Vector2i &p, const Vector2i &rel, int button, int modifiers) override;
 
 private:
     enum Region {

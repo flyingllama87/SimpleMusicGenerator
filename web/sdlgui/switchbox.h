@@ -59,7 +59,7 @@ public:
 
     /// Draws this SwitchBox.
     virtual void draw(SDL_Renderer *renderer) override;
-    virtual void drawBody(SDL_Renderer *renderer);
+    virtual void drawBody(SDL_Renderer *renderer) override;
     virtual void drawKnob(SDL_Renderer *renderer);
 
     virtual void setAlignment(Alignment align) { mAlign = align; }
