@@ -8,4 +8,3 @@ cmake --version
 emcmake cmake .. || exit 1
 cmake --build ./ || exit 1
 cd ../
-source ./run.sh

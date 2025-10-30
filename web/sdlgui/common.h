@@ -421,7 +421,7 @@ public:
   bool operator>=(const Vector2<T>&o) const
   {
     return (x>o.x || math::isEqual(x, o.x)) ||
-            (math::isEqual(x, o.x) && (y>o.Y || math::isEqual(y, o.y)));
+            (math::isEqual(x, o.x) && (y>o.y || math::isEqual(y, o.y)));
   }
 
   //! sort in order X, Y. Difference must be above rounding tolerance.

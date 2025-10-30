@@ -65,7 +65,7 @@ public:
     void performLayout(SDL_Renderer *ctx) override;
 
     /// Handle a focus change event (default implementation: record the focus status, but do nothing)
-    bool focusEvent(bool focused);
+    bool focusEvent(bool focused) override;
 
 protected:
     /// Internal helper function to maintain nested window position values; overridden in \ref Popup

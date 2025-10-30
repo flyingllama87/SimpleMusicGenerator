@@ -43,7 +43,7 @@ Morgan Robertson 2021
 #if EMSCRIPTEN
 #include <emscripten.h>
 #include <emscripten/fetch.h>
-// #include <emscripten/html5.h>
+#include <emscripten/html5.h>
 #endif
 
 #if defined(_WIN32)

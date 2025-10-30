@@ -129,7 +129,7 @@ public:
 
     Vector2i preferredSize(SDL_Renderer* ctx) const override;
     void performLayout(SDL_Renderer* ctx) override;
-    void draw(SDL_Renderer* renderer);
+    void draw(SDL_Renderer* renderer) override;
 
     ImageView& withImage(SDL_Texture *texture) { bindImage(texture); return *this; }
 

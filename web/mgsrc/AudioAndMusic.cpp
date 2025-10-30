@@ -390,42 +390,51 @@ void GenArp(float freq, int arpLengthMS, int NoteLength, int magnitude, Uint8* i
     int arpNoteLenMS = 1000 / NoteLength; // noteLength is either 64th of a second, 32nd of a second, etc.
     int arpNoteLenBytes = arpNoteLenMS * audioSettings.bytesPerMS;
 
-    int noteCounter = 1;
+    int noteCounter = 0;
     //arpLengthMs is total length
-    for (int c = 0; c < arpLengthMS * audioSettings.bytesPerMS; c += (arpNoteLenBytes * noteCounter))
+    for (int c = 0; c < arpLengthMS * audioSettings.bytesPerMS; c += arpNoteLenBytes)
     {
-        SafeLead(key.notes["1st"], arpNoteLenMS, magnitude, inBuf, currPo + (arpNoteLenBytes * noteCounter));
-        noteCounter++;
-        if (slide) {
-            SlideSquare(key.notes["1st"], key.notes["3rd"], arpNoteLenMS, magnitude, inBuf, currPo + (arpNoteLenBytes * noteCounter));
-            noteCounter++;
-        }
-        SafeLead(key.notes["3rd"], arpNoteLenMS, magnitude, inBuf, currPo + (arpNoteLenBytes * noteCounter));
-        noteCounter++;
-        if (slide) {
-            SlideSquare(key.notes["3rd"], key.notes["5th"], arpNoteLenMS, magnitude, inBuf, currPo + (arpNoteLenBytes * noteCounter));
-            noteCounter++;
-        }
-        SafeLead(key.notes["5th"], arpNoteLenMS, magnitude, inBuf, currPo + (arpNoteLenBytes * noteCounter));
-        noteCounter++;
-        if (slide) {
-            SlideSquare(key.notes["5th"], key.notes["7th"], arpNoteLenMS, magnitude, inBuf, currPo + (arpNoteLenBytes * noteCounter));
-            noteCounter++;
-        }
-        SafeLead(key.notes["7th"], arpNoteLenMS, magnitude, inBuf, currPo + (arpNoteLenBytes * noteCounter));
-        noteCounter++;
+        if (noteCounter > 8)
+            noteCounter = 0;
 
-        if (slide) {
-            SlideSquare(key2.notes["1st"], key2.notes["3rd"], arpNoteLenMS, magnitude, inBuf, currPo + (arpNoteLenBytes * noteCounter));
-            noteCounter++;
+        if (!slide)
+        {
+            if (noteCounter == 0)
+                SafeLead(key.notes["1st"], arpNoteLenMS, magnitude, inBuf, c);
+            if (noteCounter == 1)
+                SafeLead(key.notes["3rd"], arpNoteLenMS, magnitude, inBuf, c);
+            if (noteCounter == 2)
+                SafeLead(key.notes["5th"], arpNoteLenMS, magnitude, inBuf, c);
+            if (noteCounter == 3)
+                SafeLead(key.notes["7th"], arpNoteLenMS, magnitude, inBuf, c);
+            if (noteCounter == 4)
+                SafeLead(key2.notes["1st"], arpNoteLenMS, magnitude, inBuf, c);
+            if (noteCounter == 5)
+                SafeLead(key2.notes["3rd"], arpNoteLenMS, magnitude, inBuf, c);
+            if (noteCounter == 6)
+                SafeLead(key2.notes["5th"], arpNoteLenMS, magnitude, inBuf, c);
+            if (noteCounter == 7)
+                SafeLead(key2.notes["7th"], arpNoteLenMS, magnitude, inBuf, c);
         }
-        SafeLead(key2.notes["3rd"], arpNoteLenMS, magnitude, inBuf, currPo + (arpNoteLenBytes * noteCounter));
-        noteCounter++;
-        if (slide) {
-            SlideSquare(key2.notes["3rd"], key2.notes["5th"], arpNoteLenMS, magnitude, inBuf, currPo + (arpNoteLenBytes * noteCounter));
-            noteCounter++;
+        else
+        {
+            if (noteCounter == 0)
+                SlideSquare(key.notes["1st"], key.notes["3rd"], arpNoteLenMS, magnitude, inBuf, c);
+            if (noteCounter == 1)
+                SlideSquare(key.notes["3rd"], key.notes["5th"], arpNoteLenMS, magnitude, inBuf, c);
+            if (noteCounter == 2)
+                SlideSquare(key.notes["5th"], key.notes["7th"], arpNoteLenMS, magnitude, inBuf, c);
+            if (noteCounter == 3)
+                SlideSquare(key.notes["7th"], key2.notes["1st"], arpNoteLenMS, magnitude, inBuf, c);
+            if (noteCounter == 4)
+                SlideSquare(key2.notes["1st"], key2.notes["3rd"], arpNoteLenMS, magnitude, inBuf, c);
+            if (noteCounter == 5)
+                SlideSquare(key2.notes["3rd"], key2.notes["5th"], arpNoteLenMS, magnitude, inBuf, c);
+            if (noteCounter == 6)
+                SlideSquare(key2.notes["5th"], key2.notes["7th"], arpNoteLenMS, magnitude, inBuf, c);
+            if (noteCounter == 7)
+                SlideSquare(key2.notes["7th"], key2.notes["8th"], arpNoteLenMS, magnitude, inBuf, c);
         }
-        SafeLead(key2.notes["5th"], arpNoteLenMS, magnitude, inBuf, currPo + (arpNoteLenBytes * noteCounter));
         noteCounter++;
     }
 }

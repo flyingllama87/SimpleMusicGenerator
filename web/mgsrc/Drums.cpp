@@ -7,7 +7,7 @@
 
 #include "MusicGen.h"
 
-#ifdef _win64
+#if defined(_WIN32) || defined(_WIN64)
 #include <Windows.h>
 #endif
 
@@ -430,11 +430,10 @@ AudioData GiveKick()
     // Noise
     Noise(kickLengthMS, true, waveBuffer, qtrMag / 2);
 
-    // SineWave
-#ifdef _WIN32 || _WIN64
+    #if defined(_WIN32) || defined(_WIN64)
     SafeSine(60, kickLengthMS, fullMag, sineBuffer, 0);
-#else // Crappy speakers on laptops / mobile devices so need a higher freq kick
-    SafeSine(105, kickLengthMS, fullMag, sineBuffer, 0);
+#else // Not Windows
+    SafeSine(70, kickLengthMS, fullMag, sineBuffer, 0);
 #endif
     SafeFadeOut(waveBuffer, waveLengthBytes, 0);
     SafeFadeOut(sineBuffer, waveLengthBytes, 0);

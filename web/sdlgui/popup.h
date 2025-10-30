@@ -52,7 +52,7 @@ public:
     /// Draw the popup window
     void draw(SDL_Renderer* renderer) override;
     virtual void drawBody(SDL_Renderer* renderer) override;
-    virtual void drawBodyTemp(SDL_Renderer* renderer);
+    virtual void drawBodyTemp(SDL_Renderer* renderer) override;
 
 protected:
     /// Internal helper function to maintain nested window position values
