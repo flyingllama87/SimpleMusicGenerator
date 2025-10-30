@@ -433,7 +433,7 @@ AudioData GiveKick()
     #if defined(_WIN32) || defined(_WIN64)
     SafeSine(60, kickLengthMS, fullMag, sineBuffer, 0);
 #else // Not Windows
-    SafeSine(105, kickLengthMS, fullMag, sineBuffer, 0);
+    SafeSine(70, kickLengthMS, fullMag, sineBuffer, 0);
 #endif
     SafeFadeOut(waveBuffer, waveLengthBytes, 0);
     SafeFadeOut(sineBuffer, waveLengthBytes, 0);
