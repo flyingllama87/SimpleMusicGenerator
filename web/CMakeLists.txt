@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 2.8.13)
+cmake_minimum_required (VERSION 3.5)
 
 project("MusicGen")
 
@@ -69,15 +69,11 @@ set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
 
 if( ${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
     message([STATUS] "SETTING SDL2 EMSCRIPTEN FLAGS")
-    # Debugging / sanitization
-    # set(USE_FLAGS "-Wno-narrowing -g -O0 -s USE_WEBGL2=1 --profiling -flto -s FETCH=1 --embed-file ../resources/wordlist.txt@wordlist.txt -s ALLOW_BLOCKING_ON_MAIN_THREAD=1 -s FULL_ES3=1 -pthread --shell-file shell-minimal.html -s ALLOW_MEMORY_GROWTH=1 -s WASM=1 -s USE_SDL=2 -s USE_SDL_IMAGE=2 -s USE_SDL_MIXER=2 -s USE_SDL_TTF=2 -fsanitize=address")
-    # set(USE_FLAGS "-Wno-narrowing -O3 -g -s USE_WEBGL2=1 -flto -s FETCH=1 --embed-file ../resources/wordlist.txt@wordlist.txt -s ALLOW_BLOCKING_ON_MAIN_THREAD=1 -s FULL_ES3=1 -pthread --shell-file shell-minimal.html -s ALLOW_MEMORY_GROWTH=1 -s WASM=1 -s USE_SDL=2 -s USE_SDL_IMAGE=2 -s USE_SDL_MIXER=2 -s USE_SDL_TTF=2 -fsanitize=address")
-    # Production using SAFE_HEAP
-    # set(USE_FLAGS "-Wno-narrowing -g -O2 -s USE_WEBGL2=1 --profiling -flto -s FETCH=1 --embed-file ../resources/wordlist.txt@wordlist.txt -s ALLOW_BLOCKING_ON_MAIN_THREAD=1 -s FULL_ES3=1 -pthread --shell-file shell-minimal.html -s ALLOW_MEMORY_GROWTH=1 -s WASM=1 -s USE_SDL=2 -s USE_SDL_IMAGE=2 -s USE_SDL_MIXER=2 -s USE_SDL_TTF=2 -s SAFE_HEAP")
-    set(USE_FLAGS "-Wno-narrowing -O3 -s USE_WEBGL2=1 -flto -s FETCH=1 --embed-file ../resources/wordlist.txt@wordlist.txt -s ALLOW_BLOCKING_ON_MAIN_THREAD=1 -s FULL_ES3=1 -pthread --shell-file shell-minimal.html -s ALLOW_MEMORY_GROWTH=1 -s WASM=1 -s USE_SDL=2 -s USE_SDL_IMAGE=2 -s USE_SDL_MIXER=2 -s USE_SDL_TTF=2 -s SAFE_HEAP")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${USE_FLAGS}")
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${USE_FLAGS}")
-    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${USE_FLAGS}")
+    set(EMSCRIPTEN_COMPILE_FLAGS "-Wno-narrowing -O3 -flto -s USE_SDL=2 -s USE_SDL_IMAGE=2 -s USE_SDL_MIXER=2 -s USE_SDL_TTF=2 -pthread")
+    set(EMSCRIPTEN_LINK_FLAGS "-s USE_WEBGL2=1 -s FETCH=1 --embed-file ../resources/wordlist.txt@wordlist.txt -s FULL_ES3=1 --shell-file shell-minimal.html -s WASM=1 -s SAFE_HEAP -flto -s INITIAL_MEMORY=67108864 -pthread")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${EMSCRIPTEN_COMPILE_FLAGS}")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${EMSCRIPTEN_COMPILE_FLAGS}")
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${EMSCRIPTEN_LINK_FLAGS}")
     set(CMAKE_EXECUTABLE_SUFFIX .html)
     # add_definitions(-DDEBUG_AUDIO)
 else()
