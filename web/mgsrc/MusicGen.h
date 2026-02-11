@@ -282,7 +282,7 @@ struct SongSettings
     bool inited = false;
     bool playing = false;
 
-    std::string rngSeedString = "covid";
+    std::string rngSeedString = "going";
     int rngSeed;
 
     bool drumsInited = false;

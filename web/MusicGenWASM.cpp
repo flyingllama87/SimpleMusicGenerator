@@ -64,6 +64,8 @@ using std::cerr;
 using std::endl;
 
 float g_vspPos = 0.0;
+bool g_redraw = true;
+Uint32 g_lastEventTime = 0;
 
 std::vector<std::tuple<std::string, int>> listOfSeeds;
 
@@ -434,7 +436,7 @@ int main(int /* argc */, char** /* argv */)
 #endif
 
 
-    auto context = SDL_GL_CreateContext(g_window);
+    // auto context = SDL_GL_CreateContext(g_window);
 
 
 #ifdef DEBUG_SDL_INIT
@@ -488,7 +490,7 @@ int main(int /* argc */, char** /* argv */)
     std::cout << "Initiating audio!" << '\n';
 #endif
 
-    songSettings.rngSeedString = "covid";
+    songSettings.rngSeedString = "going";
 
 #ifdef DEBUG_SDL_INIT
     std::cout << "About to render!" << '\n';
@@ -501,7 +503,7 @@ int main(int /* argc */, char** /* argv */)
 
 
 #ifdef EMSCRIPTEN
-    emscripten_set_main_loop(MainLoop, 30, 1);
+    emscripten_set_main_loop(MainLoop, 0, 1);
 #else
     while (quit == false) {
         MainLoop();
@@ -535,16 +537,26 @@ void MainLoop()
         }
 
         g_screen->onEvent(e);
+        g_redraw = true;
+        g_lastEventTime = SDL_GetTicks();
     }
 
-    SDL_SetRenderDrawColor(g_renderer, 0xd3, 0xd3, 0xd3, 0xff);
-    SDL_RenderClear(g_renderer);
+    if (songSettings.playing || (SDL_GetTicks() - g_lastEventTime < 1000))
+    {
+        g_redraw = true;
+    }
 
-    g_screen->drawAll();
+    if (g_redraw)
+    {
+        SDL_SetRenderDrawColor(g_renderer, 0xd3, 0xd3, 0xd3, 0xff);
+        SDL_RenderClear(g_renderer);
 
-    // Render the rect to the screen
-    SDL_RenderPresent(g_renderer);
+        g_screen->drawAll();
 
+        // Render the rect to the screen
+        SDL_RenderPresent(g_renderer);
+        g_redraw = false;
+    }
 }
 
 
@@ -641,6 +653,7 @@ void getScoresSuccess(emscripten_fetch_t* fetch) {
    
     g_screen->DrawControls();
     g_screen->DrawSongList();
+    g_redraw = true;
 
     emscripten_fetch_close(fetch); // Free data associated with the fetch.
 
