@@ -31,7 +31,7 @@ public:
     CheckBox& withChecked(bool value) { setChecked(value); return *this; }
 
     const bool &pushed() const { return mPushed; }
-    void setPushed(const bool &pushed) { mPushed = pushed; }
+    void setPushed(bool pushed) { mPushed = pushed; }
 
     std::function<void(bool)> callback() const { return mCallback; }
     void setCallback(const std::function<void(bool)> &callback) { mCallback = callback; }
@@ -48,6 +48,8 @@ protected:
     Texture _pointTex;
 
     std::function<void(bool)> mCallback;
+
+    std::vector<std::pair<int, Texture>> _txs;
 };
 
 NAMESPACE_END(sdlgui)

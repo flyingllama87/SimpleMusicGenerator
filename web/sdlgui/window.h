@@ -13,6 +13,7 @@
 
 #include <sdlgui/widget.h>
 #include <memory>
+#include <vector>
 
 NAMESPACE_BEGIN(sdlgui)
 
@@ -70,6 +71,7 @@ public:
 protected:
     /// Internal helper function to maintain nested window position values; overridden in \ref Popup
     void refreshRelativePlacement();
+    virtual void renderBodyTexture(NVGcontext* &ctx, int &realw, int &realh, int dx, int dy, bool mouseFocus);
 protected:
 
     std::string mTitle;
@@ -79,6 +81,8 @@ protected:
 
     bool mModal;
     bool mDrag;
+
+    std::vector<std::pair<int, Texture>> _txs;
 };
 
 NAMESPACE_END(sdlgui)

@@ -57,12 +57,15 @@ public:
 protected:
     /// Internal helper function to maintain nested window position values
     virtual void refreshRelativePlacement();
+    virtual void rendereBodyTexture(NVGcontext* &ctx, int& ctxw, int& ctxh, int dx);
     virtual Vector2i getOverrideBodyPos();
 
     Window *mParentWindow;
     Vector2i mAnchorPos;
     int mAnchorHeight;
     int _anchorDx = 15;
+
+    std::vector<std::pair<int, Texture>> _txs;
 };
 
 NAMESPACE_END(sdlgui)

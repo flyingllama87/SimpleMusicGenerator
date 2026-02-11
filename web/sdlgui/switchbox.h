@@ -15,6 +15,7 @@
 #pragma once
 
 #include <sdlgui/checkbox.h>
+#include <vector>
 
 NAMESPACE_BEGIN(sdlgui)
 
@@ -67,6 +68,8 @@ public:
 protected:
     Alignment mAlign = Alignment::Horizontal;
     float path = 0.f;
+
+    std::vector<std::pair<int, Texture>> _txs;
 };
 
 NAMESPACE_END(sdlgui)

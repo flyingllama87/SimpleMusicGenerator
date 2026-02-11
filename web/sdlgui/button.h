@@ -13,6 +13,7 @@
 
 #include <sdlgui/widget.h>
 #include <memory>
+#include <vector>
 
 NAMESPACE_BEGIN(sdlgui)
 /**
@@ -95,6 +96,8 @@ public:
     Button& withIcon(int icon) { setIcon( icon ); return *this; }
 
 protected:
+    virtual void renderBodyTexture(NVGcontext* &ctx, int &realw, int &realh);
+
     std::string mCaption;
     intptr_t mIcon;
     IconPosition mIconPosition;

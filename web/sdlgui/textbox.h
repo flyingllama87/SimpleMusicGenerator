@@ -45,7 +45,7 @@ public:
     void setSpinnable(bool spinnable) { mSpinnable = spinnable; }
 
     const std::string &value() const { return mValue; }
-    void setValue(const std::string &value) { mValue = value; _captionTex.dirty = true; }
+    void setValue(const std::string &value) { if (mValue == value) return; mValue = value; _captionTex.dirty = true; }
 
     const std::string &defaultValue() const { return mDefaultValue; }
     void setDefaultValue(const std::string &defaultValue) { mDefaultValue = defaultValue; }
