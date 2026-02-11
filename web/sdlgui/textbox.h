@@ -123,10 +123,6 @@ protected:
     Texture _captionTex;
     Texture _unitsTex;
     Texture _tempTex;
-
-    struct AsyncTexture;
-    typedef std::shared_ptr<AsyncTexture> AsyncTexturePtr;
-    std::vector<AsyncTexturePtr> _txs;
 };
 
 /**

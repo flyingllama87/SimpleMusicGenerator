@@ -17,132 +17,10 @@
 #else
 #include <SDL2/SDL.h>
 #endif
-#include <thread>
 
 #include "nanovg.h"
-#define NANOVG_RT_IMPLEMENTATION
-#define NANORT_IMPLEMENTATION
-#include "nanovg_rt.h"
 
 NAMESPACE_BEGIN(sdlgui)
-
-struct Window::AsyncTexture
-{
-  int id;
-  Texture tex;
-  NVGcontext* ctx = nullptr;
-
-  bool ready() const { return tex.tex != nullptr; }
-
-  AsyncTexture(int _id) : id(_id) {};
-
-  void load(Window* ptr, int dx, int dy, bool mouseFocus)
-  {
-    Window* wnd = ptr;
-    AsyncTexture* self = this;
-    std::thread tgr([=]() {
-      Theme* mTheme = wnd->theme();
-
-      int ww = wnd->width();
-      int hh = wnd->height();
-      int ds = mTheme->mWindowDropShadowSize;
-
-      Vector2i mPos(dx + ds, dy + ds);
-
-      int realw = ww + 2 * ds + dx; //with + 2*shadow + offset
-      int realh = hh + 2 * ds + dy;
-      NVGcontext *ctx = nvgCreateRT(NVG_DEBUG, realw, realh, 0);
-
-      float pxRatio = 1.0f;
-      nvgBeginFrame(ctx, realw, realh, pxRatio);
-
-      int cr = mTheme->mWindowCornerRadius;
-      int headerH = mTheme->mWindowHeaderHeight;
-
-      /* Draw window */
-      nvgSave(ctx);
-      nvgBeginPath(ctx);
-      nvgRoundedRect(ctx, mPos.x, mPos.y, ww, hh, cr);
-
-      nvgFillColor(ctx, (mouseFocus ? mTheme->mWindowFillFocused
-                                    : mTheme->mWindowFillUnfocused).toNvgColor());
-      nvgFill(ctx);
-
-
-      /* Draw a drop shadow */
-      NVGpaint shadowPaint = nvgBoxGradient(
-        ctx, mPos.x, mPos.y, ww, hh, cr * 2, ds * 2,
-        mTheme->mDropShadow.toNvgColor(), 
-        mTheme->mTransparent.toNvgColor());
-
-      nvgSave(ctx);
-      nvgResetScissor(ctx);
-      nvgBeginPath(ctx);
-      nvgRect(ctx, mPos.x - ds, mPos.y - ds, ww + 2 * ds, hh + 2 * ds);
-      nvgRoundedRect(ctx, mPos.x, mPos.y, ww, hh, cr);
-      nvgPathWinding(ctx, NVG_HOLE);
-      nvgFillPaint(ctx, shadowPaint);
-      nvgFill(ctx);
-      nvgRestore(ctx);
-
-      /* Draw header */
-      NVGpaint headerPaint = nvgLinearGradient(
-        ctx, mPos.x, mPos.y, mPos.x,
-        mPos.y + headerH,
-        mTheme->mWindowHeaderGradientTop.toNvgColor(),
-        mTheme->mWindowHeaderGradientBot.toNvgColor());
-
-      nvgBeginPath(ctx);
-      nvgRoundedRect(ctx, mPos.x, mPos.y, ww, headerH, cr);
-
-      nvgFillPaint(ctx, headerPaint);
-      nvgFill(ctx);
-
-      nvgBeginPath(ctx);
-      nvgRoundedRect(ctx, mPos.x, mPos.y, ww, headerH, cr);
-      nvgStrokeColor(ctx, mTheme->mWindowHeaderSepTop.toNvgColor());
-
-      nvgSave(ctx);
-      nvgIntersectScissor(ctx, mPos.x, mPos.y, ww, 0.5f);
-      nvgStroke(ctx);
-      nvgRestore(ctx);
-
-      nvgBeginPath(ctx);
-      nvgMoveTo(ctx, mPos.x + 0.5f, mPos.y + headerH - 1.5f);
-      nvgLineTo(ctx, mPos.x + ww - 0.5f, mPos.y + headerH - 1.5);
-      nvgStrokeColor(ctx, mTheme->mWindowHeaderSepBot.toNvgColor());
-      nvgStroke(ctx);
-
-      nvgEndFrame(ctx);
-
-      self->tex.rrect = { 0, 0, realw, realh };
-      self->ctx = ctx;
-    });
-
-    tgr.detach();
-  }
-
-  void perform(SDL_Renderer* renderer)
-  {
-    if (!ctx)
-      return;
-
-    unsigned char *rgba = nvgReadPixelsRT(ctx);
-
-    tex.tex = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ABGR8888, SDL_TEXTUREACCESS_STREAMING, tex.w(), tex.h());
-
-    int pitch;
-    uint8_t *pixels;
-    int ok = SDL_LockTexture(tex.tex, nullptr, (void **)&pixels, &pitch);
-    memcpy(pixels, rgba, sizeof(uint32_t) * tex.w() * tex.h());
-    SDL_SetTextureBlendMode(tex.tex, SDL_BLENDMODE_BLEND);
-    SDL_UnlockTexture(tex.tex);
-
-    nvgDeleteRT(ctx);
-    ctx = nullptr;
-  }
-
-};
 
 Window::Window(Widget *parent, const std::string &title)
     : Widget(parent), mTitle(title), mButtonPanel(nullptr), mModal(false), mDrag(false) 
@@ -241,32 +119,7 @@ void Window::drawBodyTemp(SDL_Renderer* renderer)
 
 void Window::drawBody(SDL_Renderer* renderer)
 {
-  int id = (mMouseFocus ? 0x1 : 0);
-
-  auto atx = std::find_if(_txs.begin(), _txs.end(), [id](AsyncTexturePtr p) { return p->id == id; });
-
-  if (atx != _txs.end())
-  {
-    Vector2i ap = absolutePosition();
-    (*atx)->perform(renderer);
-    if ((*atx)->ready())
-    {
-      int ds = mTheme->mWindowDropShadowSize;
-      SDL_RenderCopy(renderer, (*atx)->tex, ap - Vector2i(ds, ds));
-    }
-    else
-    {
-      drawBodyTemp(renderer);
-    }
-  }
-  else
-  {
-    AsyncTexturePtr newtx = std::make_shared<AsyncTexture>(id);
-    newtx->load(this, 0, 0, mMouseFocus);
-    _txs.push_back(newtx);
-
-    drawBodyTemp(renderer);
-  }
+  drawBodyTemp(renderer);
 }
 
 void Window::draw(SDL_Renderer* renderer)

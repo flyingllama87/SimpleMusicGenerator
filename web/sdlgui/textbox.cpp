@@ -22,107 +22,37 @@
 #endif
 #include <regex>
 #include <iostream>
-#include <thread>
 
 #include "nanovg.h"
-#define NANOVG_RT_IMPLEMENTATION
-#define NANORT_IMPLEMENTATION
-#include "nanovg_rt.h"
 
 NAMESPACE_BEGIN(sdlgui)
 
-struct TextBox::AsyncTexture
+void TextBox::drawBody(SDL_Renderer* renderer)
 {
-  int id;
-  Texture tex;
-  NVGcontext* ctx = nullptr;
-  float value = -1;
+  Vector2i ap = absolutePosition();
+  bool outside = mSpinnable && mMouseDownPos.x != -1;
 
-  AsyncTexture(int _id) : id(_id) {}
-
-  void load(TextBox* ptr, bool editable, bool focused, bool validFormat, bool outside)
+  SDL_Rect bodyRect{ ap.x + 1, ap.y + 1, width() - 2, height() - 2 };
+  
+  SDL_Color bgclr = mTheme->mWindowFillUnfocused.toSdlColor();
+  if (mEditable && focused())
   {
-    TextBox* tbox = ptr;
-    AsyncTexture* self = this;
-    std::thread tgr([=]() {
-      Theme* mTheme = tbox->theme();
-      std::lock_guard<std::mutex> guard(mTheme->loadMutex);
-
-      int ww = tbox->width();
-      int hh = tbox->height();
-      int realw = ww + 2;
-      int realh = hh + 2;
-      int dx = 1, dy = 1;
-      NVGcontext *ctx = nvgCreateRT(NVG_DEBUG, realw, realh + 2, 0);
-
-      float pxRatio = 1.0f;
-      nvgBeginFrame(ctx, realw, realh, pxRatio);
-
-      NVGpaint bg = nvgBoxGradient(ctx, dx + 1, dy + 1 + 1.0f, ww - 2, hh - 2,
-        3, 4, Color(255, 128).toNvgColor(), Color(32, 32).toNvgColor());
-      NVGpaint fg1 = nvgBoxGradient(ctx, dx + 1, dy + 1 + 1.0f, ww - 2, hh - 2,
-        3, 4, Color(150, 32).toNvgColor(), Color(32, 32).toNvgColor());
-      NVGpaint fg2 = nvgBoxGradient(ctx, dx + 1, dy + 1 + 1.0f, ww - 2, hh - 2,
-        3, 4, nvgRGBA(255, 0, 0, 100), nvgRGBA(255, 0, 0, 50));
-
-      nvgBeginPath(ctx);
-      nvgRoundedRect(ctx, dx + 1, dy + 1 + 1.0f, ww - 2, hh - 2, 3);
-
-      if (editable && focused)
-      {
-        validFormat 
-            ? nvgFillPaint(ctx, fg1) 
-            : nvgFillPaint(ctx, fg2);
-      }
-      else if (outside)
-        nvgFillPaint(ctx, fg1);
-      else
-        nvgFillPaint(ctx, bg);
-
-      nvgFill(ctx);
-
-      nvgBeginPath(ctx);
-      nvgRoundedRect(ctx, dx + 0.5f, dy + 0.5f, ww - 1, hh - 1, 2.5f);
-      nvgStrokeColor(ctx, Color(0, 48).toNvgColor());
-      nvgStroke(ctx);
-
-      nvgEndFrame(ctx);
-      self->tex.rrect = { 0, 0, realw, realh };
-      self->ctx = ctx;
-    });
-
-    tgr.detach();
+    if (mValidFormat)
+        bgclr = Color(150, 32, 32, 32).toSdlColor();
+    else
+        bgclr = Color(255, 0, 0, 100).toSdlColor();
   }
+  else if (outside)
+    bgclr = Color(150, 32, 32, 32).toSdlColor();
 
-  void perform(SDL_Renderer* renderer)
-  {
-    if (!ctx)
-      return;
+  SDL_SetRenderDrawColor(renderer, bgclr.r, bgclr.g, bgclr.b, bgclr.a);
+  SDL_RenderFillRect(renderer, &bodyRect);
 
-    unsigned char *rgba = nvgReadPixelsRT(ctx);
-
-    if (tex.tex)
-    {
-      int w, h;
-      SDL_QueryTexture(tex.tex, nullptr, nullptr, &w, &h);
-      if (w != tex.w() || h != tex.h())
-        SDL_DestroyTexture(tex.tex);
-    }
-
-    if (!tex.tex)
-      tex.tex = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ABGR8888, SDL_TEXTUREACCESS_STREAMING, tex.w(), tex.h());
-
-    int pitch;
-    uint8_t *pixels;
-    int ok = SDL_LockTexture(tex.tex, nullptr, (void **)&pixels, &pitch);
-    memcpy(pixels, rgba, sizeof(uint32_t) * tex.w() * tex.h());
-    SDL_SetTextureBlendMode(tex.tex, SDL_BLENDMODE_BLEND);
-    SDL_UnlockTexture(tex.tex);
-
-    nvgDeleteRT(ctx);
-    ctx = nullptr;
-  }
-};
+  SDL_Color brdclr = mTheme->mBorderDark.toSdlColor();
+  SDL_SetRenderDrawColor(renderer, brdclr.r, brdclr.g, brdclr.b, brdclr.a);
+  SDL_Rect brdRect{ ap.x, ap.y, width(), height() };
+  SDL_RenderDrawRect(renderer, &brdRect);
+}
 
 TextBox::TextBox(Widget *parent,const std::string &value, const std::string& units)
     : Widget(parent),
@@ -192,30 +122,6 @@ Vector2i TextBox::preferredSize(SDL_Renderer *ctx) const
     float ts = const_cast<TextBox*>(this)->mTheme->getUtf8Width("sans", fontSize(), mValue.c_str());
     size.x = size.y + ts + uw + sw;
     return size;
-}
-
-void TextBox::drawBody(SDL_Renderer* renderer)
-{
-  bool outside = mSpinnable && mMouseDownPos.x != -1;
-  int id = (mEditable ? 0x1 : 0)
-    + (focused() ? 0x2 : 0)
-    + (mValidFormat ? 0x4 : 0)
-    + (outside ? 0x8 : 0);
-
-  auto atx = std::find_if(_txs.begin(), _txs.end(), [id](AsyncTexturePtr p) { return p->id == id; });
- 
-  if (atx != _txs.end())
-  {
-    Vector2i ap = absolutePosition();
-    (*atx)->perform(renderer);
-    SDL_RenderCopy(renderer, (*atx)->tex, ap - Vector2i(1,1));
-  }
-  else
-  {
-    AsyncTexturePtr newtx = std::make_shared<AsyncTexture>(id);
-    newtx->load(this, mEditable, focused(), mValidFormat, outside);
-    _txs.push_back(newtx);
-  }
 }
 
 void TextBox::draw(SDL_Renderer* renderer) 

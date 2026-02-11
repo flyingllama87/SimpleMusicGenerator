@@ -79,10 +79,6 @@ protected:
 
     bool mModal;
     bool mDrag;
-
-    struct AsyncTexture;
-    typedef std::shared_ptr<AsyncTexture> AsyncTexturePtr;
-    std::vector<AsyncTexturePtr> _txs;
 };
 
 NAMESPACE_END(sdlgui)

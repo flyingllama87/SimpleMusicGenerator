@@ -17,61 +17,10 @@
 #include <SDL2/SDL.h>
 #endif
 #include <array>
-#include <thread>
 
 #include "nanovg.h"
-#define NANOVG_RT_IMPLEMENTATION
-#define NANORT_IMPLEMENTATION
-#include "nanovg_rt.h"
 
 NAMESPACE_BEGIN(sdlgui)
-
-struct Button::AsyncTexture
-{
-  int id;
-  Texture tex;
-  NVGcontext* ctx = nullptr;
-
-  AsyncTexture(int _id) : id(_id) {};
-
-  void load(Button* ptr)
-  {
-    Button* button = ptr;
-    AsyncTexture* self = this;
-    std::thread tgr([=]() {
-      std::lock_guard<std::mutex> guard(button->theme()->loadMutex);
-
-      NVGcontext *ctx = nullptr;
-      int realw, realh;
-      button->renderBodyTexture(ctx, realw, realh);
-      self->tex.rrect = { 0, 0, realw, realh };
-      self->ctx = ctx;
-    });
-
-    tgr.detach();
-  }
-
-  void perform(SDL_Renderer* renderer)
-  {
-    if (!ctx)
-      return;
-
-    unsigned char *rgba = nvgReadPixelsRT(ctx);
-
-    tex.tex = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ABGR8888, SDL_TEXTUREACCESS_STREAMING, tex.w(), tex.h());
-
-    int pitch;
-    uint8_t *pixels;
-    int ok = SDL_LockTexture(tex.tex, nullptr, (void **)&pixels, &pitch);
-    memcpy(pixels, rgba, sizeof(uint32_t) * tex.w() * tex.h());
-    SDL_SetTextureBlendMode(tex.tex, SDL_BLENDMODE_BLEND);
-    SDL_UnlockTexture(tex.tex);
-
-    nvgDeleteRT(ctx);
-    ctx = nullptr;
-  }
-};
-
 
 Button::Button(Widget *parent, const std::string &caption, int icon)
     : Widget(parent), mCaption(caption), mIcon(icon),
@@ -256,27 +205,7 @@ void Button::drawBodyTemp(SDL_Renderer* renderer)
 
 void Button::drawBody(SDL_Renderer* renderer)
 {
-  int id = (mPushed ? 0x1 : 0) + (mMouseFocus ? 0x2 : 0) + (mEnabled ? 0x4 : 0);
-
-  auto atx = std::find_if(_txs.begin(), _txs.end(), [id](AsyncTexturePtr p) { return p->id == id; });
-
-  if (atx != _txs.end())
-  {
-    Vector2i ap = absolutePosition();
-    (*atx)->perform(renderer);
-    if ((*atx)->tex.tex)
-      SDL_RenderCopy(renderer, (*atx)->tex, ap);
-    else
-      drawBodyTemp(renderer);
-  }
-  else
-  {
-    AsyncTexturePtr newtx = std::make_shared<AsyncTexture>(id);
-    newtx->load(this);
-    _txs.push_back(newtx);
-
-    drawBodyTemp(renderer);
-  }
+  drawBodyTemp(renderer);
 }
 
 void Button::draw(SDL_Renderer* renderer)
@@ -363,71 +292,6 @@ Vector2i Button::getTextOffset() const
 {
   int offset = mPushed ? 2 : 0;
   return Vector2i(offset, 1 + offset);
-}
-
-void Button::renderBodyTexture(NVGcontext* &ctx, int &realw, int &realh)
-{
-  int ww = width();
-  int hh = height();
-  ctx = nvgCreateRT(NVG_DEBUG, ww + 2, hh + 2, 0);
-
-  float pxRatio = 1.0f;
-  realw = ww + 2;
-  realh = hh + 2;
-  nvgBeginFrame(ctx, realw, realh, pxRatio);
-
-  NVGcolor gradTop = mTheme->mButtonGradientTopUnfocused.toNvgColor();
-  NVGcolor gradBot = mTheme->mButtonGradientBotUnfocused.toNvgColor();
-
-  if (mPushed)
-  {
-    gradTop = mTheme->mButtonGradientTopPushed.toNvgColor();
-    gradBot = mTheme->mButtonGradientBotPushed.toNvgColor();
-  }
-  else if (mMouseFocus && mEnabled)
-  {
-    gradTop = mTheme->mButtonGradientTopFocused.toNvgColor();
-    gradBot = mTheme->mButtonGradientBotFocused.toNvgColor();
-  }
-
-  nvgBeginPath(ctx);
-
-  nvgRoundedRect(ctx, 1, 1.0f, ww - 2, hh - 2, mTheme->mButtonCornerRadius - 1);
-
-  if (mBackgroundColor.a() != 0)
-  {
-    Color rgb = mBackgroundColor.rgb();
-    rgb.setAlpha(1.f);
-    nvgFillColor(ctx, rgb.toNvgColor());
-    nvgFill(ctx);
-    if (mPushed)
-    {
-      gradTop.a = gradBot.a = 0.8f;
-    }
-    else
-    {
-      double v = 1 - mBackgroundColor.a();
-      gradTop.a = gradBot.a = mEnabled ? v : v * .5f + .5f;
-    }
-  }
-
-  NVGpaint bg = nvgLinearGradient(ctx, 0, 0, 0, hh, gradTop, gradBot);
-
-  nvgFillPaint(ctx, bg);
-  nvgFill(ctx);
-
-  nvgBeginPath(ctx);
-  nvgStrokeWidth(ctx, 1.0f);
-  nvgRoundedRect(ctx, 0.5f, (mPushed ? 0.5f : 1.5f), ww - 1, hh - 1 - (mPushed ? 0.0f : 1.0f), mTheme->mButtonCornerRadius);
-  nvgStrokeColor(ctx, mTheme->mBorderLight.toNvgColor());
-  nvgStroke(ctx);
-
-  nvgBeginPath(ctx);
-  nvgRoundedRect(ctx, 0.5f, 0.5f, ww - 1, hh - 2, mTheme->mButtonCornerRadius);
-  nvgStrokeColor(ctx, mTheme->mBorderDark.toNvgColor());
-  nvgStroke(ctx);
-
-  nvgEndFrame(ctx);
 }
 
 NAMESPACE_END(sdlgui)

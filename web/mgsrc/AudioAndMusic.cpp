@@ -189,35 +189,49 @@ int GenMusic(void* ptr)
     // Clear internal buffer
     std::fill_n(inBuf, internalAudioBuffer.backBufferLength, 0);
 
+    // Use static buffers to avoid repeated allocation/deallocation
+    static std::vector<Uint8> drumBuf;
+    static std::vector<Uint8> bassBuf;
+    static std::vector<Uint8> leadBuf;
+#ifndef DISABLE_REVERB
+    static std::vector<Uint8> leadOutBuf;
+    static std::vector<short> leadOutBuf16;
+    static std::vector<short> leadBuf16;
+#endif
+
+    if (drumBuf.size() < internalAudioBuffer.backBufferLength) {
+        drumBuf.resize(internalAudioBuffer.backBufferLength);
+        bassBuf.resize(internalAudioBuffer.backBufferLength);
+        leadBuf.resize(internalAudioBuffer.backBufferLength);
+#ifndef DISABLE_REVERB
+        leadOutBuf.resize(internalAudioBuffer.backBufferLength);
+        leadOutBuf16.resize(internalAudioBuffer.backBufferLength);
+        leadBuf16.resize(internalAudioBuffer.backBufferLength);
+#endif
+    }
+
     // Gen Drums
-    Uint8* drumBuf = new Uint8[internalAudioBuffer.backBufferLength]();
-    std::fill_n(drumBuf, internalAudioBuffer.backBufferLength, 0);
+    std::fill_n(drumBuf.data(), internalAudioBuffer.backBufferLength, 0);
     if (songSettings.genDrums)
-        GenDrumBeat(drumBuf, internalAudioBuffer.backBufferLength);
+        GenDrumBeat(drumBuf.data(), internalAudioBuffer.backBufferLength);
 
     // Gen Bass
-    Uint8* bassBuf = new Uint8[internalAudioBuffer.backBufferLength]();
+    std::fill_n(bassBuf.data(), internalAudioBuffer.backBufferLength, 0);
     if (songSettings.genBass)
-        GenBassTrack(bassBuf, internalAudioBuffer.backBufferLength);
+        GenBassTrack(bassBuf.data(), internalAudioBuffer.backBufferLength);
 
     // Gen Lead
-    Uint8* leadBuf = new Uint8[internalAudioBuffer.backBufferLength]();
+    std::fill_n(leadBuf.data(), internalAudioBuffer.backBufferLength, 0);
     if (songSettings.genLead)
-        GenLeadTrack(leadBuf, internalAudioBuffer.backBufferLength);
+        GenLeadTrack(leadBuf.data(), internalAudioBuffer.backBufferLength);
 
     // Mix in drums
     if (songSettings.genDrums)
-        SDL_MixAudioFormat(inBuf, drumBuf, sampleFmt, internalAudioBuffer.backBufferLength, SDL_MIX_MAXVOLUME);
+        SDL_MixAudioFormat(inBuf, drumBuf.data(), sampleFmt, internalAudioBuffer.backBufferLength, SDL_MIX_MAXVOLUME);
 
     // Mix in bass
     if (songSettings.genBass)
-        SDL_MixAudioFormat(inBuf, bassBuf, sampleFmt, internalAudioBuffer.backBufferLength, SDL_MIX_MAXVOLUME);
-
-#ifndef DISABLE_REVERB
-    Uint8* leadOutBuf = new Uint8[internalAudioBuffer.backBufferLength]();
-    short* leadOutBuf16 = new short[internalAudioBuffer.backBufferLength]();
-    short* leadBuf16 = new short[internalAudioBuffer.backBufferLength]();
-#endif
+        SDL_MixAudioFormat(inBuf, bassBuf.data(), sampleFmt, internalAudioBuffer.backBufferLength, SDL_MIX_MAXVOLUME);
 
     // Mix in lead
     if (songSettings.genLead)
@@ -225,32 +239,22 @@ int GenMusic(void* ptr)
 #ifndef DISABLE_REVERB
         // *** Mix in reverb ***
         // convert to 16 bit buf, apply reverb and convert back to 8 bit buf and mix into lead track. Better options?
-        memcpy(&leadBuf16[0], &leadBuf[0], internalAudioBuffer.backBufferLength);
-        Reverb(leadBuf16, leadOutBuf16, internalAudioBuffer.backBufferLength);
-        c16to8(leadOutBuf16, internalAudioBuffer.backBufferLength / 2, leadOutBuf);
-        SDL_MixAudioFormat(leadBuf, leadOutBuf, sampleFmt, internalAudioBuffer.backBufferLength, SDL_MIX_MAXVOLUME);
+        memcpy(leadBuf16.data(), leadBuf.data(), internalAudioBuffer.backBufferLength);
+        Reverb(leadBuf16.data(), leadOutBuf16.data(), internalAudioBuffer.backBufferLength);
+        c16to8(leadOutBuf16.data(), internalAudioBuffer.backBufferLength / 2, leadOutBuf.data());
+        SDL_MixAudioFormat(leadBuf.data(), leadOutBuf.data(), sampleFmt, internalAudioBuffer.backBufferLength, SDL_MIX_MAXVOLUME);
 #endif
-        SDL_MixAudioFormat(inBuf, leadBuf, sampleFmt, internalAudioBuffer.backBufferLength, SDL_MIX_MAXVOLUME);
+        SDL_MixAudioFormat(inBuf, leadBuf.data(), sampleFmt, internalAudioBuffer.backBufferLength, SDL_MIX_MAXVOLUME);
     }
 
 #ifdef DUMP_PRIMARY_BUFFERS
-    DumpBuffer(drumBuf, internalAudioBuffer.length, "DrumBuffer" + std::to_string(songSettings.sectionCount) + ".txt");
-    DumpBuffer(bassBuf, internalAudioBuffer.length, "BassBuffer" + std::to_string(songSettings.sectionCount) + ".txt");
-    DumpBuffer(leadBuf, internalAudioBuffer.length, "LeadBuffer" + std::to_string(songSettings.sectionCount) + ".txt");
+    DumpBuffer(drumBuf.data(), internalAudioBuffer.length, "DrumBuffer" + std::to_string(songSettings.sectionCount) + ".txt");
+    DumpBuffer(bassBuf.data(), internalAudioBuffer.length, "BassBuffer" + std::to_string(songSettings.sectionCount) + ".txt");
+    DumpBuffer(leadBuf.data(), internalAudioBuffer.length, "LeadBuffer" + std::to_string(songSettings.sectionCount) + ".txt");
     DumpBuffer(inBuf, internalAudioBuffer.length, "FullBuffer" + std::to_string(songSettings.sectionCount) + ".txt");
     std::cout << "Dumping Buffers!\n";
 #endif
 
-    delete[] drumBuf;
-    delete[] bassBuf;
-    delete[] leadBuf;
-    // std::cout << "\nThread finished processing!\n";
-
-#ifndef DISABLE_REVERB
-    delete[] leadOutBuf;
-    delete[] leadOutBuf16;
-    delete[] leadBuf16;
-#endif
     return 1;
 }
 

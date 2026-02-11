@@ -15,9 +15,6 @@
 #include <array>
 
 #include "nanovg.h"
-#define NANOVG_RT_IMPLEMENTATION
-#define NANORT_IMPLEMENTATION
-#include "nanovg_rt.h"
 
 NAMESPACE_BEGIN(sdlgui)
 
@@ -28,98 +25,6 @@ public:
 
   DropdownListItem(Widget* parent, const std::string& str, bool inlist=true)
     : Button(parent, str), mInlist(inlist) {}
-
-  void renderBodyTexture(NVGcontext* &ctx, int &realw, int &realh) override
-  {
-    int ww = width();
-    int hh = height();
-    ctx = nvgCreateRT(NVG_DEBUG, ww + 2, hh + 2, 0);
-
-    float pxRatio = 1.0f;
-    realw = ww + 2;
-    realh = hh + 2;
-    nvgBeginFrame(ctx, realw, realh, pxRatio);
-
-    if (!mInlist)
-    {
-      Color gradTop = mTheme->mButtonGradientTopPushed;
-      Color gradBot = mTheme->mButtonGradientBotPushed;
-
-      nvgBeginPath(ctx);
-
-      nvgRoundedRect(ctx, 1, 1, ww - 2,  hh - 2, mTheme->mButtonCornerRadius - 1);
-
-      if (mBackgroundColor.a() != 0) 
-      {
-        Color rgb = mBackgroundColor.rgb();
-        rgb.setAlpha(1.f);
-        nvgFillColor(ctx, rgb.toNvgColor());
-        nvgFill(ctx);
-        gradTop.a() = gradBot.a() = 0.8f;
-      }
-
-      NVGpaint bg = nvgLinearGradient(ctx, 0, 0, 0, hh, gradTop.toNvgColor(), gradBot.toNvgColor());
-
-      nvgFillPaint(ctx, bg);
-      nvgFill(ctx);
-
-      nvgBeginPath(ctx);
-      nvgStrokeWidth(ctx, 1.0f);
-      nvgRoundedRect(ctx, 0.5f, 0.5f, ww- 1, hh, mTheme->mButtonCornerRadius);
-      nvgStrokeColor(ctx, mTheme->mBorderLight.toNvgColor());
-      nvgStroke(ctx);
-
-      nvgBeginPath(ctx);
-      nvgRoundedRect(ctx, 0.5f, 0.5f, ww - 1, hh, mTheme->mButtonCornerRadius);
-      nvgStrokeColor(ctx, mTheme->mBorderDark.toNvgColor());
-      nvgStroke(ctx);
-    }
-    else
-    {
-      if (mMouseFocus && mEnabled)
-      {
-        Color gradTop = mTheme->mButtonGradientTopFocused;
-        Color gradBot = mTheme->mButtonGradientBotFocused;
-
-        nvgBeginPath(ctx);
-
-        nvgRoundedRect(ctx, 1, 1, ww - 2, hh - 2, mTheme->mButtonCornerRadius - 1);
-
-        if (mBackgroundColor.a() != 0) 
-        {
-          Color rgb = mBackgroundColor.rgb();
-          rgb.setAlpha(1.f);
-          nvgFillColor(ctx, rgb.toNvgColor());
-          nvgFill(ctx);
-          if (mPushed)
-            gradTop.a() = gradBot.a() = 0.8f;
-          else 
-          {
-            double v = 1 - mBackgroundColor.a();
-            gradTop.a() = gradBot.a() = mEnabled ? v : v * .5f + .5f;
-          }
-        }
-
-        NVGpaint bg = nvgLinearGradient(ctx, 0, 0, 0, hh, gradTop.toNvgColor(), gradBot.toNvgColor());
-
-        nvgFillPaint(ctx, bg);
-        nvgFill(ctx); 
-      }
-    }
-
-    if (mPushed && mInlist)
-    {
-      Color textColor = mTextColor.a() == 0 ? mTheme->mTextColor : mTextColor;
-      Vector2f center = mSize.cast<float>() * 0.5f;
-
-      nvgBeginPath(ctx);
-      nvgCircle(ctx, width() * 0.05f, center.y, 2);
-      nvgFillColor(ctx, textColor.toNvgColor());
-      nvgFill(ctx);
-    }
-    
-    nvgEndFrame(ctx);
-  }
 
   Vector2i getTextOffset() const override { return Vector2i(0, 0); }
 };
@@ -180,48 +85,6 @@ public:
   float path = 0.f;
   int clamp(int val, int min, int max) { return val < min ? min : (val > max ? max : val); }
 
-  void rendereBodyTexture(NVGcontext* &ctx, int& realw, int& realh, int dx) override
-  {
-    int ds = 1, cr = mTheme->mWindowCornerRadius;
-    int ww = mFixedSize.x > 0 ? mFixedSize.x : mSize.x;
-    int hh = height();
-    int dy = 0;
-    int xadd = 1;
-
-    int headerH = mChildren[0]->height();
-    int realH = clamp(mSize.y * path, headerH, mSize.y);
-
-    Vector2i offset(dx + ds, dy + ds);
-
-    realw = ww + 2 * ds + dx + xadd; //with + 2*shadow + 2*boder + offset
-    realh = hh + 2 * ds + dy + xadd;
-
-    ctx = nvgCreateRT(NVG_DEBUG, realw, realh, 0);
-
-    float pxRatio = 1.0f;
-    nvgBeginFrame(ctx, realw, realh, pxRatio);
-
-    // Draw a drop shadow 
-    NVGpaint shadowPaint = nvgBoxGradient(ctx, 0, 0, realw, realh, cr * 2, ds * 2,
-                                          mTheme->mDropShadow.toNvgColor(), mTheme->mTransparent.toNvgColor());
-
-    nvgBeginPath(ctx);
-    nvgRect(ctx, 0, 0, ww + 2 * ds, hh + 2 * ds);
-    //nvgRoundedRect(ctx, 0, 0, ww + 2 * ds, hh + 2 * ds, cr);
-    //nvgPathWinding(ctx, NVG_HOLE);
-    nvgFillPaint(ctx, shadowPaint);
-    nvgFill(ctx);
-
-    // Draw window
-    nvgBeginPath(ctx);
-    nvgRect(ctx, offset.x, offset.y, ww, hh);
-
-    nvgFillColor(ctx, mTheme->mWindowPopup.toNvgColor());
-    nvgFill(ctx);
-
-    nvgEndFrame(ctx);
-  }
-
   Vector2i getOverrideBodyPos() override
   {
     Vector2i ap = absolutePosition();
@@ -243,18 +106,6 @@ public:
 
     int headerH = mChildren[0]->height();
     int realH = clamp(mSize.y * path, headerH, mSize.y);
-
-    /*if (mChildren.size() > 1)
-    {
-      nvgBeginPath(ctx);
-
-      Vector2i fp = mPos + mChildren[1]->position();
-      NVGpaint bg = nvgLinearGradient(ctx, fp.x(), fp.y(), fp.x(), fp.y() + 12 ,
-                                      mTheme->mBorderMedium, mTheme->mTransparent);
-      nvgRect(ctx, fp.x(), fp.y(), ww, 12);
-      nvgFillPaint(ctx, bg);
-      nvgFill(ctx);
-    }*/
 
     Widget::draw(renderer);
   }

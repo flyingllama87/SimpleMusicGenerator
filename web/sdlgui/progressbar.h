@@ -36,11 +36,6 @@ public:
 
 protected:
   float mValue;
-
-    struct AsyncTexture;
-    typedef std::shared_ptr<AsyncTexture> AsyncTexturePtr;
-    AsyncTexturePtr _body;
-    AsyncTexturePtr _bar;
 };
 
 NAMESPACE_END(sdlgui)

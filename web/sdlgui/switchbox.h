@@ -67,10 +67,6 @@ public:
 protected:
     Alignment mAlign = Alignment::Horizontal;
     float path = 0.f;
-
-    struct AsyncTexture;
-    typedef std::shared_ptr<AsyncTexture> AsyncTexturePtr;
-    std::vector<AsyncTexturePtr> _txs;
 };
 
 NAMESPACE_END(sdlgui)

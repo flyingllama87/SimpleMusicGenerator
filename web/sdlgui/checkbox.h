@@ -48,10 +48,6 @@ protected:
     Texture _pointTex;
 
     std::function<void(bool)> mCallback;
-
-    struct AsyncTexture;
-    typedef std::shared_ptr<AsyncTexture> AsyncTexturePtr;
-    std::vector<AsyncTexturePtr> _txs;
 };
 
 NAMESPACE_END(sdlgui)

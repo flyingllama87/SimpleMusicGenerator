@@ -83,11 +83,6 @@ protected:
     std::pair<float, float> mRange;
     std::pair<float, float> mHighlightedRange;
     Color mHighlightColor;
-
-    struct AsyncTexture;
-    typedef std::shared_ptr<AsyncTexture> AsyncTexturePtr;
-    AsyncTexturePtr _body;
-    AsyncTexturePtr _knob;
 };
 
 NAMESPACE_END(sdlgui)

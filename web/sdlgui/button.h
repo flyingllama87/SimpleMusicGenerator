@@ -95,8 +95,6 @@ public:
     Button& withIcon(int icon) { setIcon( icon ); return *this; }
 
 protected:
-    virtual void renderBodyTexture(NVGcontext* &ctx, int &realw, int &realh);
-
     std::string mCaption;
     intptr_t mIcon;
     IconPosition mIconPosition;
@@ -111,10 +109,6 @@ protected:
     std::function<void()> mCallback;
     std::function<void(bool)> mChangeCallback;
     std::vector<Button *> mButtonGroup;
-
-    struct AsyncTexture;
-    typedef std::shared_ptr<AsyncTexture> AsyncTexturePtr;
-    std::vector<AsyncTexturePtr> _txs;
 };
 
 NAMESPACE_END(sdlgui)

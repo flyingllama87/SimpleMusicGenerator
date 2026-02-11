@@ -17,76 +17,10 @@
 #include <sdlgui/theme.h>
 #include <sdlgui/entypo.h>
 #include <array>
-#include <thread>
 
 #include "nanovg.h"
-#define NANOVG_RT_IMPLEMENTATION
-#define NANORT_IMPLEMENTATION
-#include "nanovg_rt.h"
 
 NAMESPACE_BEGIN(sdlgui)
-
-struct CheckBox::AsyncTexture
-{
-  int id;
-  Texture tex;
-  NVGcontext* ctx = nullptr;
-
-  AsyncTexture(int _id) : id(_id) {};
-
-  void load(CheckBox* ptr, bool pushed, bool focused, bool enabled)
-  {
-    CheckBox* cb = ptr;
-    AsyncTexture* self = this;
-    std::thread tgr([=]() {
-      Theme* theme = cb->theme();
-      Color b = Color(0, 0, 0, 180);
-      Color c = pushed ? Color(0, 100) : Color(0, 32);
-
-      int ww = cb->width();
-      int hh = cb->height();
-      NVGcontext *ctx = nvgCreateRT(NVG_DEBUG, ww + 2, hh + 2, 0);
-
-      float pxRatio = 1.0f;
-      nvgBeginFrame(ctx, ww + 2, hh + 2, pxRatio);
-
-      NVGpaint bg = nvgBoxGradient(ctx, 1.5f, 1.5f, hh - 2.0f, hh - 2.0f, 3, 3, c.toNvgColor(), b.toNvgColor());
-
-      nvgBeginPath(ctx);
-      nvgRoundedRect(ctx, 1.0f, 1.0f, hh - 2.0f, hh - 2.0f, 3);
-      nvgFillPaint(ctx, bg);
-      nvgFill(ctx);
-
-      nvgEndFrame(ctx);
-
-      self->tex.rrect = { 0, 0, ww + 2, hh + 2 };
-      self->ctx = ctx;
-    });
-
-    tgr.detach();
-  }
-
-  void perform(SDL_Renderer* renderer)
-  {
-    if (!ctx)
-      return;
-
-    unsigned char *rgba = nvgReadPixelsRT(ctx);
-
-    tex.tex = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ABGR8888, SDL_TEXTUREACCESS_STREAMING, tex.w(), tex.h());
-
-    int pitch;
-    uint8_t *pixels;
-    int ok = SDL_LockTexture(tex.tex, nullptr, (void **)&pixels, &pitch);
-    memcpy(pixels, rgba, sizeof(uint32_t) * tex.w() * tex.h());
-    SDL_SetTextureBlendMode(tex.tex, SDL_BLENDMODE_BLEND);
-    SDL_UnlockTexture(tex.tex);
-
-    nvgDeleteRT(ctx);
-    ctx = nullptr;
-  }
-
-};
 
 CheckBox::CheckBox(Widget *parent, const std::string &caption,
                    const std::function<void(bool) > &callback)
@@ -137,30 +71,22 @@ Vector2i CheckBox::preferredSize(SDL_Renderer *ctx) const
 
 void CheckBox::drawBody(SDL_Renderer* renderer)
 {
-  int id = (mPushed ? 0x1 : 0) + (mMouseFocus ? 0x2 : 0) + (mEnabled ? 0x4 : 0);
+  Vector2i ap = absolutePosition();
+  int hh = mSize.y;
 
-  AsyncTexturePtr atx;
-  for (auto& txid : _txs)
-  {
-    if (txid->id == id)
-    {
-      atx = txid;
-      break;
-    }
-  }
+  SDL_Rect bodyRect{ ap.x + 1, ap.y + 1, hh - 2, hh - 2 };
+  
+  SDL_Color bgclr = mTheme->mWindowFillUnfocused.toSdlColor();
+  if (mPushed)
+    bgclr = Color(0, 100, 32, 32).toSdlColor();
 
-  if (atx)
-  {
-    Vector2i ap = absolutePosition();
-    atx->perform(renderer);
-    SDL_RenderCopy(renderer, atx->tex, ap);
-  }
-  else
-  {
-    AsyncTexturePtr newtx = std::make_shared<AsyncTexture>(id);
-    newtx->load(this, mPushed, mMouseFocus, mEnabled);
-    _txs.push_back(newtx);
-  }
+  SDL_SetRenderDrawColor(renderer, bgclr.r, bgclr.g, bgclr.b, bgclr.a);
+  SDL_RenderFillRect(renderer, &bodyRect);
+
+  SDL_Color brdclr = mTheme->mBorderDark.toSdlColor();
+  SDL_SetRenderDrawColor(renderer, brdclr.r, brdclr.g, brdclr.b, brdclr.a);
+  SDL_Rect brdRect{ ap.x, ap.y, hh, hh };
+  SDL_RenderDrawRect(renderer, &brdRect);
 }
 
 

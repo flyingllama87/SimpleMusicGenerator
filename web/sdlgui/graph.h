@@ -53,10 +53,6 @@ protected:
     Texture _captionTex;
     Texture _headerTex;
     Texture _footerTex;
-
-    struct AsyncTexture;
-    typedef std::shared_ptr<AsyncTexture> AsyncTexturePtr;
-    AsyncTexturePtr _atx;
 };
 
 NAMESPACE_END(sdlgui)

@@ -10,89 +10,10 @@
 
 #include <sdlgui/graph.h>
 #include <sdlgui/theme.h>
-#include <thread>
 
 #include "nanovg.h"
-#define NANOVG_RT_IMPLEMENTATION
-#define NANORT_IMPLEMENTATION
-#include "nanovg_rt.h"
 
 NAMESPACE_BEGIN(sdlgui)
-
-struct Graph::AsyncTexture
-{
-  Texture tex;
-  NVGcontext* ctx = nullptr;
-
-  void load(Graph* ptr)
-  {
-    Graph* graph = ptr;
-    AsyncTexture* self = this;
-
-    std::thread tgr([=]() {
-      Theme* theme = graph->theme();
-
-      int ww = graph->width();
-      int hh = graph->height();
-      NVGcontext *ctx = nvgCreateRT(NVG_DEBUG, ww, hh, 0);
-
-      float pxRatio = 1.0f;
-      nvgBeginFrame(ctx, ww, hh, pxRatio);
-
-      nvgBeginPath(ctx);
-      nvgRect(ctx, 0, 0, ww, hh);
-      nvgFillColor(ctx, graph->backgroundColor().toNvgColor());
-      nvgFill(ctx);
-
-      if (graph->values().size() < 2)
-        return;
-
-      nvgBeginPath(ctx);
-      nvgMoveTo(ctx, 0, 0 + hh);
-      auto& values = graph->values();
-      for (size_t i = 0; i < (size_t)values.size(); i++) 
-      {
-        float value = values[i];
-        float vx = 0 + i * ww / (float)(values.size() - 1);
-        float vy = 0 + (1 - value) * hh;
-        nvgLineTo(ctx, vx, vy);
-      }
-
-      nvgLineTo(ctx, 0 + ww, 0 + hh);
-      nvgStrokeColor(ctx, Color(100, 255).toNvgColor());
-      nvgStroke(ctx);
-      nvgFillColor(ctx, graph->foregroundColor().toNvgColor());
-      nvgFill(ctx);
-
-      nvgEndFrame(ctx);
-
-      self->tex.rrect = { 0, 0, ww, hh };
-      self->ctx = ctx;
-    });
-
-    tgr.detach();
-  }
-
-  void perform(SDL_Renderer* renderer)
-  {
-    if (!ctx)
-      return;
-
-    unsigned char *rgba = nvgReadPixelsRT(ctx);
-
-    tex.tex = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ABGR8888, SDL_TEXTUREACCESS_STREAMING, tex.w(), tex.h());
-
-    int pitch;
-    uint8_t *pixels;
-    int ok = SDL_LockTexture(tex.tex, nullptr, (void **)&pixels, &pitch);
-    memcpy(pixels, rgba, sizeof(uint32_t) * tex.w() * tex.h());
-    SDL_SetTextureBlendMode(tex.tex, SDL_BLENDMODE_BLEND);
-    SDL_UnlockTexture(tex.tex);
-
-    nvgDeleteRT(ctx);
-    ctx = nullptr;
-  }
-};
 
 Graph::Graph(Widget *parent, const std::string &caption)
     : Widget(parent), mCaption(caption) 
@@ -115,16 +36,26 @@ void Graph::draw(SDL_Renderer *renderer)
 
     Vector2i ap = absolutePosition();
     
-    if (_atx)
+    SDL_Rect bgRect{ ap.x, ap.y, width(), height() };
+    SDL_Color bgclr = mBackgroundColor.toSdlColor();
+    SDL_SetRenderDrawColor(renderer, bgclr.r, bgclr.g, bgclr.b, bgclr.a);
+    SDL_RenderFillRect(renderer, &bgRect);
+
+    if (mValues.size() >= 2)
     {
-      Vector2i ap = absolutePosition();
-      _atx->perform(renderer);
-      SDL_RenderCopy(renderer, _atx->tex, ap);
-    }
-    else
-    {
-      _atx = std::make_shared<AsyncTexture>();
-      _atx->load(this);
+      SDL_Color fgclr = mForegroundColor.toSdlColor();
+      SDL_SetRenderDrawColor(renderer, fgclr.r, fgclr.g, fgclr.b, fgclr.a);
+      
+      for (size_t i = 0; i < (size_t)mValues.size() - 1; i++) 
+      {
+        float value1 = mValues[i];
+        float value2 = mValues[i+1];
+        float vx1 = ap.x + i * width() / (float)(mValues.size() - 1);
+        float vy1 = ap.y + (1 - value1) * height();
+        float vx2 = ap.x + (i + 1) * width() / (float)(mValues.size() - 1);
+        float vy2 = ap.y + (1 - value2) * height();
+        SDL_RenderDrawLine(renderer, (int)vx1, (int)vy1, (int)vx2, (int)vy2);
+      }
     }
 
     if (_captionTex.dirty)

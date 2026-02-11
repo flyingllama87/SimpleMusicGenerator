@@ -1,4 +1,4 @@
-from flask import Flask, request
+from flask import Flask, request, make_response
 from flask_jsonrpc import JSONRPC
 import os
 from traceback import print_exc
@@ -36,13 +36,17 @@ def vt_start():
                 db_connection.execute('UPDATE scores SET score = ? WHERE name = ?', (new_score, name))
                 db_connection.commit()
                 print(f"Score updated for seed \"{name}\" to \"{new_score}\" by client")
-                return f"Score updated for seed \"{name}\""
+                msg = f"Score updated for seed \"{name}\""
             else:
                 db_connection.execute('INSERT INTO scores (name, score) VALUES (?, ?)',
                 (name, 1))
                 db_connection.commit()
                 print(f"Score added by client for seed \"{name}\".")
-                return f"Score added for seed \"{name}\""
+                msg = f"Score added for seed \"{name}\""
+            
+            response = make_response(msg)
+            response.headers['Access-Control-Allow-Origin'] = '*'
+            return response
         except:
             print_exc()
         finally:
@@ -61,13 +65,17 @@ def vt_start():
                 db_connection.execute('UPDATE scores SET score = ? WHERE name = ?', (new_score, name))
                 db_connection.commit()
                 print(f"Score updated for seed \"{name}\" to \"{new_score}\" by client")
-                return f"Score updated for seed \"{name}\""
+                msg = f"Score updated for seed \"{name}\""
             else:
                 db_connection.execute('INSERT INTO scores (name, score) VALUES (?, ?)',
                 (name, -1))
                 db_connection.commit()
                 print(f"Score added by client for seed \"{name}\".")
-                return f"Score added for seed \"{name}\""
+                msg = f"Score added for seed \"{name}\""
+            
+            response = make_response(msg)
+            response.headers['Access-Control-Allow-Origin'] = '*'
+            return response
         except:
             print_exc()
         finally:
@@ -88,7 +96,9 @@ def vt_start():
                 scores.append(score)
                 csv_scores = csv_scores + str(row['name']) + "," + str(row['score']) + "\n"
             print("Received request to get scores")
-            return csv_scores
+            response = make_response(csv_scores)
+            response.headers['Access-Control-Allow-Origin'] = '*'
+            return response
         except:
             print_exc()
         finally:
