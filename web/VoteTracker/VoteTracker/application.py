@@ -31,7 +31,7 @@ def vt_start():
             name = request.form['seed']
             db_connection = db.get_db()
             previous_score = db_connection.execute('SELECT * FROM scores WHERE name = ?', (name,)).fetchone()
-            if previous_score and previous_score['score']:
+            if previous_score is not None:
                 new_score = previous_score['score'] + 1
                 db_connection.execute('UPDATE scores SET score = ? WHERE name = ?', (new_score, name))
                 db_connection.commit()
@@ -43,10 +43,9 @@ def vt_start():
                 db_connection.commit()
                 print(f"Score added by client for seed \"{name}\".")
                 return f"Score added for seed \"{name}\""
-        except:
+        except Exception as e:
             print_exc()
-        finally:
-            db.close_db()
+            return f"error: {str(e)}"
 
     @application.route('/api/DownVote', methods=['POST'])
     def DownVote() -> str:
@@ -56,7 +55,7 @@ def vt_start():
             name = request.form['seed']
             db_connection = db.get_db()
             previous_score = db_connection.execute('SELECT * FROM scores WHERE name = ?', (name,)).fetchone()
-            if previous_score and previous_score['score']:
+            if previous_score is not None:
                 new_score = previous_score['score'] - 1
                 db_connection.execute('UPDATE scores SET score = ? WHERE name = ?', (new_score, name))
                 db_connection.commit()
@@ -68,10 +67,9 @@ def vt_start():
                 db_connection.commit()
                 print(f"Score added by client for seed \"{name}\".")
                 return f"Score added for seed \"{name}\""
-        except:
+        except Exception as e:
             print_exc()
-        finally:
-            db.close_db()
+            return f"error: {str(e)}"
 
     @application.route('/api/GetScores')
     def GetScores() -> str:
@@ -89,10 +87,9 @@ def vt_start():
                 csv_scores = csv_scores + str(row['name']) + "," + str(row['score']) + "\n"
             print("Received request to get scores")
             return csv_scores
-        except:
+        except Exception as e:
             print_exc()
-        finally:
-            db.close_db()
+            return f"error: {str(e)}"
     
     return application
 
